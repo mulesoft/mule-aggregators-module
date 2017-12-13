@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators"
+      xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd
+      http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
+
+    <flow name="noIncrementalAggregationRoute">
+        <aggregators:size-based-aggregator name="1" content="#[payload]" maxSize="2">
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+    </flow>
+
+    <flow name="onCompleteListener">
+        <aggregators:aggregator-listener aggregatorName="1" includeTimedOutGroups="false"/>
+        <flow-ref name="onListener"/>
+    </flow>
+
+    <flow name="incrementalAggregationRoute">
+        <aggregators:size-based-aggregator name="2" content="#[payload]" maxSize="2">
+            <aggregators:incremental-aggregation>
+                <flow-ref name="onIncremental"/>
+            </aggregators:incremental-aggregation>
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+    </flow>
+
+    <flow name="incrementalAggregationRouteCalledMultipleTimes">
+        <aggregators:size-based-aggregator name="3" content="#[payload]" maxSize="4">
+            <aggregators:incremental-aggregation>
+                <flow-ref name="onIncremental"/>
+            </aggregators:incremental-aggregation>
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+    </flow>
+
+    <flow name="timeoutAggregator1">
+        <aggregators:size-based-aggregator name="4" content="#[payload]" maxSize="2" timeout="100" timeoutUnit="MILLISECONDS">
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+    </flow>
+
+    <flow name="onNotTimeoutListener">
+        <aggregators:aggregator-listener aggregatorName="4" includeTimedOutGroups="false"/>
+        <flow-ref name="onListener"/>
+    </flow>
+
+    <flow name="timeoutAggregator2">
+        <aggregators:size-based-aggregator name="5" content="#[payload]" maxSize="2" timeout="100" timeoutUnit="MILLISECONDS">
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+    </flow>
+
+    <flow name="onTimeoutListener">
+        <aggregators:aggregator-listener aggregatorName="5" includeTimedOutGroups="true"/>
+        <flow-ref name="onListener"/>
+    </flow>
+
+    <flow name="attributesAreSet">
+        <aggregators:size-based-aggregator name="6" content="#[payload]" maxSize="2">
+            <aggregators:aggregation-complete>
+                <test:assert expression="#[attributes.isGroupComplete == true]"/>
+                <test:assert expression="#[attributes.groupId != null]"/>
+                <test:assert expression="#[attributes.firstValueArrivalTime != attributes.lastValueArrivalTime]"/>
+                <test:assert expression="#[attributes.firstValueArrivalTime != null]"/>
+                <test:assert expression="#[attributes.lastValueArrivalTime != null]"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+    </flow>
+
+    <flow name="onComplete">
+        <set-variable variableName="executionRoute" value="aggregationComplete"/>
+        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
+    </flow>
+
+    <flow name="onIncremental">
+        <set-variable variableName="executionRoute" value="incrementalAggregation"/>
+        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
+    </flow>
+
+    <flow name="onListener">
+        <set-variable variableName="executionRoute" value="listenerCalled"/>
+        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
+    </flow>
+
+
+</mule>

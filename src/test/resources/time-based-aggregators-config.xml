@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators"
+      xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd
+      http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
+
+    <flow name="incrementalAggregationRoute">
+        <aggregators:time-based-aggregator name="1" content="#[payload]" period="1000" periodUnit="SECONDS">
+            <aggregators:incremental-aggregation>
+                <flow-ref name="onIncremental"/>
+            </aggregators:incremental-aggregation>
+        </aggregators:time-based-aggregator>
+    </flow>
+
+    <flow name="aggregatorWithSmallPeriod">
+        <aggregators:time-based-aggregator name="2" content="#[payload]" period="500" periodUnit="MILLISECONDS"/>
+    </flow>
+
+    <flow name="aggregatorWithSmallPeriodListener">
+        <aggregators:aggregator-listener aggregatorName="2" includeTimedOutGroups="false"/>
+        <flow-ref name="onListener"/>
+    </flow>
+
+
+    <flow name="aggregatorWithMaxSize">
+        <aggregators:time-based-aggregator name="3" content="#[payload]" period="1000" maxSize="3"/>
+    </flow>
+
+    <flow name="aggregatorWithMaxSizeListener">
+        <aggregators:aggregator-listener aggregatorName="3" includeTimedOutGroups="false"/>
+        <flow-ref name="onListener"/>
+    </flow>
+
+
+    <flow name="beforeAndAfterAggregator">
+        <aggregators:time-based-aggregator name="4" content="#[payload]" period="1000" maxSize="3"/>
+    </flow>
+
+    <flow name="attributesAreSet">
+        <aggregators:time-based-aggregator name="5" content="#[payload]" period="10">
+            <aggregators:incremental-aggregation>
+                <test:assert expression="#[attributes.isGroupComplete == false]"/>
+                <test:assert expression="#[attributes.groupId != null]"/>
+                <choice>
+                    <when expression="#[sizeOf(payload) == 1]">
+                        <flow-ref name="assertOneElement"/>
+                    </when>
+                    <otherwise>
+                        <flow-ref name="assertMultipleElements"/>
+                    </otherwise>
+                </choice>
+                <test:assert expression="#[attributes.firstValueArrivalTime != null]"/>
+                <test:assert expression="#[attributes.lastValueArrivalTime != null]"/>
+            </aggregators:incremental-aggregation>
+        </aggregators:time-based-aggregator>
+    </flow>
+
+    <!--TODO:MULE-14303 move sub-flow to main flow-->
+    <sub-flow name="assertOneElement">
+        <test:assert expression="#[attributes.firstValueArrivalTime == attributes.lastValueArrivalTime]"/>
+    </sub-flow>
+
+    <!--TODO:MULE-14303 move sub-flow to main flow-->
+    <sub-flow name="assertMultipleElements">
+        <test:assert expression="#[attributes.firstValueArrivalTime != attributes.lastValueArrivalTime]"/>
+    </sub-flow>
+
+
+    <flow name="onIncremental">
+        <set-variable variableName="executionRoute" value="incrementalAggregation"/>
+        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
+    </flow>
+
+    <flow name="onListener">
+        <set-variable variableName="executionRoute" value="listenerCalled"/>
+        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
+    </flow>
+
+</mule>
