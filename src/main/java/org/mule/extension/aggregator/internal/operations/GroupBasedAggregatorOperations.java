@@ -181,14 +181,14 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
 
   @Override
   void doScheduleRegisteredTasks() {
-      getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach(this::scheduleGroupEvictionIfNeeded);
-      getSharedInfoLocalCopy().getRegisteredTimeoutTasks().forEach(this::scheduleTimeoutIfNeeded);
+    getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach(this::scheduleGroupEvictionIfNeeded);
+    getSharedInfoLocalCopy().getRegisteredTimeoutTasks().forEach(this::scheduleTimeoutIfNeeded);
   }
 
   @Override
   void doSetRegisteredTasksAsNotScheduled() {
-      getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach((key, value) -> value.setUnscheduled());
-      getSharedInfoLocalCopy().getRegisteredTimeoutTasks().forEach((key, value) -> value.setUnscheduled());
+    getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach((key, value) -> value.setUnscheduled());
+    getSharedInfoLocalCopy().getRegisteredTimeoutTasks().forEach((key, value) -> value.setUnscheduled());
   }
 
   private void scheduleGroupEvictionIfNeeded(String groupId, AsyncTask task) {
