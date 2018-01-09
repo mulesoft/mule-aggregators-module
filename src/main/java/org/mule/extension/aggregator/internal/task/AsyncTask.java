@@ -36,7 +36,18 @@ public interface AsyncTask extends Serializable {
   public boolean isScheduled();
 
 
+  /**
+   * Sets the task as scheduled
+   * @param timestamp the timestamp of the moment when the task was scheduled
+   */
   public void setScheduled(long timestamp);
+
+
+  /**
+   * Sets the task as not scheduled
+   */
+  public void setUnscheduled();
+
 
 
   /**

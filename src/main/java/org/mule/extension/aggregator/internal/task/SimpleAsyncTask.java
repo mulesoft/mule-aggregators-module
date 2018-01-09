@@ -47,8 +47,13 @@ public class SimpleAsyncTask implements AsyncTask {
   }
 
   @Override
+  public void setUnscheduled() {
+    scheduled = false;
+  }
+
+  @Override
   public void setScheduled(long schedulingTimestamp) {
-    this.scheduled = true;
+    scheduled = true;
     this.schedulingTimestamp = schedulingTimestamp;
   }
 

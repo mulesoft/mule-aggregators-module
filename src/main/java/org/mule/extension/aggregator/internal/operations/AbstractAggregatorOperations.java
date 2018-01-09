@@ -19,12 +19,15 @@ import static org.mule.runtime.extension.api.error.MuleErrors.ANY;
 import org.mule.extension.aggregator.internal.routes.AggregatorAttributes;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.source.AggregatorListener;
+import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
+import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.runtime.api.cluster.ClusterService;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.lifecycle.Disposable;
 import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
+import org.mule.runtime.api.lifecycle.Lifecycle;
 import org.mule.runtime.api.lifecycle.Startable;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.metadata.TypedValue;
@@ -54,7 +57,7 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-public abstract class AbstractAggregatorOperations implements Initialisable, Startable, Disposable {
+public abstract class AbstractAggregatorOperations implements Lifecycle {
 
   public static final String TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY = SYSTEM_PROPERTY_PREFIX + "schedulingDelay";
 
@@ -127,16 +130,36 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
     }
   }
 
+  /**
+   * When in a cluster, every time the primary node is down, this method should execute.
+   * <p/>
+   * Since oly the primary node will be responsible for scheduling timeout tasks and group evictions, if it's down, all that information
+   * will be lost across the cluster. That is why we should reset the scheduled tasks and consider them as "not scheduled", so that the new
+   * primary polling instance can reschedule them.
+   * <p/>
+   * As we have the information of the last scheduled time {@link AsyncTask#getSchedulingTimestamp()}, we can recompute the delay for
+   * the scheduled task to wait so that it is closer to the configured one.
+   *
+   * @throws MuleException
+   */
   @Override
   public void start() throws MuleException {
-    if (!started) {
-      if (clusterService.isPrimaryPollingInstance()) {
+    if (clusterService.isPrimaryPollingInstance()) {
+      if(!started) {
+        setRegisteredTasksAsNotScheduled();
         scheduler = schedulerService.cpuLightScheduler();
         String configuredPeriodString = getProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY);
         int configuredPeriod = configuredPeriodString == null ? TASK_SCHEDULING_PERIOD : parseInt(configuredPeriodString);
         scheduler.scheduleAtFixedRate(this::scheduleRegisteredTasks, 0, configuredPeriod, TASK_SCHEDULING_PERIOD_UNIT);
+        started = true;
       }
-      started = true;
+    }
+  }
+
+  @Override
+  public void stop() throws MuleException {
+    if(clusterService.isPrimaryPollingInstance()) {
+      started = false;
     }
   }
 
@@ -144,6 +167,7 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
   public void dispose() {
     if (scheduler != null) {
       scheduler.stop();
+      scheduler = null;
     }
   }
 
@@ -153,6 +177,8 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
   }
 
   abstract void scheduleRegisteredTasks();
+
+  abstract void setRegisteredTasksAsNotScheduled();
 
   void scheduleTask(int delay, TimeUnit unit, Runnable task) {
     scheduler.schedule(task, delay, unit);
