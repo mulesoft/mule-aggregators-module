@@ -180,23 +180,15 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
   }
 
   @Override
-  void scheduleRegisteredTasks() {
-    executeSynchronized(() -> {
-      getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().entrySet().stream()
-          .forEach(entry -> scheduleGroupEvictionIfNeeded(entry.getKey(), entry.getValue()));
-      getSharedInfoLocalCopy().getRegisteredTimeoutTasks().entrySet().stream()
-          .forEach(entry -> scheduleTimeoutIfNeeded(entry.getKey(), entry.getValue()));
-    });
+  void doScheduleRegisteredTasks() {
+      getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach(this::scheduleGroupEvictionIfNeeded);
+      getSharedInfoLocalCopy().getRegisteredTimeoutTasks().forEach(this::scheduleTimeoutIfNeeded);
   }
 
   @Override
-  void setRegisteredTasksAsNotScheduled() {
-    executeSynchronized(() -> {
-      getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().entrySet().stream()
-              .forEach(entry -> entry.getValue().setUnscheduled());
-      getSharedInfoLocalCopy().getRegisteredTimeoutTasks().entrySet().stream()
-              .forEach(entry -> entry.getValue().setUnscheduled());
-    });
+  void doSetRegisteredTasksAsNotScheduled() {
+      getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach((key, value) -> value.setUnscheduled());
+      getSharedInfoLocalCopy().getRegisteredTimeoutTasks().forEach((key, value) -> value.setUnscheduled());
   }
 
   private void scheduleGroupEvictionIfNeeded(String groupId, AsyncTask task) {

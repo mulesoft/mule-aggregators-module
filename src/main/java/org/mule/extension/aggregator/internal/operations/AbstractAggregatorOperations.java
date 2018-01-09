@@ -176,9 +176,17 @@ public abstract class AbstractAggregatorOperations implements Lifecycle {
     route.getChain().process(elements, attributes, r -> callback.success(), (e, r) -> callback.error(e));
   }
 
-  abstract void scheduleRegisteredTasks();
+  private void scheduleRegisteredTasks() {
+    executeSynchronized(this::doScheduleRegisteredTasks);
+  }
 
-  abstract void setRegisteredTasksAsNotScheduled();
+  abstract void doScheduleRegisteredTasks();
+
+  private void setRegisteredTasksAsNotScheduled() {
+    executeSynchronized(this::doSetRegisteredTasksAsNotScheduled);
+  }
+
+  abstract void doSetRegisteredTasksAsNotScheduled();
 
   void scheduleTask(int delay, TimeUnit unit, Runnable task) {
     scheduler.schedule(task, delay, unit);

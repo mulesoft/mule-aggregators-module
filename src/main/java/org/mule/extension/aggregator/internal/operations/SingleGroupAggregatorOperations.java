@@ -71,9 +71,8 @@ public abstract class SingleGroupAggregatorOperations extends AbstractAggregator
   }
 
   @Override
-  void scheduleRegisteredTasks() {
-    executeSynchronized(() -> {
-      AsyncTask task = getSharedInfoLocalCopy().getRegisteredTask();
+  void doScheduleRegisteredTasks() {
+    AsyncTask task = getSharedInfoLocalCopy().getRegisteredTask();
       if (task != null) {
         if (!task.isScheduled()) {
           scheduleTask(task.getDelay(), task.getDelayTimeUnit(), () -> {
@@ -83,17 +82,14 @@ public abstract class SingleGroupAggregatorOperations extends AbstractAggregator
         }
         task.setScheduled(getCurrentTime());
       }
-    });
   }
 
   @Override
-  void setRegisteredTasksAsNotScheduled() {
-    executeSynchronized(() -> {
+  void doSetRegisteredTasksAsNotScheduled() {
       AsyncTask task = getSharedInfoLocalCopy().getRegisteredTask();
       if (task != null) {
         task.setUnscheduled();
       }
-    });
   }
 
   abstract void onTaskExecution();
