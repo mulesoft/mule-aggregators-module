@@ -86,6 +86,16 @@ public abstract class SingleGroupAggregatorOperations extends AbstractAggregator
     });
   }
 
+  @Override
+  void setRegisteredTasksAsNotScheduled() {
+    executeSynchronized(() -> {
+      AsyncTask task = getSharedInfoLocalCopy().getRegisteredTask();
+      if (task != null) {
+        task.setUnscheduled();
+      }
+    });
+  }
+
   abstract void onTaskExecution();
 
   @Override

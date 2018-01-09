@@ -189,6 +189,16 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
     });
   }
 
+  @Override
+  void setRegisteredTasksAsNotScheduled() {
+    executeSynchronized(() -> {
+      getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().entrySet().stream()
+              .forEach(entry -> entry.getValue().setUnscheduled());
+      getSharedInfoLocalCopy().getRegisteredTimeoutTasks().entrySet().stream()
+              .forEach(entry -> entry.getValue().setUnscheduled());
+    });
+  }
+
   private void scheduleGroupEvictionIfNeeded(String groupId, AsyncTask task) {
     if (!task.isScheduled()) {
       scheduleTask(task.getDelay(), task.getDelayTimeUnit(), () -> {
