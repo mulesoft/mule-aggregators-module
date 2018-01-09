@@ -8,9 +8,14 @@ package org.mule.extension.aggregator.internal.operations;
 
 
 import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
+import static java.lang.System.lineSeparator;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_KEY;
+import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
+import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAGER;
 import static org.mule.runtime.core.api.config.MuleProperties.SYSTEM_PROPERTY_PREFIX;
@@ -19,15 +24,14 @@ import static org.mule.runtime.extension.api.error.MuleErrors.ANY;
 import org.mule.extension.aggregator.internal.routes.AggregatorAttributes;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.source.AggregatorListener;
-import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
 import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.runtime.api.cluster.ClusterService;
+import org.mule.runtime.api.component.ConfigurationProperties;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.lifecycle.Disposable;
 import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
-import org.mule.runtime.api.lifecycle.Lifecycle;
 import org.mule.runtime.api.lifecycle.Startable;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.metadata.TypedValue;
@@ -57,12 +61,11 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-public abstract class AbstractAggregatorOperations implements Lifecycle {
-
-  public static final String TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY = SYSTEM_PROPERTY_PREFIX + "schedulingDelay";
+public abstract class AbstractAggregatorOperations implements Initialisable, Startable, Disposable {
 
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
-  private static final int TASK_SCHEDULING_PERIOD = 1000;
+  private static final String DEFAULT_TASK_SCHEDULING_PERIOD = "1000";
+  private static final int MIN_ACCEPTED_DELAY_CONFIGURATION_RATIO = 1;
   private static final TimeUnit TASK_SCHEDULING_PERIOD_UNIT = MILLISECONDS;
 
   @Inject
@@ -87,6 +90,9 @@ public abstract class AbstractAggregatorOperations implements Lifecycle {
   @Inject
   private ClusterService clusterService;
 
+  @Inject
+  private ConfigurationProperties configProperties;
+
   /**
    * An ObjectStore for storing shared information regarding aggregators. (Groups, GroupId, Etc)
    */
@@ -109,6 +115,7 @@ public abstract class AbstractAggregatorOperations implements Lifecycle {
   private AggregatorSharedInformation sharedInfoLocalCopy;
   private LazyValue<ObjectStore<AggregatorSharedInformation>> storage;
   private boolean started = false;
+  private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
 
 
 
@@ -130,36 +137,22 @@ public abstract class AbstractAggregatorOperations implements Lifecycle {
     }
   }
 
-  /**
-   * When in a cluster, every time the primary node is down, this method should execute.
-   * <p/>
-   * Since oly the primary node will be responsible for scheduling timeout tasks and group evictions, if it's down, all that information
-   * will be lost across the cluster. That is why we should reset the scheduled tasks and consider them as "not scheduled", so that the new
-   * primary polling instance can reschedule them.
-   * <p/>
-   * As we have the information of the last scheduled time {@link AsyncTask#getSchedulingTimestamp()}, we can recompute the delay for
-   * the scheduled task to wait so that it is closer to the configured one.
-   *
-   * @throws MuleException
-   */
   @Override
   public void start() throws MuleException {
     if (clusterService.isPrimaryPollingInstance()) {
-      if(!started) {
+      if (!started) {
         setRegisteredTasksAsNotScheduled();
         scheduler = schedulerService.cpuLightScheduler();
-        String configuredPeriodString = getProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY);
-        int configuredPeriod = configuredPeriodString == null ? TASK_SCHEDULING_PERIOD : parseInt(configuredPeriodString);
-        scheduler.scheduleAtFixedRate(this::scheduleRegisteredTasks, 0, configuredPeriod, TASK_SCHEDULING_PERIOD_UNIT);
+        try {
+          taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_KEY)
+              .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
+                  .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
+        } catch (NumberFormatException e) {
+          //TODO: ADD log telling that there was an error with the configuration and the default was used
+        }
+        scheduler.scheduleAtFixedRate(this::scheduleRegisteredTasks, 0, taskSchedulingPeriod, TASK_SCHEDULING_PERIOD_UNIT);
         started = true;
       }
-    }
-  }
-
-  @Override
-  public void stop() throws MuleException {
-    if(clusterService.isPrimaryPollingInstance()) {
-      started = false;
     }
   }
 
@@ -167,7 +160,6 @@ public abstract class AbstractAggregatorOperations implements Lifecycle {
   public void dispose() {
     if (scheduler != null) {
       scheduler.stop();
-      scheduler = null;
     }
   }
 
@@ -176,12 +168,61 @@ public abstract class AbstractAggregatorOperations implements Lifecycle {
     route.getChain().process(elements, attributes, r -> callback.success(), (e, r) -> callback.error(e));
   }
 
-  abstract void scheduleRegisteredTasks();
+  private void scheduleRegisteredTasks() {
+    executeSynchronized(this::doScheduleRegisteredTasks);
+  }
 
-  abstract void setRegisteredTasksAsNotScheduled();
+  abstract void doScheduleRegisteredTasks();
 
-  void scheduleTask(int delay, TimeUnit unit, Runnable task) {
-    scheduler.schedule(task, delay, unit);
+  private void setRegisteredTasksAsNotScheduled() {
+    executeSynchronized(this::doSetRegisteredTasksAsNotScheduled);
+  }
+
+  abstract void doSetRegisteredTasksAsNotScheduled();
+
+  /**
+   * When scheduling a task, we should consider the case when we are executing in cluster mode.
+   * <p/>
+   * If the task was already scheduled in another primary node that was disconnected, the value to set as delay would be
+   * different from the one configured the first time it was scheduled.
+   * If a task was scheduled to execute with a Tini seconds delay and after Tdown (Tdown < Tini), the primary node was down,
+   * then the second time the task is scheduled it should be with a delay of Tini - Tdown.
+   * <p/>
+   * As we are using timestamps to measure time, Tdown = now - previousSchedulingTimestamp. So there could be the case where
+   * the time to delay the task is zero or negative. That should mean: execute immediately {@link java.util.concurrent.ScheduledExecutorService}  }
+   *
+   * @param task the task pojo with information about the task to schedule
+   * @param runnable the runnable to execute
+   */
+  void scheduleTask(AsyncTask task, Runnable runnable) {
+    long taskDelay;
+    TimeUnit taskDelayTimeUnit = MILLISECONDS;
+    if (task.getSchedulingTimestamp().isPresent()) {
+      taskDelay =
+          task.getDelayTimeUnit().toMillis(task.getDelay()) - (getCurrentTime() - task.getSchedulingTimestamp().getAsLong());
+    } else {
+      taskDelay = task.getDelay();
+      taskDelayTimeUnit = task.getDelayTimeUnit();
+    }
+    scheduler.schedule(runnable, taskDelay, taskDelayTimeUnit);
+  }
+
+  void evaluateConfiguredDelay(String valueKey, int configuredDelay, TimeUnit timeUnit) throws ModuleException {
+    long configuredDelayInMillis = timeUnit.toMillis(configuredDelay);
+    float ratio = configuredDelayInMillis / taskSchedulingPeriod;
+    if (ratio < MIN_ACCEPTED_DELAY_CONFIGURATION_RATIO) {
+      throw new ModuleException(format("The configured %s : %d %s, is too small for the configured scheduling time period: %d %s. The minimum allowed ratio is %d.%s Use %s global-config or %s SystemProperty to change it",
+                                       valueKey,
+                                       configuredDelay,
+                                       timeUnit,
+                                       taskSchedulingPeriod,
+                                       TASK_SCHEDULING_PERIOD_UNIT,
+                                       MIN_ACCEPTED_DELAY_CONFIGURATION_RATIO,
+                                       lineSeparator(),
+                                       TASK_SCHEDULING_PERIOD_KEY,
+                                       TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY),
+                                AGGREGATOR_CONFIG);
+    }
   }
 
   void notifyListenerOnComplete(List<TypedValue> elements) {

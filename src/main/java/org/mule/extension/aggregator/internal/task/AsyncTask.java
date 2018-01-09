@@ -8,6 +8,7 @@ package org.mule.extension.aggregator.internal.task;
 
 
 import java.io.Serializable;
+import java.util.OptionalLong;
 import java.util.concurrent.TimeUnit;
 
 public interface AsyncTask extends Serializable {
@@ -17,7 +18,7 @@ public interface AsyncTask extends Serializable {
    *
    * @return time to wait for the task to be executed
    */
-  public int getDelay();
+  int getDelay();
 
 
   /**
@@ -25,7 +26,7 @@ public interface AsyncTask extends Serializable {
    *
    * @return time unit of the delay time
    */
-  public TimeUnit getDelayTimeUnit();
+  TimeUnit getDelayTimeUnit();
 
 
   /**
@@ -33,20 +34,20 @@ public interface AsyncTask extends Serializable {
    *
    * @return a boolean if the task was scheduled for execution
    */
-  public boolean isScheduled();
+  boolean isScheduled();
 
 
   /**
    * Sets the task as scheduled
    * @param timestamp the timestamp of the moment when the task was scheduled
    */
-  public void setScheduled(long timestamp);
+  void setScheduled(long timestamp);
 
 
   /**
    * Sets the task as not scheduled
    */
-  public void setUnscheduled();
+  void setUnscheduled();
 
 
 
@@ -56,6 +57,6 @@ public interface AsyncTask extends Serializable {
    *
    * @return the time for the scheduled task.
    */
-  public long getSchedulingTimestamp();
+  OptionalLong getSchedulingTimestamp();
 
 }

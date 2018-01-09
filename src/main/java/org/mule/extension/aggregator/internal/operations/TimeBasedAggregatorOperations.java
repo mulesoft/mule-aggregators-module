@@ -10,15 +10,16 @@ import static java.lang.Thread.sleep;
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
 import static org.mule.runtime.api.metadata.TypedValue.of;
 import org.mule.extension.aggregator.api.TimeBasedAggregatorParameterGroup;
+import org.mule.extension.aggregator.internal.errors.TimeBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
 import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.Expression;
+import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
-import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 
 
@@ -67,11 +68,14 @@ public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
    * @param completionCallback Callback to notify route completion
    */
   @Alias("timeBasedAggregator")
+  @Throws(TimeBasedAggregatorErrorProvider.class)
   public void aggregateByTime(
                               @ParameterGroup(
                                   name = "timeBasedAggregatorParameters") TimeBasedAggregatorParameterGroup aggregatorParameters,
                               @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
                               VoidCompletionCallback completionCallback) {
+
+    evaluateConfiguredDelay("period", aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
 
     //We should synchronize the access to the storage to account for the situation when the period is completed while
     //executing a new event.
