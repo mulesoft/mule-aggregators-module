@@ -7,7 +7,6 @@
 package org.mule.extension.aggregator;
 
 import static java.lang.Thread.sleep;
-import static org.mule.extension.aggregator.internal.operations.AbstractAggregatorOperations.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteExecutedNTimes;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecuted;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
