@@ -128,14 +128,15 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
 
   @Override
   public void start() throws MuleException {
-    if (!started) {
-      if (clusterService.isPrimaryPollingInstance()) {
+    if (clusterService.isPrimaryPollingInstance()) {
+      if (!started) {
+        setRegisteredTasksAsNotScheduled();
         scheduler = schedulerService.cpuLightScheduler();
         String configuredPeriodString = getProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY);
         int configuredPeriod = configuredPeriodString == null ? TASK_SCHEDULING_PERIOD : parseInt(configuredPeriodString);
         scheduler.scheduleAtFixedRate(this::scheduleRegisteredTasks, 0, configuredPeriod, TASK_SCHEDULING_PERIOD_UNIT);
+        started = true;
       }
-      started = true;
     }
   }
 
@@ -151,7 +152,17 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
     route.getChain().process(elements, attributes, r -> callback.success(), (e, r) -> callback.error(e));
   }
 
-  abstract void scheduleRegisteredTasks();
+  private void scheduleRegisteredTasks() {
+    executeSynchronized(this::doScheduleRegisteredTasks);
+  }
+
+  abstract void doScheduleRegisteredTasks();
+
+  private void setRegisteredTasksAsNotScheduled() {
+    executeSynchronized(this::doSetRegisteredTasksAsNotScheduled);
+  }
+
+  abstract void doSetRegisteredTasksAsNotScheduled();
 
   void scheduleTask(int delay, TimeUnit unit, Runnable task) {
     scheduler.schedule(task, delay, unit);
