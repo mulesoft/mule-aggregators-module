@@ -87,7 +87,7 @@ public class SizeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
                               @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
                               VoidCompletionCallback completionCallback) {
 
-    if(aggregatorParameters.isTimeoutSet()) {
+    if (aggregatorParameters.isTimeoutSet()) {
       evaluateConfiguredDelay("timeout", aggregatorParameters.getTimeout(), aggregatorParameters.getTimeoutUnit());
     }
 

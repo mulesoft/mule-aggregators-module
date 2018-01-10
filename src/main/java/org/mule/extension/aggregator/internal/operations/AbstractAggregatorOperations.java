@@ -145,9 +145,9 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
         scheduler = schedulerService.cpuLightScheduler();
         try {
           taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_KEY)
-                                                   .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
-                                                                   .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
-        }catch(NumberFormatException e) {
+              .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
+                  .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
+        } catch (NumberFormatException e) {
           //TODO: ADD log telling that there was an error with the configuration and the default was used
         }
         scheduler.scheduleAtFixedRate(this::scheduleRegisteredTasks, 0, taskSchedulingPeriod, TASK_SCHEDULING_PERIOD_UNIT);
@@ -209,8 +209,8 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
 
   void evaluateConfiguredDelay(String valueKey, int configuredDelay, TimeUnit timeUnit) throws ModuleException {
     long configuredDelayInMillis = timeUnit.toMillis(configuredDelay);
-    float ratio = configuredDelayInMillis/taskSchedulingPeriod;
-    if(ratio < MIN_ACCEPTED_DELAY_CONFIGURATION_RATIO) {
+    float ratio = configuredDelayInMillis / taskSchedulingPeriod;
+    if (ratio < MIN_ACCEPTED_DELAY_CONFIGURATION_RATIO) {
       throw new ModuleException(format("The configured %s : %d %s, is too small for the configured scheduling time period: %d %s. The minimum allowed ratio is %d.%s Use %s global-config or %s SystemProperty to change it",
                                        valueKey,
                                        configuredDelay,
