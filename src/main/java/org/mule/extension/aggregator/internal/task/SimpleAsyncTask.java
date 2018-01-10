@@ -6,6 +6,10 @@
  */
 package org.mule.extension.aggregator.internal.task;
 
+import static java.util.OptionalLong.empty;
+import static java.util.OptionalLong.of;
+
+import java.util.OptionalLong;
 import java.util.concurrent.TimeUnit;
 
 
@@ -42,8 +46,8 @@ public class SimpleAsyncTask implements AsyncTask {
   }
 
   @Override
-  public long getSchedulingTimestamp() {
-    return schedulingTimestamp;
+  public OptionalLong getSchedulingTimestamp() {
+    return schedulingTimestamp == NOT_SCHEDULED_TIMESTAMP ? empty() : of(schedulingTimestamp);
   }
 
   @Override

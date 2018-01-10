@@ -75,7 +75,7 @@ public abstract class SingleGroupAggregatorOperations extends AbstractAggregator
     AsyncTask task = getSharedInfoLocalCopy().getRegisteredTask();
     if (task != null) {
       if (!task.isScheduled()) {
-        scheduleTask(task.getDelay(), task.getDelayTimeUnit(), () -> {
+        scheduleTask(task, () -> {
           onTaskExecution();
           getSharedInfoLocalCopy().unregisterTask();
         });

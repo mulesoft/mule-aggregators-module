@@ -21,6 +21,7 @@ import org.mule.extension.aggregator.internal.routes.AggregatorAttributes;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.source.AggregatorListener;
 import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
+import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.runtime.api.cluster.ClusterService;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.lifecycle.Disposable;
@@ -164,8 +165,31 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
 
   abstract void doSetRegisteredTasksAsNotScheduled();
 
-  void scheduleTask(int delay, TimeUnit unit, Runnable task) {
-    scheduler.schedule(task, delay, unit);
+  /**
+   * When scheduling a task, we should consider the case when we are executing in cluster mode.
+   * <p/>
+   * If the task was already scheduled in another primary node that was disconnected, the value to set as delay would be
+   * different from the one configured the first time it was scheduled.
+   * If a task was scheduled to execute with a Tini seconds delay and after Tdown (Tdown < Tini), the primary node was down,
+   * then the second time the task is scheduled it should be with a delay of Tini - Tdown.
+   * <p/>
+   * As we are using timestamps to measure time, Tdown = now - previousSchedulingTimestamp. So there could be the case where
+   * the time to delay the task is zero or negative. That should mean: execute immediately {@link java.util.concurrent.ScheduledExecutorService}  }
+   *
+   * @param task the task pojo with information about the task to schedule
+   * @param runnable the runnable to execute
+   */
+  void scheduleTask(AsyncTask task, Runnable runnable) {
+    long taskDelay;
+    TimeUnit taskDelayTimeUnit = MILLISECONDS;
+    if (task.getSchedulingTimestamp().isPresent()) {
+      taskDelay =
+          task.getDelayTimeUnit().toMillis(task.getDelay()) - (getCurrentTime() - task.getSchedulingTimestamp().getAsLong());
+    } else {
+      taskDelay = task.getDelay();
+      taskDelayTimeUnit = task.getDelayTimeUnit();
+    }
+    scheduler.schedule(runnable, taskDelay, taskDelayTimeUnit);
   }
 
   void notifyListenerOnComplete(List<TypedValue> elements) {

@@ -193,7 +193,7 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
 
   private void scheduleGroupEvictionIfNeeded(String groupId, AsyncTask task) {
     if (!task.isScheduled()) {
-      scheduleTask(task.getDelay(), task.getDelayTimeUnit(), () -> {
+      scheduleTask(task, () -> {
         onGroupEviction(groupId);
         getSharedInfoLocalCopy().unregisterGroupEvictionTask(groupId);
       });
@@ -204,7 +204,7 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
 
   private void scheduleTimeoutIfNeeded(String groupId, AsyncTask task) {
     if (!task.isScheduled()) {
-      scheduleTask(task.getDelay(), task.getDelayTimeUnit(), () -> {
+      scheduleTask(task, () -> {
         onTimeout(groupId);
         getSharedInfoLocalCopy().unregisterTimeoutTask(groupId);
       });
