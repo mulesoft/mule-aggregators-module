@@ -15,6 +15,7 @@ import static org.mule.runtime.core.api.config.MuleProperties.SYSTEM_PROPERTY_PR
  */
 public class AggregatorConstants {
 
-  public static final String TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY = SYSTEM_PROPERTY_PREFIX + "schedulingDelay";
+  public static final String TASK_SCHEDULING_PERIOD_KEY = "schedulingPeriod";
+  public static final String TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY = SYSTEM_PROPERTY_PREFIX + TASK_SCHEDULING_PERIOD_KEY;
 
 }

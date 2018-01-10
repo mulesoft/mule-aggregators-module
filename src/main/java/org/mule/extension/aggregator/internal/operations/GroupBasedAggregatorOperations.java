@@ -31,8 +31,6 @@ import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.exception.ModuleException;
-import org.mule.runtime.extension.api.runtime.operation.Result;
-import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 
 import java.util.List;

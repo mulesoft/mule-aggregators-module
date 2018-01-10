@@ -8,9 +8,11 @@ package org.mule.extension.aggregator.internal.operations;
 
 
 import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_KEY;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAGER;
@@ -23,6 +25,7 @@ import org.mule.extension.aggregator.internal.source.AggregatorListener;
 import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
 import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.runtime.api.cluster.ClusterService;
+import org.mule.runtime.api.component.ConfigurationProperties;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.lifecycle.Disposable;
 import org.mule.runtime.api.lifecycle.Initialisable;
@@ -59,7 +62,7 @@ import javax.inject.Named;
 public abstract class AbstractAggregatorOperations implements Initialisable, Startable, Disposable {
 
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
-  private static final int TASK_SCHEDULING_PERIOD = 1000;
+  private static final String DEFAULT_TASK_SCHEDULING_PERIOD = "1000";
   private static final TimeUnit TASK_SCHEDULING_PERIOD_UNIT = MILLISECONDS;
 
   @Inject
@@ -84,6 +87,9 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
   @Inject
   private ClusterService clusterService;
 
+  @Inject
+  private ConfigurationProperties configProperties;
+
   /**
    * An ObjectStore for storing shared information regarding aggregators. (Groups, GroupId, Etc)
    */
@@ -106,6 +112,7 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
   private AggregatorSharedInformation sharedInfoLocalCopy;
   private LazyValue<ObjectStore<AggregatorSharedInformation>> storage;
   private boolean started = false;
+  private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
 
 
 
@@ -133,9 +140,14 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
       if (!started) {
         setRegisteredTasksAsNotScheduled();
         scheduler = schedulerService.cpuLightScheduler();
-        String configuredPeriodString = getProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY);
-        int configuredPeriod = configuredPeriodString == null ? TASK_SCHEDULING_PERIOD : parseInt(configuredPeriodString);
-        scheduler.scheduleAtFixedRate(this::scheduleRegisteredTasks, 0, configuredPeriod, TASK_SCHEDULING_PERIOD_UNIT);
+        try {
+          taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_KEY)
+                                                   .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
+                                                                   .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
+        }catch(NumberFormatException e) {
+          //TODO: ADD log telling that there was an error with the configuration and the default was used
+        }
+        scheduler.scheduleAtFixedRate(this::scheduleRegisteredTasks, 0, taskSchedulingPeriod, TASK_SCHEDULING_PERIOD_UNIT);
         started = true;
       }
     }

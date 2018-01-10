@@ -10,7 +10,6 @@ import static java.lang.Thread.sleep;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteExecutedNTimes;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecuted;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
-import org.mule.tck.junit4.rule.SystemProperty;
 
 import org.junit.Rule;
 import org.junit.Test;
