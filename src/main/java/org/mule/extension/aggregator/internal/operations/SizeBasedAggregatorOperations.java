@@ -11,12 +11,14 @@ import static java.lang.Thread.sleep;
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
 import static org.mule.runtime.api.metadata.TypedValue.of;
 import org.mule.extension.aggregator.api.SizeBasedAggregatorParameterGroup;
+import org.mule.extension.aggregator.internal.errors.SizeBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
 import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.Expression;
+import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
@@ -77,12 +79,17 @@ public class SizeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
    * @param completionCallback router callback
    */
   @Alias("sizeBasedAggregator")
+  @Throws(SizeBasedAggregatorErrorProvider.class)
   public void aggregateBySize(
                               @ParameterGroup(
                                   name = "sizeBasedAggregatorParameterGroup") SizeBasedAggregatorParameterGroup aggregatorParameters,
                               @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
                               @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
                               VoidCompletionCallback completionCallback) {
+
+    if(aggregatorParameters.isTimeoutSet()) {
+      evaluateConfiguredDelay("timeout", aggregatorParameters.getTimeout(), aggregatorParameters.getTimeoutUnit());
+    }
 
     //We should synchronize the access to the storage because if the group is released due to a timeout, we may get duplicates.
     executeSynchronized(() -> {
