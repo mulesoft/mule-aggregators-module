@@ -115,7 +115,10 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
     if (parameterGroup.getGroupSize() == null) {
       throw new ModuleException("groupSize expression resolves to null", NO_GROUP_SIZE);
     }
-
+    evaluateConfiguredDelay("evictionTime",parameterGroup.getEvictionTime(), parameterGroup.getEvictionTimeUnit());
+    if(parameterGroup.isTimeoutSet()) {
+      evaluateConfiguredDelay("timeout", parameterGroup.getTimeout(), parameterGroup.getTimeoutUnit());
+    }
   }
 
   private void onGroupEviction(String groupId) {

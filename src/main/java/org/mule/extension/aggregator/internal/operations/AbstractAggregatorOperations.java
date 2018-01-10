@@ -11,9 +11,11 @@ import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static java.lang.System.getProperty;
+import static java.lang.System.lineSeparator;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_KEY;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
+import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAGER;
 import static org.mule.runtime.core.api.config.MuleProperties.SYSTEM_PROPERTY_PREFIX;
@@ -63,6 +65,7 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
 
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
   private static final String DEFAULT_TASK_SCHEDULING_PERIOD = "1000";
+  private static final int MIN_ACCEPTED_DELAY_CONFIGURATION_RATIO = 1;
   private static final TimeUnit TASK_SCHEDULING_PERIOD_UNIT = MILLISECONDS;
 
   @Inject
@@ -202,6 +205,24 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
       taskDelayTimeUnit = task.getDelayTimeUnit();
     }
     scheduler.schedule(runnable, taskDelay, taskDelayTimeUnit);
+  }
+
+  void evaluateConfiguredDelay(String valueKey, int configuredDelay, TimeUnit timeUnit) throws ModuleException {
+    long configuredDelayInMillis = timeUnit.toMillis(configuredDelay);
+    float ratio = configuredDelayInMillis/taskSchedulingPeriod;
+    if(ratio < MIN_ACCEPTED_DELAY_CONFIGURATION_RATIO) {
+      throw new ModuleException(format("The configured %s : %d %s, is too small for the configured scheduling time period: %d %s. The minimum allowed ratio is %d.%s Use %s global-config or %s SystemProperty to change it",
+                                       valueKey,
+                                       configuredDelay,
+                                       timeUnit,
+                                       taskSchedulingPeriod,
+                                       TASK_SCHEDULING_PERIOD_UNIT,
+                                       MIN_ACCEPTED_DELAY_CONFIGURATION_RATIO,
+                                       lineSeparator(),
+                                       TASK_SCHEDULING_PERIOD_KEY,
+                                       TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY),
+                                AGGREGATOR_CONFIG);
+    }
   }
 
   void notifyListenerOnComplete(List<TypedValue> elements) {

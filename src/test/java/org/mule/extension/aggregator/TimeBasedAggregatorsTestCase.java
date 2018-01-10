@@ -29,9 +29,6 @@ public class TimeBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
     return "time-based-aggregators-config.xml";
   }
 
-  @Rule
-  public SystemProperty schedulingTasksPeriod = new SystemProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY, "pepito");
-
   @Test
   @Description("Incremental aggregation route should be called")
   public void incrementalAggregationRouteIsCalled() throws Exception {

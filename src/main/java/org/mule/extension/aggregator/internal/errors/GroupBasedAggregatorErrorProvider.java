@@ -7,6 +7,7 @@
 package org.mule.extension.aggregator.internal.errors;
 
 import static java.util.Collections.unmodifiableSet;
+import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_COMPLETED;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_TIMED_OUT;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.NO_GROUP_ID;
@@ -31,6 +32,7 @@ public class GroupBasedAggregatorErrorProvider implements ErrorTypeProvider {
     errors.add(GROUP_TIMED_OUT);
     errors.add(NO_GROUP_ID);
     errors.add(NO_GROUP_SIZE);
+    errors.add(AGGREGATOR_CONFIG);
     return errors;
   }
 }
