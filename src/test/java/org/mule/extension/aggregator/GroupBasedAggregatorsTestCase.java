@@ -7,10 +7,11 @@
 package org.mule.extension.aggregator;
 
 import static java.lang.Thread.sleep;
-import static org.mule.extension.aggregator.internal.operations.AbstractAggregatorOperations.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
+import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteExecutedNTimes;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecuted;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
+
 import org.mule.tck.junit4.rule.SystemProperty;
 
 import org.junit.Rule;
@@ -111,7 +112,7 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
     assertRouteNthExecution(AGGREGATION_COMPLETE_ROUTE_KEY, 1, 1);
 
-    sleep(500); //Let the group be evicted
+    sleep(1000); //Let the group be evicted
 
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(2).run();
     //No exception will be thrown because when the timeout should have been executed, the group was already evicted.
@@ -123,11 +124,12 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
   @Description("Check that the groups get evicted after group timeout is completed. If group was not evicted, an error should have been thrown")
   public void groupsAreEvictedAfterEvictionTimeout() throws Exception {
     final String flowName = "shortEvictionTime";
+
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(1).run();
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
     assertRouteNthExecution(AGGREGATION_COMPLETE_ROUTE_KEY, 1, 1);
 
-    sleep(500); //Let the group be evicted
+    sleep(1000); //Let the group be evicted
 
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(1).run();
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 2);
@@ -150,7 +152,7 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
     final String randomString = "this is not random at all, is it?";
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(randomString).runNoVerify();
 
-    sleep(500); //Let the group execute timeout
+    sleep(1000); //Let the group execute timeout
 
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(randomString).run();
   }

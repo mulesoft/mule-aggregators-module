@@ -31,8 +31,6 @@ import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.exception.ModuleException;
-import org.mule.runtime.extension.api.runtime.operation.Result;
-import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 
 import java.util.List;
@@ -117,7 +115,10 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
     if (parameterGroup.getGroupSize() == null) {
       throw new ModuleException("groupSize expression resolves to null", NO_GROUP_SIZE);
     }
-
+    evaluateConfiguredDelay("evictionTime", parameterGroup.getEvictionTime(), parameterGroup.getEvictionTimeUnit());
+    if (parameterGroup.isTimeoutSet()) {
+      evaluateConfiguredDelay("timeout", parameterGroup.getTimeout(), parameterGroup.getTimeoutUnit());
+    }
   }
 
   private void onGroupEviction(String groupId) {
@@ -168,6 +169,7 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
   private void registerTimeoutIfNeeded(String groupId, int delay, TimeUnit unit) {
     if (getSharedInfoLocalCopy().shouldRegisterTimeout(groupId)) {
       AsyncTask task = new SimpleAsyncTask(delay, unit);
+      task.setRegistered(getCurrentTime());
       getSharedInfoLocalCopy().registerTimeoutTask(groupId, task);
     }
   }
@@ -175,23 +177,26 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
   private void registerGroupEvictionIfNeeded(String groupId, int delay, TimeUnit unit) {
     if (getSharedInfoLocalCopy().shouldRegisterEviction(groupId)) {
       AsyncTask task = new SimpleAsyncTask(delay, unit);
+      task.setRegistered(getCurrentTime());
       getSharedInfoLocalCopy().registerGroupEvictionTask(groupId, task);
     }
   }
 
   @Override
-  void scheduleRegisteredTasks() {
-    executeSynchronized(() -> {
-      getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().entrySet().stream()
-          .forEach(entry -> scheduleGroupEvictionIfNeeded(entry.getKey(), entry.getValue()));
-      getSharedInfoLocalCopy().getRegisteredTimeoutTasks().entrySet().stream()
-          .forEach(entry -> scheduleTimeoutIfNeeded(entry.getKey(), entry.getValue()));
-    });
+  void doScheduleRegisteredTasks() {
+    getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach(this::scheduleGroupEvictionIfNeeded);
+    getSharedInfoLocalCopy().getRegisteredTimeoutTasks().forEach(this::scheduleTimeoutIfNeeded);
+  }
+
+  @Override
+  void doSetRegisteredTasksAsNotScheduled() {
+    getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach((key, value) -> value.setUnscheduled());
+    getSharedInfoLocalCopy().getRegisteredTimeoutTasks().forEach((key, value) -> value.setUnscheduled());
   }
 
   private void scheduleGroupEvictionIfNeeded(String groupId, AsyncTask task) {
     if (!task.isScheduled()) {
-      scheduleTask(task.getDelay(), task.getDelayTimeUnit(), () -> {
+      scheduleTask(task, () -> {
         onGroupEviction(groupId);
         getSharedInfoLocalCopy().unregisterGroupEvictionTask(groupId);
       });
@@ -202,7 +207,7 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
 
   private void scheduleTimeoutIfNeeded(String groupId, AsyncTask task) {
     if (!task.isScheduled()) {
-      scheduleTask(task.getDelay(), task.getDelayTimeUnit(), () -> {
+      scheduleTask(task, () -> {
         onTimeout(groupId);
         getSharedInfoLocalCopy().unregisterTimeoutTask(groupId);
       });

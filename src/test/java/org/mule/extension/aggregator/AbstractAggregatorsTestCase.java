@@ -6,7 +6,7 @@
  */
 package org.mule.extension.aggregator;
 
-import static org.mule.extension.aggregator.internal.operations.AbstractAggregatorOperations.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
+import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.functional.util.FlowExecutionLogger.resetLogsMap;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.tck.junit4.rule.SystemProperty;

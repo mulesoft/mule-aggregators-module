@@ -15,6 +15,7 @@ import java.util.Map;
 
 public class GroupAggregatorSharedInformation implements AggregatorSharedInformation {
 
+  private static final long serialVersionUID = 5216802662481396417L;
   private Map<String, AggregatedContent> contentMap = new HashMap<>();
   private Map<String, AsyncTask> registeredEvictions = new HashMap<>();
   private Map<String, AsyncTask> registeredTimeouts = new HashMap<>();

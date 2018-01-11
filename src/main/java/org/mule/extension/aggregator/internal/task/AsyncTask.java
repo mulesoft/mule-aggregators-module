@@ -8,8 +8,14 @@ package org.mule.extension.aggregator.internal.task;
 
 
 import java.io.Serializable;
+import java.util.OptionalLong;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * POJO to store information about tasks to be scheduled
+ *
+ * @since 1.0
+ */
 public interface AsyncTask extends Serializable {
 
   /**
@@ -17,7 +23,7 @@ public interface AsyncTask extends Serializable {
    *
    * @return time to wait for the task to be executed
    */
-  public int getDelay();
+  int getDelay();
 
 
   /**
@@ -25,7 +31,19 @@ public interface AsyncTask extends Serializable {
    *
    * @return time unit of the delay time
    */
-  public TimeUnit getDelayTimeUnit();
+  TimeUnit getDelayTimeUnit();
+
+  /**
+   * Sets the task as registered
+   *
+   * @param timestamp the timestamp of the moment when the task was registered
+   */
+  void setRegistered(long timestamp);
+
+  /**
+   * @return the timestamp for when the task was registered
+   */
+  long getRegisteringTimestamp();
 
 
   /**
@@ -33,10 +51,20 @@ public interface AsyncTask extends Serializable {
    *
    * @return a boolean if the task was scheduled for execution
    */
-  public boolean isScheduled();
+  boolean isScheduled();
 
 
-  public void setScheduled(long timestamp);
+  /**
+   * Sets the task as scheduled
+   * @param timestamp the timestamp of the moment when the task was scheduled
+   */
+  void setScheduled(long timestamp);
+
+
+  /**
+   * Sets the task as not scheduled
+   */
+  void setUnscheduled();
 
 
   /**
@@ -45,6 +73,6 @@ public interface AsyncTask extends Serializable {
    *
    * @return the time for the scheduled task.
    */
-  public long getSchedulingTimestamp();
+  OptionalLong getSchedulingTimestamp();
 
 }

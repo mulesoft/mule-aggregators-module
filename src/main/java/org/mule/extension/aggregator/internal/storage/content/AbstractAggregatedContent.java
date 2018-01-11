@@ -6,15 +6,13 @@
  */
 package org.mule.extension.aggregator.internal.storage.content;
 
-import org.mule.runtime.api.lifecycle.Initialisable;
-import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.metadata.TypedValue;
-import org.mule.runtime.api.time.TimeSupplier;
 
 import java.util.List;
 
 public abstract class AbstractAggregatedContent implements AggregatedContent {
 
+  private static final long serialVersionUID = 8840464071317299342L;
   int maxSize = -1;
   boolean timedOut;
   Long firstElementArrivalTime;
