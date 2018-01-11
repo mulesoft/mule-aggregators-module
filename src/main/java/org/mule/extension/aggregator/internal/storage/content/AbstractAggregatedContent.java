@@ -6,10 +6,7 @@
  */
 package org.mule.extension.aggregator.internal.storage.content;
 
-import org.mule.runtime.api.lifecycle.Initialisable;
-import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.metadata.TypedValue;
-import org.mule.runtime.api.time.TimeSupplier;
 
 import java.util.List;
 
