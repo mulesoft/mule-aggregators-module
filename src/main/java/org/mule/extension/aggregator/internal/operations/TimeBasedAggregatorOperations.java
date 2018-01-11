@@ -20,6 +20,8 @@ import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
+import org.mule.runtime.extension.api.runtime.operation.Result;
+import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 
 
@@ -73,7 +75,36 @@ public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
                               @ParameterGroup(
                                   name = "timeBasedAggregatorParameters") TimeBasedAggregatorParameterGroup aggregatorParameters,
                               @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
-                              VoidCompletionCallback completionCallback) {
+                              RouterCompletionCallback completionCallback) {
+
+    //evaluateConfiguredDelay("period", aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
+    //
+    ////We should synchronize the access to the storage to account for the situation when the period is completed while
+    ////executing a new event.
+    //executeSynchronized(() -> {
+    //
+    //  registerTaskIfNeeded(aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
+    //
+    //  AggregatedContent aggregatedContent = getAggregatedContent();
+    //
+    //  aggregatedContent.add(of(aggregatorParameters.getContent()), getCurrentTime());
+    //
+    //  if (aggregatedContent.isComplete()) {
+    //    notifyListenerOnComplete(aggregatedContent.getAggregatedElements());
+    //    resetGroup();
+    //    completionCallback.success();
+    //  } else if (incrementalAggregationRoute != null) {
+    //    executeRouteWithAggregatedElements(incrementalAggregationRoute, aggregatedContent.getAggregatedElements(),
+    //                                       getAttributes(aggregatedContent), completionCallback);
+    //  } else {
+    //    completionCallback.success();
+    //  }
+    //});
+  }
+
+  protected void aggregate(TimeBasedAggregatorParameterGroup aggregatorParameters,
+                           IncrementalAggregationRoute incrementalAggregationRoute,
+                           RouterCompletionCallback completionCallback) {
 
     evaluateConfiguredDelay("period", aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
 
@@ -90,14 +121,15 @@ public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
       if (aggregatedContent.isComplete()) {
         notifyListenerOnComplete(aggregatedContent.getAggregatedElements());
         resetGroup();
-        completionCallback.success();
+        completionCallback.success(Result.builder().build());
       } else if (incrementalAggregationRoute != null) {
         executeRouteWithAggregatedElements(incrementalAggregationRoute, aggregatedContent.getAggregatedElements(),
                                            getAttributes(aggregatedContent), completionCallback);
       } else {
-        completionCallback.success();
+        completionCallback.success(Result.builder().build());
       }
     });
+
   }
 
   @Override

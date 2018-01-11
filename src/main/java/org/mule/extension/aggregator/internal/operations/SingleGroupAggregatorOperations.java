@@ -28,8 +28,6 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class SingleGroupAggregatorOperations extends AbstractAggregatorOperations {
 
-  private static final String TASKS_ID = "tasks";
-
   private String groupId = getUUID();
   private int groupSize;
 

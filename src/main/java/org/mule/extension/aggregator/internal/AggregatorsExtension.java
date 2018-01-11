@@ -10,18 +10,24 @@ import org.mule.extension.aggregator.internal.errors.GroupAggregatorError;
 import org.mule.extension.aggregator.internal.operations.GroupBasedAggregatorOperations;
 import org.mule.extension.aggregator.internal.operations.SizeBasedAggregatorOperations;
 import org.mule.extension.aggregator.internal.operations.TimeBasedAggregatorOperations;
+import org.mule.extension.aggregator.internal.privileged.GroupBasedAggregatorOperationsEnricher;
+import org.mule.extension.aggregator.internal.privileged.SizeBasedAggregatorOperationsEnricher;
+import org.mule.extension.aggregator.internal.privileged.TimeBasedAggregatorOprationsEnricher;
 import org.mule.extension.aggregator.internal.source.AggregatorListener;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.Sources;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
+import org.mule.runtime.extension.api.annotation.privileged.DeclarationEnrichers;
 
 
 @Extension(name = "Aggregators")
 @Operations({TimeBasedAggregatorOperations.class, SizeBasedAggregatorOperations.class, GroupBasedAggregatorOperations.class})
 @Sources(AggregatorListener.class)
 @ErrorTypes(GroupAggregatorError.class)
+@DeclarationEnrichers({GroupBasedAggregatorOperationsEnricher.class, SizeBasedAggregatorOperationsEnricher.class,
+    TimeBasedAggregatorOprationsEnricher.class})
 @Xml(prefix = "aggregators")
 public class AggregatorsExtension {
 

@@ -85,7 +85,15 @@ public class SizeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
                                   name = "sizeBasedAggregatorParameterGroup") SizeBasedAggregatorParameterGroup aggregatorParameters,
                               @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
                               @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
-                              VoidCompletionCallback completionCallback) {
+                              RouterCompletionCallback completionCallback) {
+
+
+  }
+
+  protected void aggregate(SizeBasedAggregatorParameterGroup aggregatorParameters,
+                           IncrementalAggregationRoute incrementalAggregationRoute,
+                           AggregationCompleteRoute onAggregationCompleteRoute,
+                           RouterCompletionCallback completionCallback) {
 
     if (aggregatorParameters.isTimeoutSet()) {
       evaluateConfiguredDelay("timeout", aggregatorParameters.getTimeout(), aggregatorParameters.getTimeoutUnit());
@@ -111,7 +119,7 @@ public class SizeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
         executeRouteWithAggregatedElements(incrementalAggregationRoute, aggregatedContent.getAggregatedElements(),
                                            getAttributes(aggregatedContent), completionCallback);
       } else {
-        completionCallback.success();
+        completionCallback.success(Result.builder().build());
       }
     });
   }

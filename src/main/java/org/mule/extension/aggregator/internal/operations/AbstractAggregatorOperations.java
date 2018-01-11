@@ -47,6 +47,7 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.reference.ObjectStoreReference;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
+import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 import org.mule.runtime.extension.api.runtime.route.Route;
 
@@ -160,8 +161,8 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
   }
 
   void executeRouteWithAggregatedElements(Route route, List<TypedValue> elements, AggregatorAttributes attributes,
-                                          VoidCompletionCallback callback) {
-    route.getChain().process(elements, attributes, r -> callback.success(), (e, r) -> callback.error(e));
+                                          RouterCompletionCallback callback) {
+    route.getChain().process(elements, attributes, callback::success, (e, r) -> callback.error(e));
   }
 
   private void scheduleRegisteredTasks() {

@@ -31,6 +31,8 @@ import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.exception.ModuleException;
+import org.mule.runtime.extension.api.runtime.operation.Result;
+import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 
 import java.util.List;
@@ -63,8 +65,55 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
                                    name = "groupBasedAggregatorParameterGroup") GroupBasedAggregatorParameterGroup aggregatorParameters,
                                @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
                                @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
-                               VoidCompletionCallback completionCallback)
+                               RouterCompletionCallback completionCallback)
       throws ModuleException {
+
+    //evaluateParameters(aggregatorParameters);
+    //
+    //executeSynchronized(() -> {
+    //
+    //  if (aggregatorParameters.isTimeoutSet()) {
+    //    registerTimeoutIfNeeded(aggregatorParameters.getGroupId(), aggregatorParameters.getTimeout(),
+    //                            aggregatorParameters.getTimeoutUnit());
+    //  }
+    //
+    //  AggregatedContent groupAggregatedContent =
+    //      getOrCreateAggregatedContent(aggregatorParameters.getGroupId(), aggregatorParameters.getGroupSize());
+    //
+    //  if (groupAggregatedContent.isComplete()) {
+    //    throw new ModuleException(format("Trying to aggregate a new element to the group with id: %s ,but it's already complete",
+    //                                     aggregatorParameters.getGroupId()),
+    //                              GROUP_COMPLETED);
+    //  } else if (((SimpleAggregatedContent) groupAggregatedContent).isTimedOut()) {
+    //    throw new ModuleException(format("Trying to aggregate a new element to the group with id: %s ,but it has already timed out",
+    //                                     aggregatorParameters.getGroupId()),
+    //                              GROUP_TIMED_OUT);
+    //  }
+    //
+    //  groupAggregatedContent.add(of(aggregatorParameters.getContent()), getCurrentTime());
+    //
+    //  if (groupAggregatedContent.isComplete()) {
+    //    List<TypedValue> aggregatedElements = groupAggregatedContent.getAggregatedElements();
+    //    notifyListenerOnComplete(aggregatedElements);
+    //    registerGroupEvictionIfNeeded(aggregatorParameters.getGroupId(), aggregatorParameters.getEvictionTime(),
+    //                                  aggregatorParameters.getEvictionTimeUnit());
+    //    executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedElements,
+    //                                       getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
+    //                                       completionCallback);
+    //  } else if (incrementalAggregationRoute != null) {
+    //    executeRouteWithAggregatedElements(incrementalAggregationRoute, groupAggregatedContent.getAggregatedElements(),
+    //                                       getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
+    //                                       completionCallback);
+    //  } else {
+    //    completionCallback.success();
+    //  }
+    //});
+  }
+
+  protected void aggregate(GroupBasedAggregatorParameterGroup aggregatorParameters,
+                           IncrementalAggregationRoute incrementalAggregationRoute,
+                           AggregationCompleteRoute onAggregationCompleteRoute,
+                           RouterCompletionCallback completionCallback) {
 
     evaluateParameters(aggregatorParameters);
 
@@ -103,7 +152,7 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
                                            getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
                                            completionCallback);
       } else {
-        completionCallback.success();
+        completionCallback.success(Result.builder().build());
       }
     });
   }

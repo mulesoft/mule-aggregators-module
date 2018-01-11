@@ -12,16 +12,15 @@ import org.mule.runtime.module.extension.api.loader.java.property.ComponentExecu
 
 public class GroupBasedAggregatorOperationsEnricher implements DeclarationEnricher {
 
-  private static final String OPERATION_NAME = "all";
+  private static final String OPERATION_NAME = "groupBasedAggregator";
 
   @Override
   public void enrich(ExtensionLoadingContext extensionLoadingContext) {
-    extensionLoadingContext.getExtensionDeclarer().getDeclaration().getOperations().stream()
-        .filter(operation -> operation.getName().equals(OPERATION_NAME))
+    extensionLoadingContext.getExtensionDeclarer().getDeclaration().getConstructs().stream()
+        .filter(construct -> construct.getName().equals(OPERATION_NAME))
         .findFirst()
         .ifPresent(
-                   operation -> operation
-                       .addModelProperty(new ComponentExecutorModelProperty((model,
-                                                                             params) -> new GroupBasedAggregatorOperationsExecutor())));
+                   construct -> construct.addModelProperty(new ComponentExecutorModelProperty((model,
+                                                                                               params) -> new GroupBasedAggregatorOperationsExecutor())));
   }
 }

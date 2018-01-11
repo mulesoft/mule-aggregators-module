@@ -12,16 +12,16 @@ import org.mule.runtime.module.extension.api.loader.java.property.ComponentExecu
 
 public class TimeBasedAggregatorOprationsEnricher implements DeclarationEnricher {
 
-  public static final String OPERATION_NAME = "all2";
+  public static final String OPERATION_NAME = "timeBasedAggregator";
 
   @Override
   public void enrich(ExtensionLoadingContext extensionLoadingContext) {
-    extensionLoadingContext.getExtensionDeclarer().getDeclaration().getOperations().stream()
-        .filter(operation -> operation.getName().equals(OPERATION_NAME))
+    extensionLoadingContext.getExtensionDeclarer().getDeclaration().getConstructs().stream()
+        .filter(construct -> construct.getName().equals(OPERATION_NAME))
         .findFirst()
         .ifPresent(
-                   operation -> operation
+                   construct -> construct
                        .addModelProperty(new ComponentExecutorModelProperty((model,
-                                                                             params) -> new GroupBasedAggregatorOperationsExecutor())));
+                                                                             params) -> new TimeBasedAggregatorOperationsExecutor())));
   }
 }

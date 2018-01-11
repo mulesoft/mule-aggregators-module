@@ -6,16 +6,42 @@
  */
 package org.mule.extension.aggregator.internal.privileged;
 
+import static org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextProperties.COMPLETION_CALLBACK_CONTEXT_PARAM;
+import org.mule.extension.aggregator.api.GroupBasedAggregatorParameterGroup;
+import org.mule.extension.aggregator.api.TimeBasedAggregatorParameterGroup;
+import org.mule.extension.aggregator.internal.operations.TimeBasedAggregatorOperations;
+import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
+import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
+import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.extension.api.runtime.operation.ComponentExecutor;
 import org.mule.runtime.extension.api.runtime.operation.ExecutionContext;
+import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextAdapter;
+
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.reactivestreams.Publisher;
 
-public class TimeBasedAggregatorOperationsExecutor implements ComponentExecutor<OperationModel> {
+public class TimeBasedAggregatorOperationsExecutor extends TimeBasedAggregatorOperations
+    implements ComponentExecutor<OperationModel> {
 
   @Override
   public Publisher<Object> execute(ExecutionContext<OperationModel> executionContext) {
+    final ExecutionContextAdapter<OperationModel> context = (ExecutionContextAdapter<OperationModel>) executionContext;
+    final CoreEvent event = context.getEvent();
+    IncrementalAggregationRoute incrementalAggregationRoute = context.getParameter("incrementalAggregation");
+    TimeBasedAggregatorParameterGroup parameters = createParameters(context.getParameters());
+    aggregate(parameters, incrementalAggregationRoute,
+              new AggregatorCompletionCallback(context.getVariable(COMPLETION_CALLBACK_CONTEXT_PARAM), event));
     return null;
+  }
+
+  private TimeBasedAggregatorParameterGroup createParameters(Map<String, Object> parameterMap) {
+    TimeBasedAggregatorParameterGroup parameters = new TimeBasedAggregatorParameterGroup();
+    parameters.setContent(parameterMap.get("content"));
+    parameters.setPeriod((int) parameterMap.get("period"));
+    parameters.setPeriodUnit((TimeUnit) parameterMap.get("periodUnit"));
+    return parameters;
   }
 }
