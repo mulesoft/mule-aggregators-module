@@ -24,6 +24,8 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 
+import java.util.Map;
+
 
 public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperations {
 
@@ -42,6 +44,17 @@ public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
   @Expression(NOT_SUPPORTED)
   @Optional(defaultValue = UNLIMITED_TIMEOUT)
   private int maxSize;
+
+  //TODO:REMOVE--------------------
+
+  @Override
+  protected void setParameters(Map<String, Object> parameters) {
+    super.setParameters(parameters);
+    maxSize = (int) parameters.get("maxSize");
+    setGroupSize(maxSize);
+  }
+
+  //TODO:REMOVE--------------------
 
   @Override
   public void initialise() throws InitialisationException {
@@ -77,29 +90,6 @@ public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
                               @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
                               RouterCompletionCallback completionCallback) {
 
-    //evaluateConfiguredDelay("period", aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
-    //
-    ////We should synchronize the access to the storage to account for the situation when the period is completed while
-    ////executing a new event.
-    //executeSynchronized(() -> {
-    //
-    //  registerTaskIfNeeded(aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
-    //
-    //  AggregatedContent aggregatedContent = getAggregatedContent();
-    //
-    //  aggregatedContent.add(of(aggregatorParameters.getContent()), getCurrentTime());
-    //
-    //  if (aggregatedContent.isComplete()) {
-    //    notifyListenerOnComplete(aggregatedContent.getAggregatedElements());
-    //    resetGroup();
-    //    completionCallback.success();
-    //  } else if (incrementalAggregationRoute != null) {
-    //    executeRouteWithAggregatedElements(incrementalAggregationRoute, aggregatedContent.getAggregatedElements(),
-    //                                       getAttributes(aggregatedContent), completionCallback);
-    //  } else {
-    //    completionCallback.success();
-    //  }
-    //});
   }
 
   protected void aggregate(TimeBasedAggregatorParameterGroup aggregatorParameters,

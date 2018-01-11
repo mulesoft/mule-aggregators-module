@@ -68,46 +68,6 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
                                RouterCompletionCallback completionCallback)
       throws ModuleException {
 
-    //evaluateParameters(aggregatorParameters);
-    //
-    //executeSynchronized(() -> {
-    //
-    //  if (aggregatorParameters.isTimeoutSet()) {
-    //    registerTimeoutIfNeeded(aggregatorParameters.getGroupId(), aggregatorParameters.getTimeout(),
-    //                            aggregatorParameters.getTimeoutUnit());
-    //  }
-    //
-    //  AggregatedContent groupAggregatedContent =
-    //      getOrCreateAggregatedContent(aggregatorParameters.getGroupId(), aggregatorParameters.getGroupSize());
-    //
-    //  if (groupAggregatedContent.isComplete()) {
-    //    throw new ModuleException(format("Trying to aggregate a new element to the group with id: %s ,but it's already complete",
-    //                                     aggregatorParameters.getGroupId()),
-    //                              GROUP_COMPLETED);
-    //  } else if (((SimpleAggregatedContent) groupAggregatedContent).isTimedOut()) {
-    //    throw new ModuleException(format("Trying to aggregate a new element to the group with id: %s ,but it has already timed out",
-    //                                     aggregatorParameters.getGroupId()),
-    //                              GROUP_TIMED_OUT);
-    //  }
-    //
-    //  groupAggregatedContent.add(of(aggregatorParameters.getContent()), getCurrentTime());
-    //
-    //  if (groupAggregatedContent.isComplete()) {
-    //    List<TypedValue> aggregatedElements = groupAggregatedContent.getAggregatedElements();
-    //    notifyListenerOnComplete(aggregatedElements);
-    //    registerGroupEvictionIfNeeded(aggregatorParameters.getGroupId(), aggregatorParameters.getEvictionTime(),
-    //                                  aggregatorParameters.getEvictionTimeUnit());
-    //    executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedElements,
-    //                                       getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
-    //                                       completionCallback);
-    //  } else if (incrementalAggregationRoute != null) {
-    //    executeRouteWithAggregatedElements(incrementalAggregationRoute, groupAggregatedContent.getAggregatedElements(),
-    //                                       getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
-    //                                       completionCallback);
-    //  } else {
-    //    completionCallback.success();
-    //  }
-    //});
   }
 
   protected void aggregate(GroupBasedAggregatorParameterGroup aggregatorParameters,

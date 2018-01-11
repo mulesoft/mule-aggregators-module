@@ -7,10 +7,8 @@
 package org.mule.extension.aggregator.internal.privileged;
 
 import static org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextProperties.COMPLETION_CALLBACK_CONTEXT_PARAM;
-import org.mule.extension.aggregator.api.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.api.TimeBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.operations.TimeBasedAggregatorOperations;
-import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
 import org.mule.runtime.core.api.event.CoreEvent;
@@ -31,6 +29,7 @@ public class TimeBasedAggregatorOperationsExecutor extends TimeBasedAggregatorOp
     final ExecutionContextAdapter<OperationModel> context = (ExecutionContextAdapter<OperationModel>) executionContext;
     final CoreEvent event = context.getEvent();
     IncrementalAggregationRoute incrementalAggregationRoute = context.getParameter("incrementalAggregation");
+    setParameters(context.getParameters());
     TimeBasedAggregatorParameterGroup parameters = createParameters(context.getParameters());
     aggregate(parameters, incrementalAggregationRoute,
               new AggregatorCompletionCallback(context.getVariable(COMPLETION_CALLBACK_CONTEXT_PARAM), event));
@@ -40,7 +39,7 @@ public class TimeBasedAggregatorOperationsExecutor extends TimeBasedAggregatorOp
   private TimeBasedAggregatorParameterGroup createParameters(Map<String, Object> parameterMap) {
     TimeBasedAggregatorParameterGroup parameters = new TimeBasedAggregatorParameterGroup();
     parameters.setContent(parameterMap.get("content"));
-    parameters.setPeriod((int) parameterMap.get("period"));
+    parameters.setPeriod((Integer) parameterMap.get("period"));
     parameters.setPeriodUnit((TimeUnit) parameterMap.get("periodUnit"));
     return parameters;
   }

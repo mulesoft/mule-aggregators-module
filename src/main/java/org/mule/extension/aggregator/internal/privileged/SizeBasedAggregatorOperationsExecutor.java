@@ -7,7 +7,6 @@
 package org.mule.extension.aggregator.internal.privileged;
 
 import static org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextProperties.COMPLETION_CALLBACK_CONTEXT_PARAM;
-import org.mule.extension.aggregator.api.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.api.SizeBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.operations.SizeBasedAggregatorOperations;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
@@ -32,6 +31,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SizeBasedAggregatorOp
     final CoreEvent event = context.getEvent();
     IncrementalAggregationRoute incrementalAggregationRoute = context.getParameter("incrementalAggregation");
     AggregationCompleteRoute aggregationCompleteRoute = context.getParameter("aggregationComplete");
+    setParameters(context.getParameters());
     SizeBasedAggregatorParameterGroup parameters = createParameters(context.getParameters());
     aggregate(parameters, incrementalAggregationRoute, aggregationCompleteRoute,
               new AggregatorCompletionCallback(context.getVariable(COMPLETION_CALLBACK_CONTEXT_PARAM), event));
@@ -41,7 +41,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SizeBasedAggregatorOp
   private SizeBasedAggregatorParameterGroup createParameters(Map<String, Object> parameterMap) {
     SizeBasedAggregatorParameterGroup parameters = new SizeBasedAggregatorParameterGroup();
     parameters.setContent(parameterMap.get("content"));
-    parameters.setTimeout((int) parameterMap.get("timeout"));
+    parameters.setTimeout((Integer) parameterMap.get("timeout"));
     parameters.setTimeoutUnit((TimeUnit) parameterMap.get("timeoutUnit"));
     return parameters;
   }

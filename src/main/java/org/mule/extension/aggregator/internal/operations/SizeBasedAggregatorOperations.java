@@ -26,6 +26,8 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 
+import java.util.Map;
+
 /**
  * Operations defined for a Size Based Aggregator.
  *
@@ -41,6 +43,17 @@ public class SizeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
   @Parameter
   @Expression(NOT_SUPPORTED)
   private int maxSize;
+
+  //TODO:REMOVE----------------
+
+  @Override
+  protected void setParameters(Map<String, Object> parameters) {
+    super.setParameters(parameters);
+    maxSize = (int) parameters.get("maxSize");
+    setGroupSize(maxSize);
+  }
+
+  //TODO:REMOVE----------------
 
   @Override
   public void initialise() throws InitialisationException {

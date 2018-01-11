@@ -29,7 +29,7 @@ public class TimeoutContainingAggregatorParameterGroup extends AggregatorParamet
   @Parameter
   @Expression(NOT_SUPPORTED)
   @Optional(defaultValue = UNLIMITED_TIMEOUT)
-  private int timeout;
+  private Integer timeout;
 
   /**
    * The time unit in which the timeout is expressed.
@@ -39,11 +39,11 @@ public class TimeoutContainingAggregatorParameterGroup extends AggregatorParamet
   @Optional(defaultValue = "SECONDS")
   private TimeUnit timeoutUnit;
 
-  public int getTimeout() {
+  public Integer getTimeout() {
     return timeout;
   }
 
-  public void setTimeout(int timeout) {
+  public void setTimeout(Integer timeout) {
     this.timeout = timeout;
   }
 

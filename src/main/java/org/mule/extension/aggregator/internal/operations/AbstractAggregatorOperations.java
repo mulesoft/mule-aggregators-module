@@ -52,6 +52,7 @@ import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 import org.mule.runtime.extension.api.runtime.route.Route;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
@@ -113,6 +114,16 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
   private LazyValue<ObjectStore<AggregatorSharedInformation>> storage;
   private boolean started = false;
   private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
+
+
+  //TODO:REMOVE----------------------------
+
+  protected void setParameters(Map<String, Object> parameters) {
+    this.objectStore = (String) parameters.get("objectStore");
+    this.name = (String) parameters.get("name");
+  }
+
+  //TODO:REMOVE----------------------------
 
 
 

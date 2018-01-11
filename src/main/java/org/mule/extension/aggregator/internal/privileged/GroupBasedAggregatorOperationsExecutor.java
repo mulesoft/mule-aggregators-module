@@ -31,6 +31,7 @@ public class GroupBasedAggregatorOperationsExecutor extends GroupBasedAggregator
     final CoreEvent event = context.getEvent();
     IncrementalAggregationRoute incrementalAggregationRoute = context.getParameter("incrementalAggregation");
     AggregationCompleteRoute aggregationCompleteRoute = context.getParameter("aggregationComplete");
+    setParameters(context.getParameters());
     GroupBasedAggregatorParameterGroup parameters = createParameters(context.getParameters());
     aggregate(parameters, incrementalAggregationRoute, aggregationCompleteRoute,
               new AggregatorCompletionCallback(context.getVariable(COMPLETION_CALLBACK_CONTEXT_PARAM), event));
@@ -39,12 +40,12 @@ public class GroupBasedAggregatorOperationsExecutor extends GroupBasedAggregator
 
   private GroupBasedAggregatorParameterGroup createParameters(Map<String, Object> parameterMap) {
     GroupBasedAggregatorParameterGroup parameters = new GroupBasedAggregatorParameterGroup();
-    parameters.setEvictionTime((int) parameterMap.get("evictionTime"));
+    parameters.setEvictionTime((Integer) parameterMap.get("evictionTime"));
     parameters.setEvictionTimeUnit((TimeUnit) parameterMap.get("evictionTimeUnit"));
     parameters.setGroupId((String) parameterMap.get("groupId"));
     parameters.setContent(parameterMap.get("content"));
-    parameters.setGroupSize((int) parameterMap.get("groupSize"));
-    parameters.setTimeout((int) parameterMap.get("timeout"));
+    parameters.setGroupSize((Integer) parameterMap.get("groupSize"));
+    parameters.setTimeout((Integer) parameterMap.get("timeout"));
     parameters.setTimeoutUnit((TimeUnit) parameterMap.get("timeoutUnit"));
     return parameters;
   }

@@ -25,7 +25,7 @@ public class AggregatorCompletionCallback implements RouterCompletionCallback {
   @Override
   public void success(Result<Object, Object> result) {
     if (result instanceof EventedResult) {
-      delegate.success(result.copy().output(event.getMessage()).build());
+      delegate.success(result.copy().output(event.getMessage().getPayload()).build());
     } else {
       delegate.success(EventedResult.from(event));
     }

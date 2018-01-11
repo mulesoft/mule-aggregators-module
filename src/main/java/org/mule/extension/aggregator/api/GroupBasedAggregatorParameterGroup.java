@@ -52,7 +52,7 @@ public class GroupBasedAggregatorParameterGroup extends TimeoutContainingAggrega
   @Parameter
   @Expression(NOT_SUPPORTED)
   @Optional(defaultValue = "180")
-  private int evictionTime;
+  private Integer evictionTime;
 
   /**
    * The unit for the evictionTime attribute
@@ -74,15 +74,15 @@ public class GroupBasedAggregatorParameterGroup extends TimeoutContainingAggrega
     return groupSize;
   }
 
-  public void setGroupSize(int groupSize) {
+  public void setGroupSize(Integer groupSize) {
     this.groupSize = groupSize;
   }
 
-  public int getEvictionTime() {
+  public Integer getEvictionTime() {
     return evictionTime;
   }
 
-  public void setEvictionTime(int evictionTime) {
+  public void setEvictionTime(Integer evictionTime) {
     this.evictionTime = evictionTime;
   }
 
