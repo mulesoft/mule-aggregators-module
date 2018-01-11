@@ -66,6 +66,7 @@ public abstract class SingleGroupAggregatorOperations extends AbstractAggregator
   void registerTaskIfNeeded(int delay, TimeUnit unit) {
     if (getSharedInfoLocalCopy().shouldRegisterNextTask()) {
       AsyncTask task = new SimpleAsyncTask(delay, unit);
+      task.setRegistered(getCurrentTime());
       getSharedInfoLocalCopy().registerTask(task);
     }
   }

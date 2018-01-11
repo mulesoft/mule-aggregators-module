@@ -13,6 +13,7 @@ import org.mule.extension.aggregator.internal.task.AsyncTask;
 
 public class SimpleAggregatorSharedInformation implements AggregatorSharedInformation {
 
+  private static final long serialVersionUID = 2720335740399722498L;
   private AggregatedContent content;
   private AsyncTask asyncTask;
 

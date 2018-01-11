@@ -21,6 +21,7 @@ import java.util.List;
  */
 public class SimpleAggregatedContent extends AbstractAggregatedContent {
 
+  private static final long serialVersionUID = 4753078736495748941L;
   private List<TypedValue> storage;
 
   private SimpleAggregatedContent() {

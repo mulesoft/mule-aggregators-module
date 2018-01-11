@@ -11,6 +11,11 @@ import java.io.Serializable;
 import java.util.OptionalLong;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * POJO to store information about tasks to be scheduled
+ *
+ * @since 1.0
+ */
 public interface AsyncTask extends Serializable {
 
   /**
@@ -27,6 +32,18 @@ public interface AsyncTask extends Serializable {
    * @return time unit of the delay time
    */
   TimeUnit getDelayTimeUnit();
+
+  /**
+   * Sets the task as registered
+   *
+   * @param timestamp the timestamp of the moment when the task was registered
+   */
+  void setRegistered(long timestamp);
+
+  /**
+   * @return the timestamp for when the task was registered
+   */
+  long getRegisteringTimestamp();
 
 
   /**
@@ -48,7 +65,6 @@ public interface AsyncTask extends Serializable {
    * Sets the task as not scheduled
    */
   void setUnscheduled();
-
 
 
   /**

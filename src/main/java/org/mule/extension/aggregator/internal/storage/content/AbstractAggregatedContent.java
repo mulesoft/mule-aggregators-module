@@ -15,6 +15,7 @@ import java.util.List;
 
 public abstract class AbstractAggregatedContent implements AggregatedContent {
 
+  private static final long serialVersionUID = 8840464071317299342L;
   int maxSize = -1;
   boolean timedOut;
   Long firstElementArrivalTime;

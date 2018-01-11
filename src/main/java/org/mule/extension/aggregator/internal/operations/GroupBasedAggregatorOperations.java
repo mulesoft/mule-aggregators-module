@@ -169,6 +169,7 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
   private void registerTimeoutIfNeeded(String groupId, int delay, TimeUnit unit) {
     if (getSharedInfoLocalCopy().shouldRegisterTimeout(groupId)) {
       AsyncTask task = new SimpleAsyncTask(delay, unit);
+      task.setRegistered(getCurrentTime());
       getSharedInfoLocalCopy().registerTimeoutTask(groupId, task);
     }
   }
@@ -176,6 +177,7 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
   private void registerGroupEvictionIfNeeded(String groupId, int delay, TimeUnit unit) {
     if (getSharedInfoLocalCopy().shouldRegisterEviction(groupId)) {
       AsyncTask task = new SimpleAsyncTask(delay, unit);
+      task.setRegistered(getCurrentTime());
       getSharedInfoLocalCopy().registerGroupEvictionTask(groupId, task);
     }
   }

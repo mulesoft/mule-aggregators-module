@@ -16,11 +16,13 @@ import java.util.concurrent.TimeUnit;
 public class SimpleAsyncTask implements AsyncTask {
 
   private static final long NOT_SCHEDULED_TIMESTAMP = -1;
+  private static final long serialVersionUID = 7509203629409368845L;
 
   private int delay;
   private TimeUnit delayUnit;
   private boolean scheduled;
   private long schedulingTimestamp;
+  private long registeringTimestamp;
 
 
   public SimpleAsyncTask(int delay, TimeUnit delayUnit) {
@@ -28,6 +30,16 @@ public class SimpleAsyncTask implements AsyncTask {
     this.delayUnit = delayUnit;
     this.scheduled = false;
     this.schedulingTimestamp = NOT_SCHEDULED_TIMESTAMP;
+  }
+
+  @Override
+  public void setRegistered(long timestamp) {
+    this.registeringTimestamp = timestamp;
+  }
+
+  @Override
+  public long getRegisteringTimestamp() {
+    return registeringTimestamp;
   }
 
   @Override

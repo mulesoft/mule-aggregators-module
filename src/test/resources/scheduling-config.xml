@@ -17,7 +17,7 @@
             <test:on-error-check-log>
                 <test:check-summary>
                     <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
-                    <test:summary-info key="Message" value="The configured evictionTime : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. The minimum allowed ratio is 1."/>
+                    <test:summary-info key="Message" value="The configured evictionTime : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. evictionTime should be equal or bigger than the scheduling time period in order to accurately schedule it."/>
                 </test:check-summary>
             </test:on-error-check-log>
         </error-handler>
@@ -33,7 +33,7 @@
             <test:on-error-check-log>
                 <test:check-summary>
                     <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
-                    <test:summary-info key="Message" value="The configured timeout : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. The minimum allowed ratio is 1."/>
+                    <test:summary-info key="Message" value="The configured timeout : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. timeout should be equal or bigger than the scheduling time period in order to accurately schedule it."/>
                 </test:check-summary>
             </test:on-error-check-log>
         </error-handler>
@@ -49,7 +49,7 @@
             <test:on-error-check-log>
                 <test:check-summary>
                     <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
-                    <test:summary-info key="Message" value="The configured timeout : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. The minimum allowed ratio is 1."/>
+                    <test:summary-info key="Message" value="The configured timeout : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. timeout should be equal or bigger than the scheduling time period in order to accurately schedule it."/>
                 </test:check-summary>
             </test:on-error-check-log>
         </error-handler>
@@ -61,7 +61,7 @@
             <test:on-error-check-log>
                 <test:check-summary>
                     <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
-                    <test:summary-info key="Message" value="The configured period : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. The minimum allowed ratio is 1."/>
+                    <test:summary-info key="Message" value="The configured period : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. period should be equal or bigger than the scheduling time period in order to accurately schedule it."/>
                 </test:check-summary>
             </test:on-error-check-log>
         </error-handler>

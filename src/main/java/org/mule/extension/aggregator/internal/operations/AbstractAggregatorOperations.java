@@ -7,10 +7,8 @@
 package org.mule.extension.aggregator.internal.operations;
 
 
-import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
-import static java.lang.System.getProperty;
 import static java.lang.System.lineSeparator;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_KEY;
@@ -18,7 +16,6 @@ import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDUL
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAGER;
-import static org.mule.runtime.core.api.config.MuleProperties.SYSTEM_PROPERTY_PREFIX;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 import static org.mule.runtime.extension.api.error.MuleErrors.ANY;
 import org.mule.extension.aggregator.internal.routes.AggregatorAttributes;
@@ -65,7 +62,6 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
 
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
   private static final String DEFAULT_TASK_SCHEDULING_PERIOD = "1000";
-  private static final int MIN_ACCEPTED_DELAY_CONFIGURATION_RATIO = 1;
   private static final TimeUnit TASK_SCHEDULING_PERIOD_UNIT = MILLISECONDS;
 
   @Inject
@@ -181,43 +177,42 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
   abstract void doSetRegisteredTasksAsNotScheduled();
 
   /**
-   * When scheduling a task, we should consider the case when we are executing in cluster mode.
+   * When scheduling the {@param runnable}, we should compute the actual delay value to set to the scheduler giving that it will be different from the one set by the user.
    * <p/>
-   * If the task was already scheduled in another primary node that was disconnected, the value to set as delay would be
-   * different from the one configured the first time it was scheduled.
-   * If a task was scheduled to execute with a Tini seconds delay and after Tdown (Tdown < Tini), the primary node was down,
-   * then the second time the task is scheduled it should be with a delay of Tini - Tdown.
+   * Since tasks will be scheduled once the periodic process that handles that is executed {@link #scheduleRegisteredTasks()}, we should account for the time waited
+   * until that process execution takes place.
+   * Also, if in a cluster, the task could've been already scheduled in another primary node that was disconnected, we should consider that offset as well.
    * <p/>
-   * As we are using timestamps to measure time, Tdown = now - previousSchedulingTimestamp. So there could be the case where
-   * the time to delay the task is zero or negative. That should mean: execute immediately {@link java.util.concurrent.ScheduledExecutorService}  }
+   * Every delay will be counted from the time the first event arrives to the aggregator.
+   * <p/>
+   * The offset from the previous schedule would be offset = now - previousSchedulingTimestamp.
+   * The actual delay according to the time the first event arrived will be delay = configuredDelay - (now - firstEventArrivalTime)
+   * So, the total time to wait would be actualDelay = delay - offset.
+   * <p/>
+   * The computation could cause the delay to be zero or negative, that should mean: execute immediately {@link java.util.concurrent.ScheduledExecutorService}  }
    *
    * @param task the task pojo with information about the task to schedule
    * @param runnable the runnable to execute
    */
   void scheduleTask(AsyncTask task, Runnable runnable) {
-    long taskDelay;
-    TimeUnit taskDelayTimeUnit = MILLISECONDS;
+    long now = getCurrentTime();
+    long delay = task.getDelayTimeUnit().toMillis(task.getDelay()) - (now - task.getRegisteringTimestamp());
     if (task.getSchedulingTimestamp().isPresent()) {
-      taskDelay =
-          task.getDelayTimeUnit().toMillis(task.getDelay()) - (getCurrentTime() - task.getSchedulingTimestamp().getAsLong());
-    } else {
-      taskDelay = task.getDelay();
-      taskDelayTimeUnit = task.getDelayTimeUnit();
+      delay = delay - (getCurrentTime() - task.getSchedulingTimestamp().getAsLong());
     }
-    scheduler.schedule(runnable, taskDelay, taskDelayTimeUnit);
+    scheduler.schedule(runnable, delay, MILLISECONDS);
   }
 
   void evaluateConfiguredDelay(String valueKey, int configuredDelay, TimeUnit timeUnit) throws ModuleException {
     long configuredDelayInMillis = timeUnit.toMillis(configuredDelay);
-    float ratio = configuredDelayInMillis / taskSchedulingPeriod;
-    if (ratio < MIN_ACCEPTED_DELAY_CONFIGURATION_RATIO) {
-      throw new ModuleException(format("The configured %s : %d %s, is too small for the configured scheduling time period: %d %s. The minimum allowed ratio is %d.%s Use %s global-config or %s SystemProperty to change it",
+    if (configuredDelayInMillis < taskSchedulingPeriod) {
+      throw new ModuleException(format("The configured %s : %d %s, is too small for the configured scheduling time period: %d %s. %s should be equal or bigger than the scheduling time period in order to accurately schedule it.%s Use %s global-config or %s SystemProperty to change it",
                                        valueKey,
                                        configuredDelay,
                                        timeUnit,
                                        taskSchedulingPeriod,
                                        TASK_SCHEDULING_PERIOD_UNIT,
-                                       MIN_ACCEPTED_DELAY_CONFIGURATION_RATIO,
+                                       valueKey,
                                        lineSeparator(),
                                        TASK_SCHEDULING_PERIOD_KEY,
                                        TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY),
