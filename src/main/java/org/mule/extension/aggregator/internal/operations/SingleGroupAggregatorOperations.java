@@ -66,24 +66,31 @@ public abstract class SingleGroupAggregatorOperations extends AbstractAggregator
   void registerTaskIfNeeded(int delay, TimeUnit unit) {
     if (getSharedInfoLocalCopy().shouldRegisterNextTask()) {
       AsyncTask task = new SimpleAsyncTask(delay, unit);
+      task.setRegistered(getCurrentTime());
       getSharedInfoLocalCopy().registerTask(task);
     }
   }
 
   @Override
-  void scheduleRegisteredTasks() {
-    executeSynchronized(() -> {
-      AsyncTask task = getSharedInfoLocalCopy().getRegisteredTask();
-      if (task != null) {
-        if (!task.isScheduled()) {
-          scheduleTask(task.getDelay(), task.getDelayTimeUnit(), () -> {
-            onTaskExecution();
-            getSharedInfoLocalCopy().unregisterTask();
-          });
-        }
-        task.setScheduled(getCurrentTime());
+  void doScheduleRegisteredTasks() {
+    AsyncTask task = getSharedInfoLocalCopy().getRegisteredTask();
+    if (task != null) {
+      if (!task.isScheduled()) {
+        scheduleTask(task, () -> {
+          onTaskExecution();
+          getSharedInfoLocalCopy().unregisterTask();
+        });
       }
-    });
+      task.setScheduled(getCurrentTime());
+    }
+  }
+
+  @Override
+  void doSetRegisteredTasksAsNotScheduled() {
+    AsyncTask task = getSharedInfoLocalCopy().getRegisteredTask();
+    if (task != null) {
+      task.setUnscheduled();
+    }
   }
 
   abstract void onTaskExecution();

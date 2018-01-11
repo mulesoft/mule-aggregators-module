@@ -32,7 +32,7 @@
     </flow>
 
     <flow name="shortEvictionTime">
-        <aggregators:group-based-aggregator name="3" content="#[payload]" groupId="#[vars.gid]" groupSize="1" evictionTime="10" evictionTimeUnit="MILLISECONDS">
+        <aggregators:group-based-aggregator name="3" content="#[payload]" groupId="#[vars.gid]" groupSize="1" evictionTime="500" evictionTimeUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -85,7 +85,7 @@
     </flow>
 
     <flow name="groupTimedOutExceptionThrowingFlow">
-        <aggregators:group-based-aggregator name="7" content="#[payload]" groupSize="100" groupId="#[vars.gid]" timeout="10" timeoutUnit="MILLISECONDS">
+        <aggregators:group-based-aggregator name="7" content="#[payload]" groupSize="100" groupId="#[vars.gid]" timeout="500" timeoutUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -100,7 +100,7 @@
     </flow>
 
     <flow name="shortTimeoutAggregator">
-        <aggregators:group-based-aggregator name="8" content="#[payload]" groupSize="100" timeout="10" timeoutUnit="MILLISECONDS">
+        <aggregators:group-based-aggregator name="8" content="#[payload]" groupSize="100" timeout="500" timeoutUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -113,7 +113,7 @@
     </flow>
 
     <flow name="shortTimeoutAggregator2">
-        <aggregators:group-based-aggregator name="9" content="#[payload]" groupSize="100" timeout="10" timeoutUnit="MILLISECONDS">
+        <aggregators:group-based-aggregator name="9" content="#[payload]" groupSize="100" timeout="500" timeoutUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -126,7 +126,7 @@
     </flow>
 
     <flow name="shortTimeoutAndEvictionTime">
-        <aggregators:group-based-aggregator name="10" content="#[payload]" groupSize="1" groupId="#[vars.gid]" timeout="100" timeoutUnit="MILLISECONDS" evictionTime="10" evictionTimeUnit="MILLISECONDS">
+        <aggregators:group-based-aggregator name="10" content="#[payload]" groupSize="1" groupId="#[vars.gid]" timeout="1000" timeoutUnit="MILLISECONDS" evictionTime="500" evictionTimeUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
