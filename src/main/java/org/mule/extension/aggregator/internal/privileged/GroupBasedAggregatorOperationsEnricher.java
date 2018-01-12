@@ -21,6 +21,6 @@ public class GroupBasedAggregatorOperationsEnricher implements DeclarationEnrich
         .findFirst()
         .ifPresent(
                    construct -> construct.addModelProperty(new ComponentExecutorModelProperty((model,
-                                                                                               params) -> new GroupBasedAggregatorOperationsExecutor())));
+                                                                                               params) -> new GroupBasedAggregatorOperationsExecutor(params))));
   }
 }

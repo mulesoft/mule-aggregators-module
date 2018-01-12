@@ -6,7 +6,6 @@
  */
 package org.mule.extension.aggregator.internal.operations;
 
-import static java.lang.Thread.sleep;
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
 import static org.mule.runtime.api.metadata.TypedValue.of;
 import org.mule.extension.aggregator.api.TimeBasedAggregatorParameterGroup;
@@ -22,14 +21,13 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
-import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 
 import java.util.Map;
 
 
 public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperations {
 
-  private static final String UNLIMITED_TIMEOUT = "-1";
+  private static final String UNLIMITED_SIZE = "-1";
   private static final String AGGREGATOR_KEY = "TimeBasedAggregator";
 
   /**
@@ -42,16 +40,15 @@ public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
    */
   @Parameter
   @Expression(NOT_SUPPORTED)
-  @Optional(defaultValue = UNLIMITED_TIMEOUT)
+  @Optional(defaultValue = UNLIMITED_SIZE)
   private int maxSize;
 
   //TODO:REMOVE--------------------
 
   @Override
-  protected void setParameters(Map<String, Object> parameters) {
-    super.setParameters(parameters);
-    maxSize = (int) parameters.get("maxSize");
-    setGroupSize(maxSize);
+  protected void injectParameters(Map<String, Object> parameters) {
+    super.injectParameters(parameters);
+    maxSize = (Integer) parameters.get("maxSize");
   }
 
   //TODO:REMOVE--------------------

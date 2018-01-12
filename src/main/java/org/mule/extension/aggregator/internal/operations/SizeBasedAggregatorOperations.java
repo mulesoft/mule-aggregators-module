@@ -7,7 +7,6 @@
 package org.mule.extension.aggregator.internal.operations;
 
 
-import static java.lang.Thread.sleep;
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
 import static org.mule.runtime.api.metadata.TypedValue.of;
 import org.mule.extension.aggregator.api.SizeBasedAggregatorParameterGroup;
@@ -24,7 +23,6 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
-import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 
 import java.util.Map;
 
@@ -47,10 +45,9 @@ public class SizeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
   //TODO:REMOVE----------------
 
   @Override
-  protected void setParameters(Map<String, Object> parameters) {
-    super.setParameters(parameters);
-    maxSize = (int) parameters.get("maxSize");
-    setGroupSize(maxSize);
+  protected void injectParameters(Map<String, Object> parameters) {
+    super.injectParameters(parameters);
+    maxSize = (Integer) parameters.get("maxSize");
   }
 
   //TODO:REMOVE----------------
@@ -114,6 +111,7 @@ public class SizeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
 
     //We should synchronize the access to the storage because if the group is released due to a timeout, we may get duplicates.
     executeSynchronized(() -> {
+
 
       AggregatedContent aggregatedContent = getAggregatedContent();
 

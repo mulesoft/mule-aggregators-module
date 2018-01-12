@@ -22,7 +22,7 @@ public class SizeBasedAggregatorOperationsEnricher implements DeclarationEnriche
         .ifPresent(
                    construct -> construct
                        .addModelProperty(new ComponentExecutorModelProperty((model,
-                                                                             params) -> new SizeBasedAggregatorOperationsExecutor())));
+                                                                             params) -> new SizeBasedAggregatorOperationsExecutor(params))));
 
   }
 }

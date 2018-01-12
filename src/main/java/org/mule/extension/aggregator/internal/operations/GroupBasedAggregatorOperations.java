@@ -7,7 +7,6 @@
 package org.mule.extension.aggregator.internal.operations;
 
 import static java.lang.String.format;
-import static java.lang.Thread.sleep;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_COMPLETED;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_TIMED_OUT;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.NO_GROUP_ID;
@@ -24,7 +23,6 @@ import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInfor
 import org.mule.extension.aggregator.internal.storage.info.GroupAggregatorSharedInformation;
 import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.extension.aggregator.internal.task.SimpleAsyncTask;
-import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.error.Throws;
@@ -33,7 +31,6 @@ import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
-import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -51,11 +48,6 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
   @Override
   String doGetAggregatorKey() {
     return AGGREGATOR_KEY;
-  }
-
-  @Override
-  public void initialise() throws InitialisationException {
-    super.initialise();
   }
 
   @Alias("groupBasedAggregator")

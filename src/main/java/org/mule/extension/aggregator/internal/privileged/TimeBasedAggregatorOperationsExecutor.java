@@ -24,12 +24,15 @@ import org.reactivestreams.Publisher;
 public class TimeBasedAggregatorOperationsExecutor extends TimeBasedAggregatorOperations
     implements ComponentExecutor<OperationModel> {
 
+  public TimeBasedAggregatorOperationsExecutor(Map<String, Object> params) {
+    injectParameters(params);
+  }
+
   @Override
   public Publisher<Object> execute(ExecutionContext<OperationModel> executionContext) {
     final ExecutionContextAdapter<OperationModel> context = (ExecutionContextAdapter<OperationModel>) executionContext;
     final CoreEvent event = context.getEvent();
     IncrementalAggregationRoute incrementalAggregationRoute = context.getParameter("incrementalAggregation");
-    setParameters(context.getParameters());
     TimeBasedAggregatorParameterGroup parameters = createParameters(context.getParameters());
     aggregate(parameters, incrementalAggregationRoute,
               new AggregatorCompletionCallback(context.getVariable(COMPLETION_CALLBACK_CONTEXT_PARAM), event));

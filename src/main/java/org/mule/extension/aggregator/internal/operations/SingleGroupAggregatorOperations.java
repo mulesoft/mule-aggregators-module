@@ -15,7 +15,6 @@ import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInfor
 import org.mule.extension.aggregator.internal.storage.info.SimpleAggregatorSharedInformation;
 import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.extension.aggregator.internal.task.SimpleAsyncTask;
-import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
 import java.util.concurrent.TimeUnit;
@@ -30,11 +29,6 @@ public abstract class SingleGroupAggregatorOperations extends AbstractAggregator
 
   private String groupId = getUUID();
   private int groupSize;
-
-  @Override
-  public void initialise() throws InitialisationException {
-    super.initialise();
-  }
 
   void setGroupSize(int groupSize) {
     this.groupSize = groupSize;

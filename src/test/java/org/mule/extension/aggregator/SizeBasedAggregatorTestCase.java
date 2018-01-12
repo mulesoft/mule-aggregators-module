@@ -14,10 +14,15 @@ import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecu
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
 
 import org.mule.runtime.core.api.event.CoreEvent;
+import org.mule.tck.junit4.FlakinessDetectorTestRunner;
+import org.mule.tck.junit4.FlakyTest;
+import org.mule.test.runner.RunnerDelegateTo;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Description;
 
+@RunnerDelegateTo(FlakinessDetectorTestRunner.class)
 public class SizeBasedAggregatorTestCase extends AbstractAggregatorsTestCase {
 
   @Override
@@ -87,6 +92,7 @@ public class SizeBasedAggregatorTestCase extends AbstractAggregatorsTestCase {
 
   @Test
   @Description("Hooked listener is called when aggregation is complete")
+  @FlakyTest(times = 200)
   public void listenerCalledOnComplete() throws Exception {
     noIncrementalAggregationRoute();
     assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 2);

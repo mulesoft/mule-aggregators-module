@@ -48,7 +48,6 @@ import org.mule.runtime.extension.api.annotation.param.reference.ObjectStoreRefe
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
-import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
 import org.mule.runtime.extension.api.runtime.route.Route;
 
 import java.util.List;
@@ -118,11 +117,10 @@ public abstract class AbstractAggregatorOperations implements Initialisable, Sta
 
   //TODO:REMOVE----------------------------
 
-  protected void setParameters(Map<String, Object> parameters) {
+  protected void injectParameters(Map<String, Object> parameters) {
     this.objectStore = (String) parameters.get("objectStore");
     this.name = (String) parameters.get("name");
   }
-
   //TODO:REMOVE----------------------------
 
 

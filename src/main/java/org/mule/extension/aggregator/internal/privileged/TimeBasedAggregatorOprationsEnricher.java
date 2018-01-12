@@ -22,6 +22,6 @@ public class TimeBasedAggregatorOprationsEnricher implements DeclarationEnricher
         .ifPresent(
                    construct -> construct
                        .addModelProperty(new ComponentExecutorModelProperty((model,
-                                                                             params) -> new TimeBasedAggregatorOperationsExecutor())));
+                                                                             params) -> new TimeBasedAggregatorOperationsExecutor(params))));
   }
 }
