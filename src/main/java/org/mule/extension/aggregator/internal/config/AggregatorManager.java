@@ -68,7 +68,6 @@ public class AggregatorManager implements Initialisable, Disposable {
    */
   public void registerListener(String aggregatorName, AggregatorListener listener) throws MuleException {
     //TODO:CHECK IF MULEEXCEPTION IS THE BEST OPTION
-    //TODO:ADD THIS CHECK
     if (!availableAggregators.contains(aggregatorName)) {
       throw new MuleRuntimeException(createStaticMessage("Listener is attempting to register to aggregator: %s ,but it does not exist",
                                                          aggregatorName));
