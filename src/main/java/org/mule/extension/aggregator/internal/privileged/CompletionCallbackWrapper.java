@@ -9,20 +9,18 @@ package org.mule.extension.aggregator.internal.privileged;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.process.CompletionCallback;
-import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 import org.mule.runtime.module.extension.api.runtime.privileged.EventedResult;
 
-public class AggregatorCompletionCallback implements RouterCompletionCallback {
+public class CompletionCallbackWrapper {
 
   private CompletionCallback delegate;
   private CoreEvent event;
 
-  public AggregatorCompletionCallback(CompletionCallback delegate, CoreEvent event) {
+  public CompletionCallbackWrapper(CompletionCallback delegate, CoreEvent event) {
     this.delegate = delegate;
     this.event = event;
   }
 
-  @Override
   public void success(Result<Object, Object> result) {
     if (result instanceof EventedResult) {
       delegate.success(result.copy().output(event.getMessage().getPayload()).build());
@@ -32,7 +30,6 @@ public class AggregatorCompletionCallback implements RouterCompletionCallback {
 
   }
 
-  @Override
   public void error(Throwable e) {
     delegate.error(e);
   }

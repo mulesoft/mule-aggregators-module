@@ -26,7 +26,7 @@ public class TimeBasedAggregatorParameterGroup extends AggregatorParameterGroup 
    */
   @Parameter
   @Expression(NOT_SUPPORTED)
-  private Integer period;
+  private int period;
 
   /**
    * The time unit in which the period is expressed

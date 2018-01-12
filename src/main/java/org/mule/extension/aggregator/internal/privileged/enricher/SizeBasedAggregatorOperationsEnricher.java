@@ -4,12 +4,18 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.aggregator.internal.privileged;
+package org.mule.extension.aggregator.internal.privileged.enricher;
 
+import org.mule.extension.aggregator.internal.privileged.executor.SizeBasedAggregatorOperationsExecutor;
 import org.mule.runtime.extension.api.loader.DeclarationEnricher;
 import org.mule.runtime.extension.api.loader.ExtensionLoadingContext;
 import org.mule.runtime.module.extension.api.loader.java.property.ComponentExecutorModelProperty;
 
+/**
+ * Sets {@link SizeBasedAggregatorOperationsExecutor} as the executor of the {@code sizeBasedAggregator} operation
+ *
+ * @since 1.0
+ */
 public class SizeBasedAggregatorOperationsEnricher implements DeclarationEnricher {
 
   public static final String OPERATION_NAME = "sizeBasedAggregator";

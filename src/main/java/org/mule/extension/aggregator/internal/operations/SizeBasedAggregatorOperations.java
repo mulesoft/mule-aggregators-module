@@ -8,23 +8,18 @@ package org.mule.extension.aggregator.internal.operations;
 
 
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
-import static org.mule.runtime.api.metadata.TypedValue.of;
 import org.mule.extension.aggregator.api.SizeBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.errors.SizeBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
-import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
-import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.Expression;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
-import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 
-import java.util.Map;
 
 /**
  * Operations defined for a Size Based Aggregator.
@@ -33,35 +28,12 @@ import java.util.Map;
  */
 public class SizeBasedAggregatorOperations extends SingleGroupAggregatorOperations {
 
-  private static final String AGGREGATOR_KEY = "SizeBasedAggregator";
-
   /**
    * Maximum size for the aggregation to be before releasing it.
    */
   @Parameter
   @Expression(NOT_SUPPORTED)
   private int maxSize;
-
-  //TODO:REMOVE----------------
-
-  @Override
-  protected void injectParameters(Map<String, Object> parameters) {
-    super.injectParameters(parameters);
-    maxSize = (Integer) parameters.get("maxSize");
-  }
-
-  //TODO:REMOVE----------------
-
-  @Override
-  public void initialise() throws InitialisationException {
-    super.initialise();
-    setGroupSize(maxSize);
-  }
-
-  @Override
-  String doGetAggregatorKey() {
-    return AGGREGATOR_KEY;
-  }
 
   /**
    * Aggregates a new event and executes the routes and listeners if it corresponds.
@@ -92,59 +64,13 @@ public class SizeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
   @Throws(SizeBasedAggregatorErrorProvider.class)
   public void aggregateBySize(
                               @ParameterGroup(
-                                  name = "sizeBasedAggregatorParameterGroup") SizeBasedAggregatorParameterGroup aggregatorParameters,
+                                  name = "Aggregator config") SizeBasedAggregatorParameterGroup aggregatorParameters,
                               @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
                               @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
                               RouterCompletionCallback completionCallback) {
 
+    // implemented as privileged operation in SizeBasedAggregatorOperationsExecutor
 
-  }
-
-  protected void aggregate(SizeBasedAggregatorParameterGroup aggregatorParameters,
-                           IncrementalAggregationRoute incrementalAggregationRoute,
-                           AggregationCompleteRoute onAggregationCompleteRoute,
-                           RouterCompletionCallback completionCallback) {
-
-    if (aggregatorParameters.isTimeoutSet()) {
-      evaluateConfiguredDelay("timeout", aggregatorParameters.getTimeout(), aggregatorParameters.getTimeoutUnit());
-    }
-
-    //We should synchronize the access to the storage because if the group is released due to a timeout, we may get duplicates.
-    executeSynchronized(() -> {
-
-
-      AggregatedContent aggregatedContent = getAggregatedContent();
-
-      if (aggregatorParameters.isTimeoutSet()) {
-        registerTaskIfNeeded(aggregatorParameters.getTimeout(), aggregatorParameters.getTimeoutUnit());
-      }
-
-      aggregatedContent.add(of(aggregatorParameters.getContent()), getCurrentTime());
-
-      if (aggregatedContent.isComplete()) {
-        notifyListenerOnComplete(aggregatedContent.getAggregatedElements());
-        executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedContent.getAggregatedElements(),
-                                           getAttributes(aggregatedContent), completionCallback);
-        resetGroup();
-      } else if (incrementalAggregationRoute != null) {
-        executeRouteWithAggregatedElements(incrementalAggregationRoute, aggregatedContent.getAggregatedElements(),
-                                           getAttributes(aggregatedContent), completionCallback);
-      } else {
-        completionCallback.success(Result.builder().build());
-      }
-    });
-  }
-
-  @Override
-  void onTaskExecution() {
-    onTimeout();
-  }
-
-  private void onTimeout() {
-    executeSynchronized(() -> {
-      notifyListenerOnTimeout(getAggregatedContent().getAggregatedElements());
-      resetGroup();
-    });
   }
 
 }

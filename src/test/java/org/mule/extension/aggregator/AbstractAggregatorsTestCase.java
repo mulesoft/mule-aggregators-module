@@ -53,7 +53,8 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
     final String flowName = "propagateVariables";
     final String variableKey = "internalVariable";
     final String variableValue = "stuff";
-    Event event = flowRunner(flowName).withVariable("variableKey", variableKey).withVariable("variableValue", variableValue).run();
+    Event event =
+        flowRunner(flowName).withVariable("variableKey", variableKey).withVariable("variableValue", variableValue).run();
     assertThat(event.getVariables().get(variableKey).getValue(), Matchers.is(Matchers.equalTo(variableValue)));
   }
 

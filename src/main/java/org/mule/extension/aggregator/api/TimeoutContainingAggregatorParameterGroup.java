@@ -29,7 +29,7 @@ public class TimeoutContainingAggregatorParameterGroup extends AggregatorParamet
   @Parameter
   @Expression(NOT_SUPPORTED)
   @Optional(defaultValue = UNLIMITED_TIMEOUT)
-  private Integer timeout;
+  private int timeout;
 
   /**
    * The time unit in which the timeout is expressed.
