@@ -6,11 +6,15 @@
  */
 package org.mule.extension.aggregator;
 
+import static java.lang.Thread.sleep;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.functional.util.FlowExecutionLogger.resetLogsMap;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
+import org.mule.runtime.api.event.Event;
 import org.mule.tck.junit4.rule.SystemProperty;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +42,19 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
     final String flowName = "attributesAreSet";
     final String randomString = "robin hood";
     flowRunner(flowName).withPayload(randomString).runNoVerify();
+    sleep(100); //Wait a little bit so that times differ.
     flowRunner(flowName).withPayload(randomString).run();
+  }
+
+
+  @Test
+  @Description("Variables set in route should be propagated to outside aggregator")
+  public void propagatingVariablesOnIncremental() throws Exception {
+    final String flowName = "propagateVariables";
+    final String variableKey = "internalVariable";
+    final String variableValue = "stuff";
+    Event event = flowRunner(flowName).withVariable("variableKey", variableKey).withVariable("variableValue", variableValue).run();
+    assertThat(event.getVariables().get(variableKey).getValue(), Matchers.is(Matchers.equalTo(variableValue)));
   }
 
 
