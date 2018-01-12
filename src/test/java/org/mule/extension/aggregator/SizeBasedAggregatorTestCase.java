@@ -7,14 +7,18 @@
 package org.mule.extension.aggregator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteExecutedNTimes;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecuted;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
 
+import org.mule.runtime.api.event.Event;
 import org.mule.runtime.core.api.event.CoreEvent;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.springframework.context.annotation.Description;
 
@@ -141,6 +145,18 @@ public class SizeBasedAggregatorTestCase extends AbstractAggregatorsTestCase {
     assertThat(event.getMessage().getPayload().getValue(), is(equalTo(2)));
 
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
+  }
+
+  @Test
+  @Description("Variables set in route should be propagated to outside aggregator")
+  public void propagatingVariablesOnComplete() throws Exception {
+    final String flowName = "propagateVariables";
+    final String variableKey = "internalVariable";
+    final String variableValue = "stuff";
+    Event event = flowRunner(flowName).run();
+    assertThat(event.getVariables(), not(hasKey(variableKey)));
+    event = flowRunner(flowName).withVariable("variableKey", variableKey).withVariable("variableValue", variableValue).run();
+    assertThat(event.getVariables().get(variableKey).getValue(), Matchers.is(Matchers.equalTo(variableValue)));
   }
 
 }

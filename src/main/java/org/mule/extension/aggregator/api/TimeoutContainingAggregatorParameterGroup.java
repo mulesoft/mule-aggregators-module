@@ -39,11 +39,11 @@ public class TimeoutContainingAggregatorParameterGroup extends AggregatorParamet
   @Optional(defaultValue = "SECONDS")
   private TimeUnit timeoutUnit;
 
-  public int getTimeout() {
+  public Integer getTimeout() {
     return timeout;
   }
 
-  public void setTimeout(int timeout) {
+  public void setTimeout(Integer timeout) {
     this.timeout = timeout;
   }
 

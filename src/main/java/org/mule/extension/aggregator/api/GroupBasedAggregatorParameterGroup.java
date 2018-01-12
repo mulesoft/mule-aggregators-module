@@ -38,10 +38,7 @@ public class GroupBasedAggregatorParameterGroup extends TimeoutContainingAggrega
    */
   @Parameter
   @Expression(SUPPORTED)
-  //TODO: fix this!
-  //@Optional(defaultValue = "#[groupCorrelation.groupSize]")
-  @Optional(defaultValue = "10")
-  //It should be integer instead of int to allow expression to resolve to null
+  @Optional(defaultValue = "#[itemSequenceInfo.sequenceSize]")
   private Integer groupSize;
 
   /**
@@ -74,15 +71,15 @@ public class GroupBasedAggregatorParameterGroup extends TimeoutContainingAggrega
     return groupSize;
   }
 
-  public void setGroupSize(int groupSize) {
+  public void setGroupSize(Integer groupSize) {
     this.groupSize = groupSize;
   }
 
-  public int getEvictionTime() {
+  public Integer getEvictionTime() {
     return evictionTime;
   }
 
-  public void setEvictionTime(int evictionTime) {
+  public void setEvictionTime(Integer evictionTime) {
     this.evictionTime = evictionTime;
   }
 

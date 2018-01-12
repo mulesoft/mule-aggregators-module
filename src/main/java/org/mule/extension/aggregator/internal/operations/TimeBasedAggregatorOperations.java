@@ -6,27 +6,21 @@
  */
 package org.mule.extension.aggregator.internal.operations;
 
-import static java.lang.Thread.sleep;
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
-import static org.mule.runtime.api.metadata.TypedValue.of;
 import org.mule.extension.aggregator.api.TimeBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.errors.TimeBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
-import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
-import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.Expression;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
-import org.mule.runtime.extension.api.runtime.process.VoidCompletionCallback;
-
+import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 
 public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperations {
 
-  private static final String UNLIMITED_TIMEOUT = "-1";
-  private static final String AGGREGATOR_KEY = "TimeBasedAggregator";
+  private static final String UNLIMITED_SIZE = "-1";
 
   /**
    * Defines the a maximum size for the aggregation. If the size is reached before the period configured is completed
@@ -38,19 +32,8 @@ public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
    */
   @Parameter
   @Expression(NOT_SUPPORTED)
-  @Optional(defaultValue = UNLIMITED_TIMEOUT)
+  @Optional(defaultValue = UNLIMITED_SIZE)
   private int maxSize;
-
-  @Override
-  public void initialise() throws InitialisationException {
-    super.initialise();
-    setGroupSize(maxSize);
-  }
-
-  @Override
-  String doGetAggregatorKey() {
-    return AGGREGATOR_KEY;
-  }
 
   /**
    * This aggregator aggregates elements until it reaches the specified time period.
@@ -71,45 +54,11 @@ public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
   @Throws(TimeBasedAggregatorErrorProvider.class)
   public void aggregateByTime(
                               @ParameterGroup(
-                                  name = "timeBasedAggregatorParameters") TimeBasedAggregatorParameterGroup aggregatorParameters,
+                                  name = "Aggregator config") TimeBasedAggregatorParameterGroup aggregatorParameters,
                               @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
-                              VoidCompletionCallback completionCallback) {
+                              RouterCompletionCallback completionCallback) {
 
-    evaluateConfiguredDelay("period", aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
-
-    //We should synchronize the access to the storage to account for the situation when the period is completed while
-    //executing a new event.
-    executeSynchronized(() -> {
-
-      registerTaskIfNeeded(aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
-
-      AggregatedContent aggregatedContent = getAggregatedContent();
-
-      aggregatedContent.add(of(aggregatorParameters.getContent()), getCurrentTime());
-
-      if (aggregatedContent.isComplete()) {
-        notifyListenerOnComplete(aggregatedContent.getAggregatedElements());
-        resetGroup();
-        completionCallback.success();
-      } else if (incrementalAggregationRoute != null) {
-        executeRouteWithAggregatedElements(incrementalAggregationRoute, aggregatedContent.getAggregatedElements(),
-                                           getAttributes(aggregatedContent), completionCallback);
-      } else {
-        completionCallback.success();
-      }
-    });
-  }
-
-  @Override
-  void onTaskExecution() {
-    getElementsAndNotifyListener();
-  }
-
-  private void getElementsAndNotifyListener() {
-    executeSynchronized(() -> {
-      notifyListenerOnComplete(getAggregatedContent().getAggregatedElements());
-      resetGroup();
-    });
+    // implemented as privileged operation in TimeBasedAggregatorOperationsExecutor
   }
 
 }

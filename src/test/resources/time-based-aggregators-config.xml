@@ -58,6 +58,14 @@
         </aggregators:time-based-aggregator>
     </flow>
 
+    <flow name="propagateVariables">
+        <aggregators:time-based-aggregator name="6" content="#[payload]" period="1000" periodUnit="SECONDS">
+            <aggregators:incremental-aggregation>
+                <set-variable variableName="#[vars.variableKey]" value="#[vars.variableValue]"/>
+            </aggregators:incremental-aggregation>
+        </aggregators:time-based-aggregator>
+    </flow>
+
     <!--TODO:MULE-14303 move sub-flow to main flow-->
     <sub-flow name="assertOneElement">
         <test:assert expression="#[attributes.firstValueArrivalTime == attributes.lastValueArrivalTime]"/>

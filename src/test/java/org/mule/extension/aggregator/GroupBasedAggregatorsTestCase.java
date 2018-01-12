@@ -7,11 +7,17 @@
 package org.mule.extension.aggregator;
 
 import static java.lang.Thread.sleep;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteExecutedNTimes;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecuted;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
 
+import org.mule.runtime.api.event.Event;
 import org.mule.tck.junit4.rule.SystemProperty;
 
 import org.junit.Rule;
@@ -169,6 +175,18 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
   public void invalidGroupSizeExpressionThrowsException() throws Exception {
     final String flowName = "noGroupSizeExceptionThrowingFlow";
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, null).withPayload(1).run();
+  }
+
+  @Test
+  @Description("Variables set in route should be propagated to outside aggregator")
+  public void propagatingVariablesOnComplete() throws Exception {
+    final String flowName = "propagateVariables";
+    final String variableKey = "internalVariable";
+    final String variableValue = "stuff";
+    Event event = flowRunner(flowName).run();
+    assertThat(event.getVariables(), not(hasKey(variableKey)));
+    event = flowRunner(flowName).withVariable("variableKey", variableKey).withVariable("variableValue", variableValue).run();
+    assertThat(event.getVariables().get(variableKey).getValue(), is(equalTo(variableValue)));
   }
 
 }
