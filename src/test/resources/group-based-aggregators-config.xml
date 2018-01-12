@@ -10,7 +10,6 @@
     <flow name="aggregationCompleteRoute">
         <aggregators:group-based-aggregator name="1" content="#[payload]" groupId="#[vars.gid]" groupSize="2">
             <aggregators:aggregation-complete>
-                <set-variable value="lala" variableName="lala"/>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
         </aggregators:group-based-aggregator>
