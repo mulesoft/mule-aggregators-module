@@ -38,6 +38,16 @@ import java.util.concurrent.TimeUnit;
 
 import org.reactivestreams.Publisher;
 
+/**
+ * Custom executor for {@code groupBasedAggregator}.
+ * <p/>
+ * Class keeping all the logic for the aggregator defined in {@link org.mule.extension.aggregator.internal.operations.GroupBasedAggregatorOperations}
+ * <p>
+ * The reason why we have this custom executor is that unlike regular routers, we should be able to both, have the it
+ * as void (the event out is the same as the event in) and propagate variables in case any is set inside a route.
+ *
+ * @since 1.0
+ */
 public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorExecutor {
 
   private static final String AGGREGATOR_KEY = "GroupBasedAggregator";

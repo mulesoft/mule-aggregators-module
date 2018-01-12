@@ -57,6 +57,15 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+
+/**
+ * Custom abstract executor for aggregator operations.
+ * <p>
+ * The reason why we have this custom executor is that unlike regular routers, we should be able to both, have the router
+ * as void (the event out is the same as the event in) and propagate variables in case any is set inside a route.
+ *
+ * @since 1.0
+ */
 public abstract class AbstractAggregatorExecutor
     implements ComponentExecutor<OperationModel>, Initialisable, Startable, Disposable {
 

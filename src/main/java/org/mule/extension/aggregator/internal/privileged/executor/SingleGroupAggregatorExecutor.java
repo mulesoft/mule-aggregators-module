@@ -19,6 +19,14 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Custom abstract executor for aggregators with a single aggregation group.
+ * <p/>
+ * The reason why we have this custom executor is that unlike regular routers, we should be able to both, have the it
+ * as void (the event out is the same as the event in) and propagate variables in case any is set inside a route.
+ *
+ * @since 1.0
+ */
 public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorExecutor {
 
   private String groupId = getUUID();
