@@ -145,6 +145,17 @@
         </aggregators:group-based-aggregator>
     </flow>
 
+    <flow name="propagateVariables">
+        <aggregators:group-based-aggregator name="12" content="#[payload]" groupId="someId" groupSize="2">
+            <aggregators:incremental-aggregation>
+                <set-variable variableName="#[vars.variableKey]" value="#[vars.variableValue]"/>
+            </aggregators:incremental-aggregation>
+            <aggregators:aggregation-complete>
+                <set-variable variableName="#[vars.variableKey]" value="#[vars.variableValue]"/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+    </flow>
+
     <flow name="onComplete">
         <set-variable variableName="executionRoute" value="aggregationComplete"/>
         <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>

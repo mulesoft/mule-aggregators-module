@@ -36,11 +36,11 @@ public class TimeBasedAggregatorParameterGroup extends AggregatorParameterGroup 
   @Optional(defaultValue = "SECONDS")
   private TimeUnit periodUnit;
 
-  public int getPeriod() {
+  public Integer getPeriod() {
     return period;
   }
 
-  public void setPeriod(int period) {
+  public void setPeriod(Integer period) {
     this.period = period;
   }
 
