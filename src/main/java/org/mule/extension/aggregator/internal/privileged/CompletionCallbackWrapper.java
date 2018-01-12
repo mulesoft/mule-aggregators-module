@@ -11,6 +11,14 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.process.CompletionCallback;
 import org.mule.runtime.module.extension.api.runtime.privileged.EventedResult;
 
+/**
+ * Callback called when an aggregation execution is complete.
+ * <p/>
+ * It has a {@ling CompletionCallback} as a delegate to call when router is done but since we need information from the
+ * incoming message as well as any variable set a route, the incoming event is available.
+ *
+ * @since 1.0
+ */
 public class CompletionCallbackWrapper {
 
   private CompletionCallback delegate;
