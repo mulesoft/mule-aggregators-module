@@ -233,6 +233,14 @@
         <flow-ref name="onListener"/>
     </flow>
 
+    <flow name="evictImmediately">
+        <aggregators:group-based-aggregator name="13" content="#[payload]" groupId="someId" groupSize="1" evictionTime="0">
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+    </flow>
+
     <flow name="onComplete">
         <set-variable variableName="executionRoute" value="aggregationComplete"/>
         <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>

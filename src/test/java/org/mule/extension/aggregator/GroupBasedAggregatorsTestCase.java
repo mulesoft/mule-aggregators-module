@@ -209,4 +209,13 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
     assertRouteNthExecution(LISTENER_ROUTE_KEY, 1, groupId);
   }
 
+  @Description("Eviction time of 0 means evict immediately")
+  public void evictGroupImmediately() throws Exception {
+    final String flowName = "evictImmediately";
+    for (int i = 1;i < 5; i++) {
+      flowRunner(flowName).withPayload(i).run();
+      assertRouteNthExecution(AGGREGATION_COMPLETE_ROUTE_KEY,i,i);
+    }
+  }
+
 }

@@ -6,6 +6,8 @@
  */
 package org.mule.extension.aggregator.internal.privileged.executor;
 
+import static java.lang.String.format;
+import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.runtime.api.metadata.TypedValue.of;
 import static org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextProperties.COMPLETION_CALLBACK_CONTEXT_PARAM;
 import org.mule.extension.aggregator.api.TimeBasedAggregatorParameterGroup;
@@ -15,6 +17,7 @@ import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
 import org.mule.runtime.core.api.event.CoreEvent;
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.ExecutionContext;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextAdapter;
@@ -84,6 +87,9 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
                          IncrementalAggregationRoute incrementalAggregationRoute,
                          CompletionCallbackWrapper completionCallback) {
 
+    if(aggregatorParameters.getPeriod() <= 0) {
+      throw new ModuleException(format("A configured period of %d is not valid. Value should be bigger than 0",aggregatorParameters.getPeriod()), AGGREGATOR_CONFIG);
+    }
     evaluateConfiguredDelay("period", aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
 
     //We should synchronize the access to the storage to account for the situation when the period is completed while

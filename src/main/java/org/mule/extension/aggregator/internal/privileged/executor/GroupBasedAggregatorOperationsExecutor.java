@@ -7,6 +7,7 @@
 package org.mule.extension.aggregator.internal.privileged.executor;
 
 import static java.lang.String.format;
+import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_COMPLETED;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_TIMED_OUT;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.NO_GROUP_ID;
@@ -147,6 +148,9 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
     }
 
     if (parameterGroup.isTimeoutSet()) {
+      if(parameterGroup.getTimeout() <= 0) {
+        throw new ModuleException(format("A configured timeout of %d is not valid. Value should be bigger than 0", parameterGroup.getTimeout()), AGGREGATOR_CONFIG);
+      }
       evaluateConfiguredDelay("timeout", parameterGroup.getTimeout(), parameterGroup.getTimeoutUnit());
     }
   }

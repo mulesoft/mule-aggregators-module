@@ -10,14 +10,12 @@ package org.mule.extension.aggregator;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteExecutedNTimes;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecuted;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
 
 import org.mule.runtime.api.event.Event;
 import org.mule.runtime.core.api.event.CoreEvent;
-import org.mule.tck.junit4.rule.SystemProperty;
 
 import org.junit.Rule;
 import org.junit.Test;

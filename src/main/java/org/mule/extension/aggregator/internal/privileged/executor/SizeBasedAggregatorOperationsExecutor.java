@@ -6,6 +6,8 @@
  */
 package org.mule.extension.aggregator.internal.privileged.executor;
 
+import static java.lang.String.format;
+import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.runtime.api.metadata.TypedValue.of;
 import static org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextProperties.COMPLETION_CALLBACK_CONTEXT_PARAM;
 import org.mule.extension.aggregator.api.SizeBasedAggregatorParameterGroup;
@@ -16,6 +18,7 @@ import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
 import org.mule.runtime.core.api.event.CoreEvent;
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.ExecutionContext;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextAdapter;
@@ -88,6 +91,9 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
                          CompletionCallbackWrapper completionCallback) {
 
     if (aggregatorParameters.isTimeoutSet()) {
+      if(aggregatorParameters.getTimeout() <= 0) {
+        throw new ModuleException(format("A configured timeout of %d is not valid. Value should be bigger than 0", aggregatorParameters.getTimeout()), AGGREGATOR_CONFIG);
+      }
       evaluateConfiguredDelay("timeout", aggregatorParameters.getTimeout(), aggregatorParameters.getTimeoutUnit());
     }
 
