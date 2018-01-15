@@ -18,6 +18,7 @@ import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapp
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.AggregationAttributes;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
+import org.mule.extension.aggregator.internal.storage.content.AbstractAggregatedContent;
 import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.extension.aggregator.internal.storage.content.SimpleAggregatedContent;
 import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
@@ -146,7 +147,12 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
   }
 
   private void onGroupEviction(String groupId) {
-    executeSynchronized(() -> getSharedInfoLocalCopy().removeAggregatedContent(groupId));
+    executeSynchronized(() -> {
+      getSharedInfoLocalCopy().removeAggregatedContent(groupId);
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(format("Group with id: %s evicted", groupId));
+      }
+    });
   }
 
   private void onTimeout(String groupId) {
@@ -156,6 +162,9 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
         List<TypedValue> elements = groupStorage.getAggregatedElements();
         ((SimpleAggregatedContent) groupStorage).setTimedOut();
         notifyListenerOnTimeout(elements);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug(format("Group with id: %s timed out", groupId));
+        }
       }
     });
   }
@@ -167,7 +176,11 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
       aggregatedContent = new SimpleAggregatedContent(groupSize);
       getSharedInfoLocalCopy().setAggregatedContent(groupId, aggregatedContent);
     }
-    //TODO:LOG EXCEPTION IF GROUP SIZE DOES NOT MATCH
+    if (((AbstractAggregatedContent) aggregatedContent).getMaxSize() != groupSize) {
+      LOGGER.warn(format("Group size for groupId: %s is different from the first configured one. Was: %d, is: %d, using: %d",
+                         groupId, ((AbstractAggregatedContent) aggregatedContent).getMaxSize(), groupSize,
+                         ((AbstractAggregatedContent) aggregatedContent).getMaxSize()));
+    }
     return aggregatedContent;
   }
 
@@ -195,6 +208,13 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
       AsyncTask task = new SimpleAsyncTask(delay, unit);
       task.setRegistered(getCurrentTime());
       getSharedInfoLocalCopy().registerTimeoutTask(groupId, task);
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(format("Registered timeout to be executed for groupId: %s in %d %s", groupId, delay, unit));
+      }
+    } else {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(format("Attempted to register timeout task for groupId: %s but it was already registered", groupId));
+      }
     }
   }
 
@@ -203,6 +223,13 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
       AsyncTask task = new SimpleAsyncTask(delay, unit);
       task.setRegistered(getCurrentTime());
       getSharedInfoLocalCopy().registerGroupEvictionTask(groupId, task);
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(format("Registered group eviction to be executed for groupId: %s in %d %s", groupId, delay, unit));
+      }
+    } else {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(format("Attempted to register group eviction for groupId: %s but it was already registered", groupId));
+      }
     }
   }
 
@@ -225,6 +252,14 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
         getSharedInfoLocalCopy().unregisterGroupEvictionTask(groupId);
       });
       task.setScheduled(getCurrentTime());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(format("Scheduled group eviction for groupId: %s to be executed in %d %s", groupId, task.getDelay(),
+                            task.getDelayTimeUnit()));
+      }
+    } else {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(format("Attempted to schedule a group eviction for groupId: %s, but it is already scheduled", groupId));
+      }
     }
   }
 
@@ -236,6 +271,14 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
         getSharedInfoLocalCopy().unregisterTimeoutTask(groupId);
       });
       task.setScheduled(getCurrentTime());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(format("Scheduled timeout for groupId: %s to be executed in %d %s", groupId, task.getDelay(),
+                            task.getDelayTimeUnit()));
+      }
+    } else {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(format("Attempted to schedule timeout for groupId: %s, but it is already scheduled", groupId));
+      }
     }
   }
 

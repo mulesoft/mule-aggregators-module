@@ -56,6 +56,9 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Custom abstract executor for aggregator operations.
@@ -68,6 +71,7 @@ import javax.inject.Named;
 public abstract class AbstractAggregatorExecutor
     implements ComponentExecutor<OperationModel>, Initialisable, Startable, Disposable {
 
+  final Logger LOGGER = LoggerFactory.getLogger(getClass());
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
   private static final String DEFAULT_TASK_SCHEDULING_PERIOD = "1000";
   private static final TimeUnit TASK_SCHEDULING_PERIOD_UNIT = MILLISECONDS;
@@ -141,7 +145,8 @@ public abstract class AbstractAggregatorExecutor
               .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
                   .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
         } catch (NumberFormatException e) {
-          //TODO: ADD log telling that there was an error with the configuration and the default was used
+          LOGGER.warn(format("Error trying to configure %s, the value could not be parsed to a long. Using default value: %d %s",
+                             TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, TASK_SCHEDULING_PERIOD_UNIT));
         }
         scheduler.scheduleAtFixedRate(this::scheduleRegisteredTasks, 0, taskSchedulingPeriod, TASK_SCHEDULING_PERIOD_UNIT);
         started = true;

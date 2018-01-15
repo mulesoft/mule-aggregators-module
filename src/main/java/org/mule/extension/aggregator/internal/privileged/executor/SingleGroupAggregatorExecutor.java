@@ -7,6 +7,7 @@
 package org.mule.extension.aggregator.internal.privileged.executor;
 
 
+import static java.lang.String.format;
 import static org.mule.runtime.core.api.util.UUID.getUUID;
 import org.mule.extension.aggregator.internal.routes.AggregationAttributes;
 import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
@@ -62,6 +63,13 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
       AsyncTask task = new SimpleAsyncTask(delay, unit);
       task.setRegistered(getCurrentTime());
       getSharedInfoLocalCopy().registerTask(task);
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(format("Registered task to be executed in %d %s", delay, unit));
+      }
+    } else {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Attempted to register task but it was already registered");
+      }
     }
   }
 
@@ -74,6 +82,14 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
           onTaskExecution();
           getSharedInfoLocalCopy().unregisterTask();
         });
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug(format("Scheduled task to be executed in %d %s", task.getDelay(), task.getDelayTimeUnit()));
+        }
+        task.setScheduled(getCurrentTime());
+      } else {
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("Attempted to schedule task but it was already scheduled");
+        }
       }
       task.setScheduled(getCurrentTime());
     }
