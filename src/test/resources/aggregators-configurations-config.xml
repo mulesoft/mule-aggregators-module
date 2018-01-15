@@ -177,7 +177,7 @@
             <test:on-error-check-log>
                 <test:check-summary>
                     <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
-                    <test:summary-info key="Message" value="maxSize should be bigger than 0, got: 0."/>
+                    <test:summary-info key="Message" value="maxSize can't be 0."/>
                 </test:check-summary>
             </test:on-error-check-log>
         </error-handler>
@@ -205,18 +205,6 @@
                 <test:processor/>
             </aggregators:aggregation-complete>
         </aggregators:size-based-aggregator>
-        <error-handler>
-            <test:on-error-check-log>
-                <test:check-summary>
-                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
-                    <test:summary-info key="Message" value="maxSize should be bigger than 0, got: -1000."/>
-                </test:check-summary>
-            </test:on-error-check-log>
-        </error-handler>
-    </flow>
-
-    <flow name="negativeMaxSizeTimeBased">
-        <aggregators:time-based-aggregator name="11" content="#[payload]" period="1000" periodUnit="MILLISECONDS" maxSize="-1000"/>
         <error-handler>
             <test:on-error-check-log>
                 <test:check-summary>

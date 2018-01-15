@@ -121,8 +121,8 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
 
     evaluateConfiguredDelay("period", parameterGroup.getPeriod(), parameterGroup.getPeriodUnit());
 
-    if(maxSize <= 0) {
-      throw new ModuleException(format("maxSize should be bigger than 0, got: %d", maxSize), AGGREGATOR_CONFIG);
+    if(maxSize == 0) {
+      throw new ModuleException("maxSize can't be 0", AGGREGATOR_CONFIG);
     }
 
   }
