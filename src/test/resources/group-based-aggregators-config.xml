@@ -177,7 +177,7 @@
             <aggregators:aggregation-complete>
                 <test:assert expression="#[attributes.isGroupComplete == true]"/>
                 <test:assert expression="#[attributes.aggregationId == 'uniqueId']"/>
-                <test:assert expression="#[attributes.firstItemArrivalTime != attributes.lastItemArrivalTime]"/>
+                <test:assert expression="#[attributes.firstItemArrivalTime != attributes.lastItemArrivalTime ]"/>
                 <test:assert expression="#[attributes.firstItemArrivalTime != null]"/>
                 <test:assert expression="#[attributes.lastItemArrivalTime != null]"/>
             </aggregators:aggregation-complete>

@@ -42,7 +42,7 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
     final String flowName = "attributesAreSet";
     final String randomString = "robin hood";
     flowRunner(flowName).withPayload(randomString).runNoVerify();
-    sleep(100); //Wait a little bit so that times differ.
+    sleep(1000); //Wait a little bit so that times differ.
     flowRunner(flowName).withPayload(randomString).run();
   }
 
