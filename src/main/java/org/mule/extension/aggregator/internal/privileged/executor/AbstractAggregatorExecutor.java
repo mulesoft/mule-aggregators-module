@@ -14,13 +14,12 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_KEY;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
-import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAGER;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 import static org.mule.runtime.extension.api.error.MuleErrors.ANY;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
-import org.mule.extension.aggregator.internal.routes.AggregatorAttributes;
+import org.mule.extension.aggregator.internal.routes.AggregationAttributes;
 import org.mule.extension.aggregator.internal.source.AggregatorListener;
 import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
 import org.mule.extension.aggregator.internal.task.AsyncTask;
@@ -157,7 +156,7 @@ public abstract class AbstractAggregatorExecutor
     }
   }
 
-  void executeRouteWithAggregatedElements(Route route, List<TypedValue> elements, AggregatorAttributes attributes,
+  void executeRouteWithAggregatedElements(Route route, List<TypedValue> elements, AggregationAttributes attributes,
                                           CompletionCallbackWrapper callback) {
     route.getChain().process(elements, attributes, callback::success, (e, r) -> callback.error(e));
   }
@@ -293,7 +292,7 @@ public abstract class AbstractAggregatorExecutor
 
   private void executeListener(AggregatorListener listener, List<TypedValue> elements) {
     if (listener.isStarted()) {
-      listener.getCallback().handle(Result.<List<TypedValue>, AggregatorAttributes>builder()
+      listener.getCallback().handle(Result.<List<TypedValue>, AggregationAttributes>builder()
           .output(elements).build());
     }
   }

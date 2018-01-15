@@ -43,7 +43,7 @@
         <aggregators:time-based-aggregator name="5" content="#[payload]" period="10">
             <aggregators:incremental-aggregation>
                 <test:assert expression="#[attributes.isGroupComplete == false]"/>
-                <test:assert expression="#[attributes.groupId != null]"/>
+                <test:assert expression="#[attributes.aggregationId != null]"/>
                 <choice>
                     <when expression="#[sizeOf(payload) == 1]">
                         <flow-ref name="assertOneElement"/>
@@ -52,8 +52,8 @@
                         <flow-ref name="assertMultipleElements"/>
                     </otherwise>
                 </choice>
-                <test:assert expression="#[attributes.firstValueArrivalTime != null]"/>
-                <test:assert expression="#[attributes.lastValueArrivalTime != null]"/>
+                <test:assert expression="#[attributes.firstItemArrivalTime != null]"/>
+                <test:assert expression="#[attributes.lastItemArrivalTime != null]"/>
             </aggregators:incremental-aggregation>
         </aggregators:time-based-aggregator>
     </flow>
@@ -68,12 +68,12 @@
 
     <!--TODO:MULE-14303 move sub-flow to main flow-->
     <sub-flow name="assertOneElement">
-        <test:assert expression="#[attributes.firstValueArrivalTime == attributes.lastValueArrivalTime]"/>
+        <test:assert expression="#[attributes.firstItemArrivalTime == attributes.lastItemArrivalTime]"/>
     </sub-flow>
 
     <!--TODO:MULE-14303 move sub-flow to main flow-->
     <sub-flow name="assertMultipleElements">
-        <test:assert expression="#[attributes.firstValueArrivalTime != attributes.lastValueArrivalTime]"/>
+        <test:assert expression="#[attributes.firstItemArrivalTime != attributes.lastItemArrivalTime]"/>
     </sub-flow>
 
 

@@ -7,33 +7,16 @@
 package org.mule.extension.aggregator.internal.operations;
 
 import static java.lang.String.format;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_COMPLETED;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_TIMED_OUT;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.NO_GROUP_ID;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.NO_GROUP_SIZE;
-import static org.mule.runtime.api.metadata.TypedValue.of;
 import org.mule.extension.aggregator.api.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.errors.GroupBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
-import org.mule.extension.aggregator.internal.routes.AggregatorAttributes;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
-import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
-import org.mule.extension.aggregator.internal.storage.content.SimpleAggregatedContent;
-import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
-import org.mule.extension.aggregator.internal.storage.info.GroupAggregatorSharedInformation;
-import org.mule.extension.aggregator.internal.task.AsyncTask;
-import org.mule.extension.aggregator.internal.task.SimpleAsyncTask;
-import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.exception.ModuleException;
-import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 
 /**
