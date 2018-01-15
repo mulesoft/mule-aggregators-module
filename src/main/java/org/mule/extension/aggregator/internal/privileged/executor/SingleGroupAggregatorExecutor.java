@@ -8,7 +8,7 @@ package org.mule.extension.aggregator.internal.privileged.executor;
 
 
 import static org.mule.runtime.core.api.util.UUID.getUUID;
-import org.mule.extension.aggregator.internal.routes.AggregatorAttributes;
+import org.mule.extension.aggregator.internal.routes.AggregationAttributes;
 import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.extension.aggregator.internal.storage.content.SimpleAggregatedContent;
 import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
@@ -41,11 +41,11 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
     groupId = getUUID();
   }
 
-  AggregatorAttributes getAttributes(AggregatedContent aggregatedContent) {
-    return new AggregatorAttributes(groupId,
-                                    aggregatedContent.getFirstValueArrivalTime(),
-                                    aggregatedContent.getLastValueArrivalTime(),
-                                    aggregatedContent.isComplete());
+  AggregationAttributes getAttributes(AggregatedContent aggregatedContent) {
+    return new AggregationAttributes(groupId,
+                                     aggregatedContent.getFirstValueArrivalTime(),
+                                     aggregatedContent.getLastValueArrivalTime(),
+                                     aggregatedContent.isComplete());
   }
 
   AggregatedContent getAggregatedContent() {

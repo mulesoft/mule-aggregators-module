@@ -137,10 +137,10 @@
         <aggregators:group-based-aggregator name="11" groupId="uniqueId" content="#[payload]" groupSize="2">
             <aggregators:aggregation-complete>
                 <test:assert expression="#[attributes.isGroupComplete == true]"/>
-                <test:assert expression="#[attributes.groupId == 'uniqueId']"/>
-                <test:assert expression="#[attributes.firstValueArrivalTime != attributes.lastValueArrivalTime]"/>
-                <test:assert expression="#[attributes.firstValueArrivalTime != null]"/>
-                <test:assert expression="#[attributes.lastValueArrivalTime != null]"/>
+                <test:assert expression="#[attributes.aggregationId == 'uniqueId']"/>
+                <test:assert expression="#[attributes.firstItemArrivalTime != attributes.lastItemArrivalTime]"/>
+                <test:assert expression="#[attributes.firstItemArrivalTime != null]"/>
+                <test:assert expression="#[attributes.lastItemArrivalTime != null]"/>
             </aggregators:aggregation-complete>
         </aggregators:group-based-aggregator>
     </flow>

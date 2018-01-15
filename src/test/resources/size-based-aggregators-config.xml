@@ -72,10 +72,10 @@
         <aggregators:size-based-aggregator name="6" content="#[payload]" maxSize="2">
             <aggregators:aggregation-complete>
                 <test:assert expression="#[attributes.isGroupComplete == true]"/>
-                <test:assert expression="#[attributes.groupId != null]"/>
-                <test:assert expression="#[attributes.firstValueArrivalTime != attributes.lastValueArrivalTime]"/>
-                <test:assert expression="#[attributes.firstValueArrivalTime != null]"/>
-                <test:assert expression="#[attributes.lastValueArrivalTime != null]"/>
+                <test:assert expression="#[attributes.aggregationId != null]"/>
+                <test:assert expression="#[attributes.firstItemArrivalTime != attributes.lastItemArrivalTime]"/>
+                <test:assert expression="#[attributes.firstItemArrivalTime != null]"/>
+                <test:assert expression="#[attributes.lastItemArrivalTime != null]"/>
             </aggregators:aggregation-complete>
         </aggregators:size-based-aggregator>
     </flow>

@@ -7,7 +7,7 @@
 package org.mule.extension.aggregator.internal.source;
 
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
-import org.mule.extension.aggregator.internal.routes.AggregatorAttributes;
+import org.mule.extension.aggregator.internal.routes.AggregationAttributes;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
@@ -24,7 +24,7 @@ import javax.inject.Inject;
  *
  * @since 1.0
  */
-public class AggregatorListener extends Source<Message, AggregatorAttributes> {
+public class AggregatorListener extends Source<Message, AggregationAttributes> {
 
   @Inject
   private AggregatorManager manager;
@@ -39,10 +39,10 @@ public class AggregatorListener extends Source<Message, AggregatorAttributes> {
   private boolean includeTimedOutGroups;
 
   private Boolean started = false;
-  private SourceCallback<Message, AggregatorAttributes> sourceCallback;
+  private SourceCallback<Message, AggregationAttributes> sourceCallback;
 
   @Override
-  public void onStart(SourceCallback<Message, AggregatorAttributes> sourceCallback) throws MuleException {
+  public void onStart(SourceCallback<Message, AggregationAttributes> sourceCallback) throws MuleException {
     synchronized (started) {
       this.sourceCallback = sourceCallback;
       manager.registerListener(aggregatorName, this);

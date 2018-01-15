@@ -16,7 +16,7 @@ import static org.mule.runtime.module.extension.api.runtime.privileged.Execution
 import org.mule.extension.aggregator.api.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
-import org.mule.extension.aggregator.internal.routes.AggregatorAttributes;
+import org.mule.extension.aggregator.internal.routes.AggregationAttributes;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
 import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.extension.aggregator.internal.storage.content.SimpleAggregatedContent;
@@ -171,11 +171,11 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
     return aggregatedContent;
   }
 
-  private AggregatorAttributes getAttributes(String groupId, AggregatedContent aggregatedContent) {
-    return new AggregatorAttributes(groupId,
-                                    aggregatedContent.getFirstValueArrivalTime(),
-                                    aggregatedContent.getLastValueArrivalTime(),
-                                    aggregatedContent.isComplete());
+  private AggregationAttributes getAttributes(String groupId, AggregatedContent aggregatedContent) {
+    return new AggregationAttributes(groupId,
+                                     aggregatedContent.getFirstValueArrivalTime(),
+                                     aggregatedContent.getLastValueArrivalTime(),
+                                     aggregatedContent.isComplete());
 
   }
 
