@@ -87,10 +87,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
                          IncrementalAggregationRoute incrementalAggregationRoute,
                          CompletionCallbackWrapper completionCallback) {
 
-    if(aggregatorParameters.getPeriod() <= 0) {
-      throw new ModuleException(format("A configured period of %d is not valid. Value should be bigger than 0",aggregatorParameters.getPeriod()), AGGREGATOR_CONFIG);
-    }
-    evaluateConfiguredDelay("period", aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
+    evaluateParameters(aggregatorParameters);
 
     //We should synchronize the access to the storage to account for the situation when the period is completed while
     //executing a new event.
@@ -113,6 +110,20 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
         completionCallback.success(Result.builder().build());
       }
     });
+
+  }
+
+  private void evaluateParameters(TimeBasedAggregatorParameterGroup parameterGroup) {
+
+    if(parameterGroup.getPeriod() <= 0) {
+      throw new ModuleException(format("A configured period of %d is not valid. Value should be bigger than 0",parameterGroup.getPeriod()), AGGREGATOR_CONFIG);
+    }
+
+    evaluateConfiguredDelay("period", parameterGroup.getPeriod(), parameterGroup.getPeriodUnit());
+
+    if(maxSize <= 0) {
+      throw new ModuleException(format("maxSize should be bigger than 0, got: %d", maxSize), AGGREGATOR_CONFIG);
+    }
 
   }
 

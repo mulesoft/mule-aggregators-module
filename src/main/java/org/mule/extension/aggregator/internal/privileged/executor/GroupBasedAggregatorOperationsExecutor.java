@@ -134,11 +134,16 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
   }
 
   private void evaluateParameters(GroupBasedAggregatorParameterGroup parameterGroup) throws ModuleException {
+
     if (parameterGroup.getGroupId() == null) {
       throw new ModuleException("groupId expression resolves to null", NO_GROUP_ID);
     }
     if (parameterGroup.getGroupSize() == null) {
       throw new ModuleException("groupSize expression resolves to null", NO_GROUP_SIZE);
+    }else {
+      if(parameterGroup.getGroupSize() <= 0) {
+        throw new ModuleException(format("groupSize should be bigger than 0, got: %d", parameterGroup.getGroupSize()), AGGREGATOR_CONFIG);
+      }
     }
 
     //Any negative value should be allowed because it means that the group should never be evicted.

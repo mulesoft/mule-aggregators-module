@@ -155,4 +155,92 @@
         </error-handler>
     </flow>
 
+    <flow name="zeroMaxSizeSizeBased">
+        <aggregators:size-based-aggregator name="7" content="#[payload]" maxSize="0">
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="maxSize should be bigger than 0, got: 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="zeroMaxSizeTimeBased">
+        <aggregators:time-based-aggregator name="8" content="#[payload]" period="1000" periodUnit="MILLISECONDS" maxSize="0"/>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="maxSize should be bigger than 0, got: 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="zeroGroupSize">
+        <aggregators:group-based-aggregator name="9" content="#[payload]" groupId="id" groupSize="0" >
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="groupSize should be bigger than 0, got: 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="negativeMaxSizeSizeBased">
+        <aggregators:size-based-aggregator name="10" content="#[payload]" maxSize="-1000">
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="maxSize should be bigger than 0, got: -1000."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="negativeMaxSizeTimeBased">
+        <aggregators:time-based-aggregator name="11" content="#[payload]" period="1000" periodUnit="MILLISECONDS" maxSize="-1000"/>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="maxSize should be bigger than 0, got: -1000."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="negativeGroupSize">
+        <aggregators:group-based-aggregator name="12" content="#[payload]" groupId="id" groupSize="-1000" >
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="groupSize should be bigger than 0, got: -1000."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
 </mule>

@@ -75,6 +75,34 @@ public class ConfigurationTestCase extends MuleArtifactFunctionalTestCase {
     flowRunner("negativePeriod").run();
   }
 
+  @Test
+  @Description("A maxSize of 0 is not supported for Size or Time based aggregators")
+  public void zeroMaxSize() throws Exception {
+    flowRunner("zeroMaxSizeSizeBased").run();
+    flowRunner("zeroMaxSizeTimeBased").run();
+  }
+
+  @Test
+  @Description("A groupSize of 0 is not supported for GroupBasedAggrgators")
+  public void zeroGroupSize() throws Exception {
+    flowRunner("zeroGroupSize").run();
+  }
+
+  @Test
+  @Description("A maxSize of less than 0 is not supported for Size or Time based aggregators")
+  public void negativeMaxSize() throws Exception {
+    flowRunner("negativeMaxSizeSizeBased").run();
+    flowRunner("negativeMaxSizeTimeBased").run();
+  }
+
+  @Test
+  @Description("A groupSize of less than 0 is not supported for GroupBasedAggrgators")
+  public void negativeGroupSize() throws Exception {
+    flowRunner("negativeGroupSize").run();
+  }
+
+
+
 
 
 }

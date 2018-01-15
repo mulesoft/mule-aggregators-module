@@ -90,12 +90,8 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
                          AggregationCompleteRoute onAggregationCompleteRoute,
                          CompletionCallbackWrapper completionCallback) {
 
-    if (aggregatorParameters.isTimeoutSet()) {
-      if(aggregatorParameters.getTimeout() <= 0) {
-        throw new ModuleException(format("A configured timeout of %d is not valid. Value should be bigger than 0", aggregatorParameters.getTimeout()), AGGREGATOR_CONFIG);
-      }
-      evaluateConfiguredDelay("timeout", aggregatorParameters.getTimeout(), aggregatorParameters.getTimeoutUnit());
-    }
+
+    evaluateParameters(aggregatorParameters);
 
     //We should synchronize the access to the storage because if the group is released due to a timeout, we may get duplicates.
     executeSynchronized(() -> {
@@ -121,6 +117,18 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
         completionCallback.success(Result.builder().build());
       }
     });
+  }
+
+  private void evaluateParameters(SizeBasedAggregatorParameterGroup aggregatorParameters) {
+    if (aggregatorParameters.isTimeoutSet()) {
+      if(aggregatorParameters.getTimeout() <= 0) {
+        throw new ModuleException(format("A configured timeout of %d is not valid. Value should be bigger than 0", aggregatorParameters.getTimeout()), AGGREGATOR_CONFIG);
+      }
+      evaluateConfiguredDelay("timeout", aggregatorParameters.getTimeout(), aggregatorParameters.getTimeoutUnit());
+    }
+    if(maxSize <= 0) {
+      throw new ModuleException(format("maxSize should be bigger than 0, got: %d", maxSize), AGGREGATOR_CONFIG);
+    }
   }
 
   @Override

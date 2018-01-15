@@ -12,13 +12,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteExecutedNTimes;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecuted;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
 
 import org.mule.runtime.api.event.Event;
-import org.mule.tck.junit4.rule.SystemProperty;
 
 import org.junit.Rule;
 import org.junit.Test;
