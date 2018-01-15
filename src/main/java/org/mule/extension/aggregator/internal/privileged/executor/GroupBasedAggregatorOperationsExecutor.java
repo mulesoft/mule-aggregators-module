@@ -140,30 +140,33 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
     }
     if (parameterGroup.getGroupSize() == null) {
       throw new ModuleException("groupSize expression resolves to null", NO_GROUP_SIZE);
-    }else {
-      if(parameterGroup.getGroupSize() <= 0) {
-        throw new ModuleException(format("groupSize should be bigger than 0, got: %d", parameterGroup.getGroupSize()), AGGREGATOR_CONFIG);
+    } else {
+      if (parameterGroup.getGroupSize() <= 0) {
+        throw new ModuleException(format("groupSize should be bigger than 0, got: %d", parameterGroup.getGroupSize()),
+                                  AGGREGATOR_CONFIG);
       }
     }
 
     //Any negative value should be allowed because it means that the group should never be evicted.
     //If the value is 0, it means evict immediately.
-    if(parameterGroup.getEvictionTime() > 0) {
+    if (parameterGroup.getEvictionTime() > 0) {
       evaluateConfiguredDelay("evictionTime", parameterGroup.getEvictionTime(), parameterGroup.getEvictionTimeUnit());
     }
 
     if (parameterGroup.isTimeoutSet()) {
-      if(parameterGroup.getTimeout() <= 0) {
-        throw new ModuleException(format("A configured timeout of %d is not valid. Value should be bigger than 0", parameterGroup.getTimeout()), AGGREGATOR_CONFIG);
+      if (parameterGroup.getTimeout() <= 0) {
+        throw new ModuleException(format("A configured timeout of %d is not valid. Value should be bigger than 0",
+                                         parameterGroup.getTimeout()),
+                                  AGGREGATOR_CONFIG);
       }
       evaluateConfiguredDelay("timeout", parameterGroup.getTimeout(), parameterGroup.getTimeoutUnit());
     }
   }
 
   private void handleGroupEviction(String groupId, int evictionTime, TimeUnit evictionUnit) {
-    if(evictionTime == 0) { //Evict immediately
+    if (evictionTime == 0) { //Evict immediately
       evictGroup(groupId);
-    }else if (evictionTime > 0) {
+    } else if (evictionTime > 0) {
       registerGroupEvictionIfNeeded(groupId, evictionTime, evictionUnit);
     }
     //If eviction time is less than 0, then remember group forever.

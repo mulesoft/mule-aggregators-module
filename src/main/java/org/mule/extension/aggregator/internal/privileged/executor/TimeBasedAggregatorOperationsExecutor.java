@@ -115,13 +115,15 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
 
   private void evaluateParameters(TimeBasedAggregatorParameterGroup parameterGroup) {
 
-    if(parameterGroup.getPeriod() <= 0) {
-      throw new ModuleException(format("A configured period of %d is not valid. Value should be bigger than 0",parameterGroup.getPeriod()), AGGREGATOR_CONFIG);
+    if (parameterGroup.getPeriod() <= 0) {
+      throw new ModuleException(format("A configured period of %d is not valid. Value should be bigger than 0",
+                                       parameterGroup.getPeriod()),
+                                AGGREGATOR_CONFIG);
     }
 
     evaluateConfiguredDelay("period", parameterGroup.getPeriod(), parameterGroup.getPeriodUnit());
 
-    if(maxSize == 0) {
+    if (maxSize == 0) {
       throw new ModuleException("maxSize can't be 0", AGGREGATOR_CONFIG);
     }
 
