@@ -119,6 +119,9 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
     executeSynchronized(() -> {
       notifyListenerOnComplete(getAggregatedContent().getAggregatedElements());
       resetGroup();
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Aggregation period complete");
+      }
     });
   }
 
