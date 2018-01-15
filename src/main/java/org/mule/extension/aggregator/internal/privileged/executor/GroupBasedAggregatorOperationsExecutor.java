@@ -117,7 +117,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
 
       if (groupAggregatedContent.isComplete()) {
         List<TypedValue> aggregatedElements = groupAggregatedContent.getAggregatedElements();
-        notifyListenerOnComplete(aggregatedElements);
+        notifyListenerOnComplete(aggregatedElements, aggregatorParameters.getGroupId());
         registerGroupEvictionIfNeeded(aggregatorParameters.getGroupId(), aggregatorParameters.getEvictionTime(),
                                       aggregatorParameters.getEvictionTimeUnit());
         executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedElements,
@@ -161,7 +161,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
       if (groupStorage != null) {
         List<TypedValue> elements = groupStorage.getAggregatedElements();
         ((SimpleAggregatedContent) groupStorage).setTimedOut();
-        notifyListenerOnTimeout(elements);
+        notifyListenerOnTimeout(elements, groupId);
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug(format("Group with id: %s timed out", groupId));
         }

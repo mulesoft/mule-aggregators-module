@@ -189,4 +189,24 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
     assertThat(event.getVariables().get(variableKey).getValue(), is(equalTo(variableValue)));
   }
 
+  @Test
+  @Description("Every incremental aggregation should have the same groupId")
+  public void sameIdForIncrementalAndComplete() throws Exception {
+    final String flowName = "onIncrementalIdCheck";
+    final String groupId = "theID";
+    flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, groupId).run();
+    flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, groupId).run();
+  }
+
+  @Test
+  @Description("Every incremental aggregation should have the same groupId, the same for complete and listener")
+  public void sameIdForIncrementalCompleteAndListener() throws Exception {
+    final String flowName = "onCompleteAndListenerIdCheck";
+    final String groupId = "theID";
+    flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, groupId).runNoVerify();
+    flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, groupId).run();
+    assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
+    assertRouteNthExecution(LISTENER_ROUTE_KEY, 1, groupId);
+  }
+
 }

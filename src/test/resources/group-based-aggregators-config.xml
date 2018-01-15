@@ -32,7 +32,8 @@
     </flow>
 
     <flow name="shortEvictionTime">
-        <aggregators:group-based-aggregator name="3" content="#[payload]" groupId="#[vars.gid]" groupSize="1" evictionTime="500" evictionTimeUnit="MILLISECONDS">
+        <aggregators:group-based-aggregator name="3" content="#[payload]" groupId="#[vars.gid]" groupSize="1"
+                                            evictionTime="500" evictionTimeUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -85,7 +86,8 @@
     </flow>
 
     <flow name="groupTimedOutExceptionThrowingFlow">
-        <aggregators:group-based-aggregator name="7" content="#[payload]" groupSize="100" groupId="#[vars.gid]" timeout="500" timeoutUnit="MILLISECONDS">
+        <aggregators:group-based-aggregator name="7" content="#[payload]" groupSize="100" groupId="#[vars.gid]"
+                                            timeout="500" timeoutUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -100,7 +102,8 @@
     </flow>
 
     <flow name="shortTimeoutAggregator">
-        <aggregators:group-based-aggregator name="8" content="#[payload]" groupSize="100" timeout="500" timeoutUnit="MILLISECONDS">
+        <aggregators:group-based-aggregator name="8" content="#[payload]" groupSize="100" timeout="500"
+                                            timeoutUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -113,7 +116,8 @@
     </flow>
 
     <flow name="shortTimeoutAggregator2">
-        <aggregators:group-based-aggregator name="9" content="#[payload]" groupSize="100" timeout="500" timeoutUnit="MILLISECONDS">
+        <aggregators:group-based-aggregator name="9" content="#[payload]" groupSize="100" timeout="500"
+                                            timeoutUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -126,7 +130,9 @@
     </flow>
 
     <flow name="shortTimeoutAndEvictionTime">
-        <aggregators:group-based-aggregator name="10" content="#[payload]" groupSize="1" groupId="#[vars.gid]" timeout="1000" timeoutUnit="MILLISECONDS" evictionTime="500" evictionTimeUnit="MILLISECONDS">
+        <aggregators:group-based-aggregator name="10" content="#[payload]" groupSize="1" groupId="#[vars.gid]"
+                                            timeout="1000" timeoutUnit="MILLISECONDS" evictionTime="500"
+                                            evictionTimeUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -154,6 +160,35 @@
                 <set-variable variableName="#[vars.variableKey]" value="#[vars.variableValue]"/>
             </aggregators:aggregation-complete>
         </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="onIncrementalIdCheck">
+        <aggregators:group-based-aggregator name="13" content="#[payload]" groupId="#[vars.gid]" groupSize="3">
+            <aggregators:incremental-aggregation>
+                <test:assert expression="#[vars.gid == attributes.aggregationId]"/>
+            </aggregators:incremental-aggregation>
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="onCompleteAndListenerIdCheck">
+        <aggregators:group-based-aggregator name="14" content="#[payload]" groupId="#[vars.gid]" groupSize="2">
+            <aggregators:incremental-aggregation>
+                <test:processor/>
+            </aggregators:incremental-aggregation>
+            <aggregators:aggregation-complete>
+                <test:assert expression="#[vars.gid == attributes.aggregationId]"/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+    </flow>
+
+
+    <flow name="idCheckListener">
+        <aggregators:aggregator-listener aggregatorName="14"/>
+        <set-payload value="#[correlationId]"/>
+        <flow-ref name="onListener"/>
     </flow>
 
     <flow name="onComplete">

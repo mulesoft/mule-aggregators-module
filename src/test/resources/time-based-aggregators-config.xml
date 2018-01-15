@@ -46,10 +46,10 @@
                 <test:assert expression="#[attributes.aggregationId != null]"/>
                 <choice>
                     <when expression="#[sizeOf(payload) == 1]">
-                        <flow-ref name="assertOneElement"/>
+                        <test:assert expression="#[attributes.firstItemArrivalTime == attributes.lastItemArrivalTime]"/>
                     </when>
                     <otherwise>
-                        <flow-ref name="assertMultipleElements"/>
+                        <test:assert expression="#[attributes.firstItemArrivalTime != attributes.lastItemArrivalTime]"/>
                     </otherwise>
                 </choice>
                 <test:assert expression="#[attributes.firstItemArrivalTime != null]"/>
@@ -66,16 +66,42 @@
         </aggregators:time-based-aggregator>
     </flow>
 
-    <!--TODO:MULE-14303 move sub-flow to main flow-->
-    <sub-flow name="assertOneElement">
-        <test:assert expression="#[attributes.firstItemArrivalTime == attributes.lastItemArrivalTime]"/>
-    </sub-flow>
+    <flow name="idCheck">
+        <aggregators:time-based-aggregator name="7" content="#[payload]" period="1000" maxSize="3">
+            <aggregators:incremental-aggregation>
+                <choice>
+                    <when expression="#[vars.id != null]">
+                        <test:assert expression="#[vars.id == attributes.aggregationId]"/>
+                    </when>
+                    <otherwise>
+                        <set-variable variableName="id" value="#[attributes.aggregationId]"/>
+                    </otherwise>
+                </choice>
+            </aggregators:incremental-aggregation>
+        </aggregators:time-based-aggregator>
+    </flow>
 
-    <!--TODO:MULE-14303 move sub-flow to main flow-->
-    <sub-flow name="assertMultipleElements">
-        <test:assert expression="#[attributes.firstItemArrivalTime != attributes.lastItemArrivalTime]"/>
-    </sub-flow>
 
+    <flow name="idCheckListener">
+        <aggregators:aggregator-listener aggregatorName="7" includeTimedOutGroups="false"/>
+        <set-payload value="#[correlationId]"/>
+        <flow-ref name="onListener"/>
+    </flow>
+
+    <flow name="idChangeAfterComplete">
+        <aggregators:time-based-aggregator name="8" period="1000" content="#[payload]" maxSize="2">
+            <aggregators:incremental-aggregation>
+                <choice>
+                    <when expression="#[vars.id != null]">
+                        <test:assert expression="#[vars.id != attributes.aggregationId]"/>
+                    </when>
+                    <otherwise>
+                        <set-variable variableName="id" value="#[attributes.aggregationId]"/>
+                    </otherwise>
+                </choice>
+            </aggregators:incremental-aggregation>
+        </aggregators:time-based-aggregator>
+    </flow>
 
     <flow name="onIncremental">
         <set-variable variableName="executionRoute" value="incrementalAggregation"/>

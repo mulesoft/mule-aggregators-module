@@ -42,6 +42,10 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
     groupId = getUUID();
   }
 
+  String getGroupId() {
+    return groupId;
+  }
+
   AggregationAttributes getAttributes(AggregatedContent aggregatedContent) {
     return new AggregationAttributes(groupId,
                                      aggregatedContent.getFirstValueArrivalTime(),
@@ -91,6 +95,7 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
           LOGGER.debug("Attempted to schedule task but it was already scheduled");
         }
       }
+
       task.setScheduled(getCurrentTime());
     }
   }
