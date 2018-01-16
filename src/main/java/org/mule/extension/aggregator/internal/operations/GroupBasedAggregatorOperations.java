@@ -15,6 +15,7 @@ import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.exception.ModuleException;
+import org.mule.runtime.extension.api.runtime.parameter.CorrelationInfo;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 
 
@@ -62,7 +63,8 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
                                    name = "Aggregator config") GroupBasedAggregatorParameterGroup aggregatorParameters,
                                @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
                                @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
-                               RouterCompletionCallback completionCallback)
+                               RouterCompletionCallback completionCallback,
+                               CorrelationInfo correlationInfo)
       throws ModuleException {
 
     // implemented as privileged operation in GroupBasedAggregatorOperationsExecutor

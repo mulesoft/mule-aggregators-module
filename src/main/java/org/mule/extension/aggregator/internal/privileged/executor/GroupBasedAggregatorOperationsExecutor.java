@@ -32,7 +32,10 @@ import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.ExecutionContext;
 import org.mule.runtime.extension.api.runtime.operation.Result;
+import org.mule.runtime.extension.api.runtime.parameter.CorrelationInfo;
 import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextAdapter;
+import org.mule.runtime.module.extension.internal.runtime.resolver.ArgumentResolver;
+import org.mule.runtime.module.extension.internal.runtime.resolver.CorrelationInfoArgumentResolver;
 
 import java.util.List;
 import java.util.Map;
