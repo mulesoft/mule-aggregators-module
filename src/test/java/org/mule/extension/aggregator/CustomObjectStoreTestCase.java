@@ -43,24 +43,24 @@ public class CustomObjectStoreTestCase extends MuleArtifactFunctionalTestCase {
     final String globalOSID = "globalObjectStoreGroup";
     final String globalPayload = "global";
 
-    //final String privateOSFlow = "privateObjectStoreAggregator";
-    //final String privateOS = "privateObjectStore";
-    //final String privateOSID = "privateObjectStoreGroup";
-    //final String privatePayload = "private";
+    final String privateOSFlow = "privateObjectStoreAggregator";
+    final String privateOS = "privateObjectStore";
+    final String privateOSID = "privateObjectStoreGroup";
+    final String privatePayload = "private";
 
     flowRunner(defaultOSFlow).withVariable(GROUP_ID_VARIABLE_KEY, defaultOSID).withPayload(defaultPayload).run();
     flowRunner(globalOSFlow).withVariable(GROUP_ID_VARIABLE_KEY, globalOSID).withPayload(globalPayload).run();
-    //flowRunner(privateOSFlow).withVariable(GROUP_ID_VARIABLE_KEY,privateOSID).withPayload(privatePayload).run();
+    flowRunner(privateOSFlow).withVariable(GROUP_ID_VARIABLE_KEY,privateOSID).withPayload(privatePayload).run();
 
     Map<String, GroupAggregatorSharedInformation> defaultInfoMap =
         (Map<String, GroupAggregatorSharedInformation>) osManager.getDefaultPartition().retrieveAll();
     Map<String, GroupAggregatorSharedInformation> globalInfoMap =
         (Map<String, GroupAggregatorSharedInformation>) osManager.getObjectStore(globalOS).retrieveAll();
-    //Map<String,GroupAggregatorSharedInformation> privateInfoMap = (Map<String,GroupAggregatorSharedInformation>)osManager.getObjectStore(privateOS).retrieveAll();
+    Map<String,GroupAggregatorSharedInformation> privateInfoMap = (Map<String,GroupAggregatorSharedInformation>)osManager.getObjectStore(privateOS).retrieveAll();
 
     assertThat(defaultInfoMap.size(), is(1));
     assertThat(globalInfoMap.size(), is(1));
-    //assertThat(privateInfoMap.size(), is(1));
+    assertThat(privateInfoMap.size(), is(1));
 
   }
 

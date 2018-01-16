@@ -6,13 +6,10 @@
  */
 package org.mule.extension.aggregator.internal.operations;
 
-import static java.lang.String.format;
 import org.mule.extension.aggregator.api.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.errors.GroupBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
-import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
-import org.mule.runtime.api.store.ObjectStore;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Optional;

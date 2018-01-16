@@ -28,6 +28,7 @@ import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.extension.aggregator.internal.task.SimpleAsyncTask;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
 import org.mule.runtime.api.metadata.TypedValue;
+import org.mule.runtime.api.store.ObjectStore;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.ExecutionContext;
