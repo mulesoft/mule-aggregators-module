@@ -58,10 +58,11 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
   @Alias("groupBasedAggregator")
   @Throws(GroupBasedAggregatorErrorProvider.class)
   public void aggregateByGroup(
-          @ParameterGroup(name = "Aggregator config") GroupBasedAggregatorParameterGroup aggregatorParameters,
-          @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
-          @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
-          RouterCompletionCallback completionCallback)
+                               @ParameterGroup(
+                                   name = "Aggregator config") GroupBasedAggregatorParameterGroup aggregatorParameters,
+                               @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
+                               @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
+                               RouterCompletionCallback completionCallback)
       throws ModuleException {
 
     // implemented as privileged operation in GroupBasedAggregatorOperationsExecutor
