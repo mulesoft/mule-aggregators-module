@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("MULE-14369")
 public class CustomObjectStoreTestCase extends MuleArtifactFunctionalTestCase {
 
   @Inject
@@ -62,15 +61,6 @@ public class CustomObjectStoreTestCase extends MuleArtifactFunctionalTestCase {
     assertThat(defaultInfoMap.size(), is(1));
     assertThat(globalInfoMap.size(), is(1));
     //assertThat(privateInfoMap.size(), is(1));
-
-    GroupAggregatorSharedInformation defaultInfo = (GroupAggregatorSharedInformation) defaultInfoMap.values().toArray()[0];
-    GroupAggregatorSharedInformation globalInfo = (GroupAggregatorSharedInformation) globalInfoMap.values().toArray()[0];
-    //GroupAggregatorSharedInformation privateInfo = (GroupAggregatorSharedInformation) privateInfoMap.values().toArray()[0];
-
-    assertThat(defaultInfo.getAggregatedContent(defaultOSID).getAggregatedElements().get(0).getValue(), is(defaultPayload));
-    assertThat(globalInfo.getAggregatedContent(globalOSID).getAggregatedElements().get(0).getValue(), is(globalPayload));
-    //assertThat(privateInfo.getAggregatedContent(privateOSID).getAggregatedElements().get(0).getValue(), is(privatePayload));
-
 
   }
 
