@@ -20,7 +20,7 @@
     <properties>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
-        <muleObjectStoreConnectorTestVersion>1.0.0-SNAPSHOT</muleObjectStoreConnectorTestVersion>
+        <muleObjectStoreConnectorTestVersion>1.2.0-SNAPSHOT</muleObjectStoreConnectorTestVersion>
     </properties>
 
     <dependencies>
