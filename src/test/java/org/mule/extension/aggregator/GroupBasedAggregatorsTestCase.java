@@ -95,7 +95,7 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
     final String flowName = "shortTimeoutAggregator";
     flowRunner(flowName).withPayload(1).run();
     assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
-    assertRouteNthExecution(LISTENER_ROUTE_KEY, 1);
+    assertRouteNthExecution(LISTENER_ROUTE_KEY, 1, 1);
   }
 
 

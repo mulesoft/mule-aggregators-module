@@ -226,7 +226,6 @@
         </aggregators:group-based-aggregator>
     </flow>
 
-
     <flow name="idCheckListener">
         <aggregators:aggregator-listener aggregatorName="14"/>
         <set-payload value="#[correlationId]"/>
@@ -238,6 +237,19 @@
             <aggregators:content>
                 #[payload]
             </aggregators:content>
+        </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="sortedItems">
+        <aggregators:group-based-aggregator name="13" content="#[payload]" groupId="someId" groupSize="3">
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="sortedMixedItems">
+        <aggregators:group-based-aggregator name="14" content="#[payload]" groupId="someId" groupSize="5">
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>

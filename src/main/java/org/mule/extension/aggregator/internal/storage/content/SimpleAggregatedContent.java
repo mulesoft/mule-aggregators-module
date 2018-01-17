@@ -6,12 +6,19 @@
  */
 package org.mule.extension.aggregator.internal.storage.content;
 
+import static com.google.common.collect.Iterables.mergeSorted;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 import org.mule.runtime.api.metadata.TypedValue;
-import org.mule.runtime.api.time.TimeSupplier;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 
 /**
@@ -21,11 +28,13 @@ import java.util.List;
  */
 public class SimpleAggregatedContent extends AbstractAggregatedContent {
 
-  private static final long serialVersionUID = 4753078736495748941L;
-  private List<TypedValue> storage;
+  private static final long serialVersionUID = -229638907750317297L;
+  private Map<Integer, TypedValue> sequencedElements;
+  private List<TypedValue> unsequencedElements;
 
   private SimpleAggregatedContent() {
-    this.storage = new ArrayList<>();
+    this.sequencedElements = new HashMap<>();
+    this.unsequencedElements = new ArrayList<>();
   }
 
   public SimpleAggregatedContent(int maxSize) {
@@ -33,9 +42,7 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
     this.maxSize = maxSize;
   }
 
-  @Override
-  public void add(TypedValue newContent, Long timeStamp) {
-    storage.add(newContent);
+  private void updateTimes(Long timeStamp) {
     if (firstElementArrivalTime == null) {
       firstElementArrivalTime = timeStamp;
     }
@@ -43,12 +50,55 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
   }
 
   @Override
-  public List<TypedValue> getAggregatedElements() {
-    return new ArrayList<>(this.storage);
+  public void add(TypedValue newContent, Long timeStamp) {
+    unsequencedElements.add(newContent);
+    updateTimes(timeStamp);
   }
 
+  @Override
+  public void add(TypedValue newContent, Long timeStamp, int sequenceNumber) {
+    sequencedElements.put(sequenceNumber, newContent);
+    updateTimes(timeStamp);
+  }
+
+  @Override
+  public List<TypedValue> getAggregatedElements() {
+    List<TypedValue> orderedElements = new ArrayList<>();
+    if (sequencedElements.size() > 0) {
+      orderedElements = sequencedElements.entrySet().stream().sorted(comparingInt(Map.Entry::getKey)).map(Map.Entry::getValue)
+          .collect(toList());
+    }
+    orderedElements.addAll(unsequencedElements);
+    return orderedElements;
+  }
+
+
   public boolean isComplete() {
-    return maxSize == storage.size();
+    return maxSize == sequencedElements.size() + unsequencedElements.size();
+  }
+
+  private static class Index implements Serializable {
+
+    private static final long serialVersionUID = -8286760373914606346L;
+    private Integer sequenceNumber = null;
+    private int arrivalIndex = 0;
+
+    public Index(int arrivalIndex) {
+      this.arrivalIndex = arrivalIndex;
+    }
+
+    public Index(int arrivalIndex, int sequenceNumber) {
+      this(arrivalIndex);
+      this.sequenceNumber = sequenceNumber;
+    }
+
+    public Integer getSequenceNumber() {
+      return sequenceNumber;
+    }
+
+    public int getArrivalIndex() {
+      return arrivalIndex;
+    }
   }
 
 }

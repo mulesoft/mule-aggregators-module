@@ -22,6 +22,7 @@ import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
 import org.mule.extension.aggregator.internal.routes.AggregationAttributes;
 import org.mule.extension.aggregator.internal.source.AggregatorListener;
+import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
 import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.runtime.api.cluster.ClusterService;
@@ -32,6 +33,7 @@ import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.lifecycle.Startable;
 import org.mule.runtime.api.lock.LockFactory;
+import org.mule.runtime.api.message.ItemSequenceInfo;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.notification.NotificationListenerRegistry;
@@ -42,17 +44,20 @@ import org.mule.runtime.api.store.ObjectStoreException;
 import org.mule.runtime.api.store.ObjectStoreManager;
 import org.mule.runtime.api.time.TimeSupplier;
 import org.mule.runtime.api.util.LazyValue;
+import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.lifecycle.PrimaryNodeLifecycleNotificationListener;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.ComponentExecutor;
+import org.mule.runtime.extension.api.runtime.operation.ExecutionContext;
 import org.mule.runtime.extension.api.runtime.operation.Result;
-import org.mule.runtime.extension.api.runtime.parameter.CorrelationInfo;
 import org.mule.runtime.extension.api.runtime.route.Route;
 import org.mule.runtime.extension.api.runtime.source.SourceCallback;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
+import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextAdapter;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
@@ -118,6 +123,22 @@ public abstract class AbstractAggregatorExecutor
   protected void injectParameters(Map<String, Object> parameters) {
     this.objectStore = (ObjectStore<AggregatorSharedInformation>) parameters.get("objectStore");
     this.name = (String) parameters.get("name");
+  }
+
+  //TODO: This is a little bit of a hack since the SDK already supports injecting the event correlation info if declared
+  //as an operation parameter.And we can extract the itemSequenceInfo from it.But since we are bypassing that behaviour in order to be able to propagate variables
+  //we must get the item sequence info from the event ourselves.
+  Optional<ItemSequenceInfo> getItemSequenceInfo(ExecutionContext context) {
+    CoreEvent event = ((ExecutionContextAdapter) context).getEvent();
+    return event.getItemSequenceInfo();
+  }
+
+  void addToStorage(AggregatedContent aggregatedContent, TypedValue newElement, Optional<ItemSequenceInfo> itemSequenceInfo) {
+    if (itemSequenceInfo.isPresent()) {
+      aggregatedContent.add(newElement, getCurrentTime(), itemSequenceInfo.get().getPosition());
+    } else {
+      aggregatedContent.add(newElement, getCurrentTime());
+    }
   }
 
   @Override
