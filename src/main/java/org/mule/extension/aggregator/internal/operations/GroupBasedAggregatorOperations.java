@@ -63,8 +63,7 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
                                    name = "Aggregator config") GroupBasedAggregatorParameterGroup aggregatorParameters,
                                @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
                                @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
-                               RouterCompletionCallback completionCallback,
-                               CorrelationInfo correlationInfo)
+                               RouterCompletionCallback completionCallback)
       throws ModuleException {
 
     // implemented as privileged operation in GroupBasedAggregatorOperationsExecutor
