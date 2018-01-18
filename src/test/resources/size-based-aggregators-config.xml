@@ -8,7 +8,10 @@
       http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
 
     <flow name="noIncrementalAggregationRoute">
-        <aggregators:size-based-aggregator name="1" content="#[payload]" maxSize="2">
+        <aggregators:size-based-aggregator name="1"  maxSize="2">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -21,7 +24,10 @@
     </flow>
 
     <flow name="incrementalAggregationRoute">
-        <aggregators:size-based-aggregator name="2" content="#[payload]" maxSize="2">
+        <aggregators:size-based-aggregator name="2"  maxSize="2">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <flow-ref name="onIncremental"/>
             </aggregators:incremental-aggregation>
@@ -32,7 +38,10 @@
     </flow>
 
     <flow name="incrementalAggregationRouteCalledMultipleTimes">
-        <aggregators:size-based-aggregator name="3" content="#[payload]" maxSize="4">
+        <aggregators:size-based-aggregator name="3"  maxSize="4">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <flow-ref name="onIncremental"/>
             </aggregators:incremental-aggregation>
@@ -43,8 +52,11 @@
     </flow>
 
     <flow name="timeoutAggregator1">
-        <aggregators:size-based-aggregator name="4" content="#[payload]" maxSize="2" timeout="500"
+        <aggregators:size-based-aggregator name="4"  maxSize="2" timeout="500"
                                            timeoutUnit="MILLISECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -57,8 +69,11 @@
     </flow>
 
     <flow name="timeoutAggregator2">
-        <aggregators:size-based-aggregator name="5" content="#[payload]" maxSize="2" timeout="500"
+        <aggregators:size-based-aggregator name="5"  maxSize="2" timeout="500"
                                            timeoutUnit="MILLISECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -71,7 +86,10 @@
     </flow>
 
     <flow name="attributesAreSet">
-        <aggregators:size-based-aggregator name="6" content="#[payload]" maxSize="2">
+        <aggregators:size-based-aggregator name="6"  maxSize="2">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <test:assert expression="#[attributes.isGroupComplete == true]"/>
                 <test:assert expression="#[attributes.aggregationId != null]"/>
@@ -83,7 +101,10 @@
     </flow>
 
     <flow name="propagateVariables">
-        <aggregators:size-based-aggregator name="7" content="#[payload]" maxSize="2">
+        <aggregators:size-based-aggregator name="7"  maxSize="2">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <set-variable variableName="#[vars.variableKey]" value="#[vars.variableValue]"/>
             </aggregators:incremental-aggregation>
@@ -94,7 +115,10 @@
     </flow>
 
     <flow name="onIncrementalIdCheck">
-        <aggregators:size-based-aggregator name="8" content="#[payload]" maxSize="3">
+        <aggregators:size-based-aggregator name="8"  maxSize="3">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <choice>
                     <when expression="#[vars.id != null]">
@@ -112,7 +136,10 @@
     </flow>
 
     <flow name="onCompleteAndListenerIdCheck">
-        <aggregators:size-based-aggregator name="9" content="#[payload]" maxSize="2">
+        <aggregators:size-based-aggregator name="9"  maxSize="2">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <set-variable variableName="id" value="#[attributes.aggregationId]"/>
             </aggregators:incremental-aggregation>
@@ -129,7 +156,10 @@
     </flow>
 
     <flow name="idChangeAfterComplete">
-        <aggregators:size-based-aggregator name="10" content="#[payload]" maxSize="2">
+        <aggregators:size-based-aggregator name="10"  maxSize="2">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <choice>
                     <when expression="#[vars.id != null]">

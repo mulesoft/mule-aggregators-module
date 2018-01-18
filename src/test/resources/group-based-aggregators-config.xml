@@ -8,7 +8,10 @@
       http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
 
     <flow name="aggregationCompleteRoute">
-        <aggregators:group-based-aggregator name="1" content="#[payload]" groupId="#[vars.gid]" groupSize="2">
+        <aggregators:group-based-aggregator name="1" groupId="#[vars.gid]" groupSize="2">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -21,7 +24,10 @@
     </flow>
 
     <flow name="incrementalAggregationRoute">
-        <aggregators:group-based-aggregator name="2" content="#[payload]" groupId="#[vars.gid]" groupSize="3">
+        <aggregators:group-based-aggregator name="2"  groupId="#[vars.gid]" groupSize="3">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <flow-ref name="onIncremental"/>
             </aggregators:incremental-aggregation>
@@ -32,8 +38,11 @@
     </flow>
 
     <flow name="shortEvictionTime">
-        <aggregators:group-based-aggregator name="3" content="#[payload]" groupId="#[vars.gid]" groupSize="1"
+        <aggregators:group-based-aggregator name="3"  groupId="#[vars.gid]" groupSize="1"
                                             evictionTime="500" evictionTimeUnit="MILLISECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -41,7 +50,10 @@
     </flow>
 
     <flow name="groupCompleteExceptionThrowingFlow">
-        <aggregators:group-based-aggregator name="4" content="#[payload]" groupId="#[vars.gid]" groupSize="1">
+        <aggregators:group-based-aggregator name="4"  groupId="#[vars.gid]" groupSize="1">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -56,7 +68,10 @@
     </flow>
 
     <flow name="noGroupIdExceptionThrowingFlow">
-        <aggregators:group-based-aggregator name="5" content="#[payload]" groupId="#[vars.notExistentVariable]">
+        <aggregators:group-based-aggregator name="5"  groupId="#[vars.notExistentVariable]">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -71,7 +86,10 @@
     </flow>
 
     <flow name="noGroupSizeExceptionThrowingFlow">
-        <aggregators:group-based-aggregator name="6" content="#[payload]" groupSize="#[vars.notExistentVariable]">
+        <aggregators:group-based-aggregator name="6"  groupSize="#[vars.notExistentVariable]">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -86,8 +104,11 @@
     </flow>
 
     <flow name="groupTimedOutExceptionThrowingFlow">
-        <aggregators:group-based-aggregator name="7" content="#[payload]" groupSize="100" groupId="#[vars.gid]"
+        <aggregators:group-based-aggregator name="7"  groupSize="100" groupId="#[vars.gid]"
                                             timeout="500" timeoutUnit="MILLISECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -102,8 +123,11 @@
     </flow>
 
     <flow name="shortTimeoutAggregator">
-        <aggregators:group-based-aggregator name="8" content="#[payload]" groupSize="100" timeout="500"
+        <aggregators:group-based-aggregator name="8"  groupSize="100" timeout="500"
                                             timeoutUnit="MILLISECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -116,8 +140,11 @@
     </flow>
 
     <flow name="shortTimeoutAggregator2">
-        <aggregators:group-based-aggregator name="9" content="#[payload]" groupSize="100" timeout="500"
+        <aggregators:group-based-aggregator name="9"  groupSize="100" timeout="500"
                                             timeoutUnit="MILLISECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -130,9 +157,12 @@
     </flow>
 
     <flow name="shortTimeoutAndEvictionTime">
-        <aggregators:group-based-aggregator name="10" content="#[payload]" groupSize="1" groupId="#[vars.gid]"
+        <aggregators:group-based-aggregator name="10"  groupSize="1" groupId="#[vars.gid]"
                                             timeout="1000" timeoutUnit="MILLISECONDS" evictionTime="500"
                                             evictionTimeUnit="MILLISECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -140,7 +170,10 @@
     </flow>
 
     <flow name="attributesAreSet">
-        <aggregators:group-based-aggregator name="11" groupId="uniqueId" content="#[payload]" groupSize="2">
+        <aggregators:group-based-aggregator name="11" groupId="uniqueId"  groupSize="2">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <test:assert expression="#[attributes.isGroupComplete == true]"/>
                 <test:assert expression="#[attributes.aggregationId == 'uniqueId']"/>
@@ -152,7 +185,10 @@
     </flow>
 
     <flow name="propagateVariables">
-        <aggregators:group-based-aggregator name="12" content="#[payload]" groupId="someId" groupSize="2">
+        <aggregators:group-based-aggregator name="12"  groupId="someId" groupSize="2">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <set-variable variableName="#[vars.variableKey]" value="#[vars.variableValue]"/>
             </aggregators:incremental-aggregation>
@@ -163,7 +199,10 @@
     </flow>
 
     <flow name="onIncrementalIdCheck">
-        <aggregators:group-based-aggregator name="13" content="#[payload]" groupId="#[vars.gid]" groupSize="3">
+        <aggregators:group-based-aggregator name="13"  groupId="#[vars.gid]" groupSize="3">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <test:assert expression="#[vars.gid == attributes.aggregationId]"/>
             </aggregators:incremental-aggregation>
@@ -174,7 +213,10 @@
     </flow>
 
     <flow name="onCompleteAndListenerIdCheck">
-        <aggregators:group-based-aggregator name="14" content="#[payload]" groupId="#[vars.gid]" groupSize="2">
+        <aggregators:group-based-aggregator name="14"  groupId="#[vars.gid]" groupSize="2">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <test:processor/>
             </aggregators:incremental-aggregation>

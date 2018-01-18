@@ -8,7 +8,10 @@
       http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
 
     <flow name="incrementalAggregationRoute">
-        <aggregators:time-based-aggregator name="1" content="#[payload]" period="1000" periodUnit="SECONDS">
+        <aggregators:time-based-aggregator name="1"  period="1000" periodUnit="SECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <flow-ref name="onIncremental"/>
             </aggregators:incremental-aggregation>
@@ -16,7 +19,11 @@
     </flow>
 
     <flow name="aggregatorWithSmallPeriod">
-        <aggregators:time-based-aggregator name="2" content="#[payload]" period="500" periodUnit="MILLISECONDS"/>
+        <aggregators:time-based-aggregator name="2"  period="500" periodUnit="MILLISECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+        </aggregators:time-based-aggregator>
     </flow>
 
     <flow name="aggregatorWithSmallPeriodListener">
@@ -26,7 +33,11 @@
 
 
     <flow name="aggregatorWithMaxSize">
-        <aggregators:time-based-aggregator name="3" content="#[payload]" period="1000" maxSize="3"/>
+        <aggregators:time-based-aggregator name="3"  period="1000" maxSize="3">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+        </aggregators:time-based-aggregator>
     </flow>
 
     <flow name="aggregatorWithMaxSizeListener">
@@ -36,11 +47,18 @@
 
 
     <flow name="beforeAndAfterAggregator">
-        <aggregators:time-based-aggregator name="4" content="#[payload]" period="1000" maxSize="3"/>
+        <aggregators:time-based-aggregator name="4"  period="1000" maxSize="3">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+        </aggregators:time-based-aggregator>
     </flow>
 
     <flow name="attributesAreSet">
-        <aggregators:time-based-aggregator name="5" content="#[payload]" period="10">
+        <aggregators:time-based-aggregator name="5"  period="10">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <test:assert expression="#[attributes.isGroupComplete == false]"/>
                 <test:assert expression="#[attributes.aggregationId != null]"/>
@@ -59,7 +77,10 @@
     </flow>
 
     <flow name="propagateVariables">
-        <aggregators:time-based-aggregator name="6" content="#[payload]" period="1000" periodUnit="SECONDS">
+        <aggregators:time-based-aggregator name="6"  period="1000" periodUnit="SECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <set-variable variableName="#[vars.variableKey]" value="#[vars.variableValue]"/>
             </aggregators:incremental-aggregation>
@@ -67,7 +88,10 @@
     </flow>
 
     <flow name="idCheck">
-        <aggregators:time-based-aggregator name="7" content="#[payload]" period="1000" maxSize="3">
+        <aggregators:time-based-aggregator name="7"  period="1000" maxSize="3">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <choice>
                     <when expression="#[vars.id != null]">
@@ -89,7 +113,10 @@
     </flow>
 
     <flow name="idChangeAfterComplete">
-        <aggregators:time-based-aggregator name="8" period="1000" content="#[payload]" maxSize="2">
+        <aggregators:time-based-aggregator name="8" period="1000"  maxSize="2">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <choice>
                     <when expression="#[vars.id != null]">
