@@ -7,6 +7,7 @@
 package org.mule.extension.aggregator.internal.operations;
 
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
+import org.mule.runtime.api.store.ObjectStore;
 import org.mule.runtime.extension.api.annotation.Expression;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -21,7 +22,7 @@ public abstract class AbstractAggregatorOperations {
   @Expression(NOT_SUPPORTED)
   @Optional
   @ObjectStoreReference
-  private String objectStore;
+  private ObjectStore objectStore;
 
 
   /**

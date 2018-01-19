@@ -16,6 +16,7 @@ import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDUL
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAGER;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
+import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.startIfNeeded;
 import static org.mule.runtime.extension.api.error.MuleErrors.ANY;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
@@ -104,7 +105,7 @@ public abstract class AbstractAggregatorExecutor
   private ConfigurationProperties configProperties;
 
 
-  private String objectStore;
+  private ObjectStore<AggregatorSharedInformation> objectStore;
   private String name;
   private Scheduler scheduler;
   private PrimaryNodeLifecycleNotificationListener notificationListener;
@@ -114,7 +115,7 @@ public abstract class AbstractAggregatorExecutor
   private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
 
   protected void injectParameters(Map<String, Object> parameters) {
-    this.objectStore = (String) parameters.get("objectStore");
+    this.objectStore = (ObjectStore<AggregatorSharedInformation>) parameters.get("objectStore");
     this.name = (String) parameters.get("name");
   }
 
@@ -132,7 +133,7 @@ public abstract class AbstractAggregatorExecutor
     if (objectStore == null) {
       return objectStoreManager.getDefaultPartition();
     } else {
-      return objectStoreManager.getObjectStore(objectStore);
+      return objectStore;
     }
   }
 
@@ -140,6 +141,7 @@ public abstract class AbstractAggregatorExecutor
   public void start() throws MuleException {
     if (clusterService.isPrimaryPollingInstance()) {
       if (!started) {
+        startIfNeeded(objectStore);
         setRegisteredTasksAsNotScheduled();
         scheduler = schedulerService.cpuLightScheduler();
         try {

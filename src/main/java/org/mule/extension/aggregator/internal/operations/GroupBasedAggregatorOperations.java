@@ -6,7 +6,6 @@
  */
 package org.mule.extension.aggregator.internal.operations;
 
-import static java.lang.String.format;
 import org.mule.extension.aggregator.api.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.errors.GroupBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
