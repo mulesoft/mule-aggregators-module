@@ -159,4 +159,35 @@ public class SizeBasedAggregatorTestCase extends AbstractAggregatorsTestCase {
     assertThat(event.getVariables().get(variableKey).getValue(), Matchers.is(Matchers.equalTo(variableValue)));
   }
 
+  @Test
+  @Description("Every incremental aggregation should have the same groupId")
+  public void sameIdForIncrementalAndComplete() throws Exception {
+    final String flowName = "onIncrementalIdCheck";
+    final String idPlaceholderKey = "id";
+    Event event = flowRunner(flowName).runNoVerify();
+    flowRunner(flowName).withVariable(idPlaceholderKey, event.getVariables().get(idPlaceholderKey)).run();
+    flowRunner(flowName).withVariable(idPlaceholderKey, event.getVariables().get(idPlaceholderKey)).run();
+  }
+
+  @Test
+  @Description("Every incremental aggregation should have the same groupId, the same for complete and listener")
+  public void sameIdForIncrementalCompleteAndListener() throws Exception {
+    final String flowName = "onCompleteAndListenerIdCheck";
+    final String idPlaceholderKey = "id";
+    Event event = flowRunner(flowName).runNoVerify();
+    flowRunner(flowName).withVariable(idPlaceholderKey, event.getVariables().get(idPlaceholderKey)).run();
+    assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
+    assertRouteNthExecution(LISTENER_ROUTE_KEY, 1, event.getVariables().get(idPlaceholderKey).getValue());
+  }
+
+  @Test
+  @Description("once a group is completed, the groupId should be different")
+  public void groupIdChangesAfterComplete() throws Exception {
+    final String flowName = "idChangeAfterComplete";
+    final String idPlaceholderKey = "id";
+    Event event = flowRunner(flowName).runNoVerify();
+    flowRunner(flowName).runNoVerify();
+    flowRunner(flowName).withVariable(idPlaceholderKey, event.getVariables().get(idPlaceholderKey)).run();
+  }
+
 }

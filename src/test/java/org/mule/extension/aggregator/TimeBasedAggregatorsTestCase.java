@@ -15,6 +15,7 @@ import static org.mule.functional.util.FlowExecutionLogger.assertRouteExecutedNT
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecuted;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
 
+import org.mule.runtime.api.event.Event;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.tck.junit4.rule.SystemProperty;
 
@@ -97,6 +98,28 @@ public class TimeBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
     event = flowRunner(flowName).withPayload(2).run();
     assertRouteExecutedNTimes(INCREMENTAL_AGGREGATION_ROUTE_KEY, 2);
     assertThat(event.getMessage().getPayload().getValue(), is(equalTo(2)));
+  }
+
+  @Test
+  @Description("Every incremental aggregation attribute groupId and the listener correlationId should be the same")
+  public void sameIdForIncrementalAndListener() throws Exception {
+    final String flowName = "idCheck";
+    final String idPlaceholderKey = "id";
+    Event event = flowRunner(flowName).runNoVerify();
+    flowRunner(flowName).withVariable(idPlaceholderKey, event.getVariables().get(idPlaceholderKey)).run();
+    flowRunner(flowName).withVariable(idPlaceholderKey, event.getVariables().get(idPlaceholderKey)).run();
+    assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
+    assertRouteNthExecution(LISTENER_ROUTE_KEY, 1, event.getVariables().get(idPlaceholderKey).getValue());
+  }
+
+  @Test
+  @Description("once a group is completed, the groupId should be different")
+  public void groupIdChangesAfterComplete() throws Exception {
+    final String flowName = "idChangeAfterComplete";
+    final String idPlaceholderKey = "id";
+    Event event = flowRunner(flowName).runNoVerify();
+    flowRunner(flowName).runNoVerify();
+    flowRunner(flowName).withVariable(idPlaceholderKey, event.getVariables().get(idPlaceholderKey)).run();
   }
 
 }

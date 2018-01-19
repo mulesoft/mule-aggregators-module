@@ -104,7 +104,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
       aggregatedContent.add(of(aggregatorParameters.getContent()), getCurrentTime());
 
       if (aggregatedContent.isComplete()) {
-        notifyListenerOnComplete(aggregatedContent.getAggregatedElements());
+        notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getGroupId());
         executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedContent.getAggregatedElements(),
                                            getAttributes(aggregatedContent), completionCallback);
         resetGroup();
@@ -124,7 +124,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
 
   private void onTimeout() {
     executeSynchronized(() -> {
-      notifyListenerOnTimeout(getAggregatedContent().getAggregatedElements());
+      notifyListenerOnTimeout(getAggregatedContent().getAggregatedElements(), getGroupId());
       resetGroup();
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("Aggregation timed out");

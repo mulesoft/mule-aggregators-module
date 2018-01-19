@@ -46,6 +46,8 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.ComponentExecutor;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.route.Route;
+import org.mule.runtime.extension.api.runtime.source.SourceCallback;
+import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 
 import java.util.List;
 import java.util.Map;
@@ -193,7 +195,7 @@ public abstract class AbstractAggregatorExecutor
    * <p/>
    * The computation could cause the delay to be zero or negative, that should mean: execute immediately {@link java.util.concurrent.ScheduledExecutorService}  }
    *
-   * @param task the task pojo with information about the task to schedule
+   * @param task     the task pojo with information about the task to schedule
    * @param runnable the runnable to execute
    */
   void scheduleTask(AsyncTask task, Runnable runnable) {
@@ -222,14 +224,14 @@ public abstract class AbstractAggregatorExecutor
     }
   }
 
-  void notifyListenerOnComplete(List<TypedValue> elements) {
-    getListenerAndExecute(listener -> executeListener(listener, elements));
+  void notifyListenerOnComplete(List<TypedValue> elements, String id) {
+    getListenerAndExecute(listener -> executeListener(listener, elements, id));
   }
 
-  void notifyListenerOnTimeout(List<TypedValue> elements) {
+  void notifyListenerOnTimeout(List<TypedValue> elements, String id) {
     getListenerAndExecute(listener -> {
       if (listener.shouldIncludeTimedOutGroups()) {
-        executeListener(listener, elements);
+        executeListener(listener, elements, id);
       }
     });
   }
@@ -295,10 +297,13 @@ public abstract class AbstractAggregatorExecutor
     aggregatorManager.getListener(this.name).ifPresent(task);
   }
 
-  private void executeListener(AggregatorListener listener, List<TypedValue> elements) {
+  private void executeListener(AggregatorListener listener, List<TypedValue> elements, String id) {
     if (listener.isStarted()) {
-      listener.getCallback().handle(Result.<List<TypedValue>, AggregationAttributes>builder()
-          .output(elements).build());
+      SourceCallback callback = listener.getCallback();
+      SourceCallbackContext context = callback.createContext();
+      context.setCorrelationId(id);
+      callback.handle(Result.<List<TypedValue>, AggregationAttributes>builder()
+          .output(elements).build(), context);
     }
   }
 }
