@@ -12,13 +12,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteExecutedNTimes;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecuted;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
 
 import org.mule.runtime.api.event.Event;
-import org.mule.tck.junit4.rule.SystemProperty;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -207,6 +205,15 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, groupId).run();
     assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
     assertRouteNthExecution(LISTENER_ROUTE_KEY, 1, groupId);
+  }
+
+  @Description("Eviction time of 0 means evict immediately")
+  public void evictGroupImmediately() throws Exception {
+    final String flowName = "evictImmediately";
+    for (int i = 1; i < 5; i++) {
+      flowRunner(flowName).withPayload(i).run();
+      assertRouteNthExecution(AGGREGATION_COMPLETE_ROUTE_KEY, i, i);
+    }
   }
 
 }

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators"
+      xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd
+      http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
+
+    <flow name="lowEvictionTime">
+        <aggregators:group-based-aggregator name="1" groupId="id" groupSize="2" evictionTime="100" evictionTimeUnit="MILLISECONDS">
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="The configured evictionTime : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. evictionTime should be equal or bigger than the scheduling time period in order to accurately schedule it."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="lowTimeoutInGroup">
+        <aggregators:group-based-aggregator name="2" groupId="id" groupSize="2" timeout="100" timeoutUnit="MILLISECONDS" >
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="The configured timeout : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. timeout should be equal or bigger than the scheduling time period in order to accurately schedule it."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="lowTimeoutInSize">
+        <aggregators:size-based-aggregator name="3" maxSize="2" timeout="100" timeoutUnit="MILLISECONDS">
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="The configured timeout : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. timeout should be equal or bigger than the scheduling time period in order to accurately schedule it."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="lowPeriod">
+        <aggregators:time-based-aggregator name="4" period="100" periodUnit="MILLISECONDS" maxSize="3"/>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="The configured period : 100 MILLISECONDS, is too small for the configured scheduling time period: 500 MILLISECONDS. period should be equal or bigger than the scheduling time period in order to accurately schedule it."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="zeroTimeoutGroup">
+        <aggregators:group-based-aggregator name="5" groupId="id" groupSize="2" timeout="0" >
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="A configured timeout of 0 is not valid. Value should be bigger than 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="zeroTimeoutSize">
+        <aggregators:size-based-aggregator name="6" maxSize="2" timeout="0">
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="A configured timeout of 0 is not valid. Value should be bigger than 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="zeroPeriod">
+        <aggregators:time-based-aggregator name="7" period="0" periodUnit="MILLISECONDS"/>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="A configured period of 0 is not valid. Value should be bigger than 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="negativeTimeoutGroup">
+        <aggregators:group-based-aggregator name="5" groupId="id" groupSize="2" timeout="-50" >
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="A configured timeout of -50 is not valid. Value should be bigger than 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="negativeTimeoutSize">
+        <aggregators:size-based-aggregator name="6" maxSize="2" timeout="-38">
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="A configured timeout of -38 is not valid. Value should be bigger than 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="negativePeriod">
+        <aggregators:time-based-aggregator name="7" period="-1000" periodUnit="MILLISECONDS"/>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="A configured period of -1000 is not valid. Value should be bigger than 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="zeroMaxSizeSizeBased">
+        <aggregators:size-based-aggregator name="7" maxSize="0">
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="maxSize should be bigger than 0, got: 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="zeroMaxSizeTimeBased">
+        <aggregators:time-based-aggregator name="8" period="1000" periodUnit="MILLISECONDS" maxSize="0"/>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="maxSize can't be 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="zeroGroupSize">
+        <aggregators:group-based-aggregator name="9" groupId="id" groupSize="0" >
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="groupSize should be bigger than 0, got: 0."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="negativeMaxSizeSizeBased">
+        <aggregators:size-based-aggregator name="10" maxSize="-1000">
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="maxSize should be bigger than 0, got: -1000."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+    <flow name="negativeGroupSize">
+        <aggregators:group-based-aggregator name="12" groupId="id" groupSize="-1000" >
+            <aggregators:aggregation-complete>
+                <test:processor/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+        <error-handler>
+            <test:on-error-check-log>
+                <test:check-summary>
+                    <test:summary-info key="Error type" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                    <test:summary-info key="Message" value="groupSize should be bigger than 0, got: -1000."/>
+                </test:check-summary>
+            </test:on-error-check-log>
+        </error-handler>
+    </flow>
+
+</mule>

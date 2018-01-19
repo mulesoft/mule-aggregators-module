@@ -7,6 +7,8 @@
 package org.mule.extension.aggregator.internal.routes;
 
 
+import java.util.Date;
+
 /**
  * Attributes with information regarding the containing aggregator and the aggregated elements
  *
@@ -68,12 +70,12 @@ public class AggregationAttributes {
     return aggregationId;
   }
 
-  public long getFirstItemArrivalTime() {
-    return firstItemArrivalTime;
+  public Date getFirstItemArrivalTime() {
+    return new Date(firstItemArrivalTime);
   }
 
-  public long getLastItemArrivalTime() {
-    return lastItemArrivalTime;
+  public Date getLastItemArrivalTime() {
+    return new Date(lastItemArrivalTime);
   }
 
   public boolean isGroupComplete() {

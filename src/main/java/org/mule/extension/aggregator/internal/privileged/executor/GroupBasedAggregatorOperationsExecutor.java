@@ -7,6 +7,7 @@
 package org.mule.extension.aggregator.internal.privileged.executor;
 
 import static java.lang.String.format;
+import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_COMPLETED;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_TIMED_OUT;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.NO_GROUP_ID;
@@ -118,8 +119,8 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
       if (groupAggregatedContent.isComplete()) {
         List<TypedValue> aggregatedElements = groupAggregatedContent.getAggregatedElements();
         notifyListenerOnComplete(aggregatedElements, aggregatorParameters.getGroupId());
-        registerGroupEvictionIfNeeded(aggregatorParameters.getGroupId(), aggregatorParameters.getEvictionTime(),
-                                      aggregatorParameters.getEvictionTimeUnit());
+        handleGroupEviction(aggregatorParameters.getGroupId(), aggregatorParameters.getEvictionTime(),
+                            aggregatorParameters.getEvictionTimeUnit());
         executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedElements,
                                            getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
                                            completionCallback);
@@ -134,24 +135,54 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
   }
 
   private void evaluateParameters(GroupBasedAggregatorParameterGroup parameterGroup) throws ModuleException {
+
     if (parameterGroup.getGroupId() == null) {
       throw new ModuleException("groupId expression resolves to null", NO_GROUP_ID);
     }
     if (parameterGroup.getGroupSize() == null) {
       throw new ModuleException("groupSize expression resolves to null", NO_GROUP_SIZE);
+    } else {
+      if (parameterGroup.getGroupSize() <= 0) {
+        throw new ModuleException(format("groupSize should be bigger than 0, got: %d", parameterGroup.getGroupSize()),
+                                  AGGREGATOR_CONFIG);
+      }
     }
-    evaluateConfiguredDelay("evictionTime", parameterGroup.getEvictionTime(), parameterGroup.getEvictionTimeUnit());
+
+    //Any negative value should be allowed because it means that the group should never be evicted.
+    //If the value is 0, it means evict immediately.
+    if (parameterGroup.getEvictionTime() > 0) {
+      evaluateConfiguredDelay("evictionTime", parameterGroup.getEvictionTime(), parameterGroup.getEvictionTimeUnit());
+    }
+
     if (parameterGroup.isTimeoutSet()) {
+      if (parameterGroup.getTimeout() <= 0) {
+        throw new ModuleException(format("A configured timeout of %d is not valid. Value should be bigger than 0",
+                                         parameterGroup.getTimeout()),
+                                  AGGREGATOR_CONFIG);
+      }
       evaluateConfiguredDelay("timeout", parameterGroup.getTimeout(), parameterGroup.getTimeoutUnit());
+    }
+  }
+
+  private void handleGroupEviction(String groupId, int evictionTime, TimeUnit evictionUnit) {
+    if (evictionTime == 0) { //Evict immediately
+      evictGroup(groupId);
+    } else if (evictionTime > 0) {
+      registerGroupEvictionIfNeeded(groupId, evictionTime, evictionUnit);
+    }
+    //If eviction time is less than 0, then remember group forever.
+  }
+
+  private void evictGroup(String groupId) {
+    getSharedInfoLocalCopy().removeAggregatedContent(groupId);
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(format("Group with id: %s evicted", groupId));
     }
   }
 
   private void onGroupEviction(String groupId) {
     executeSynchronized(() -> {
-      getSharedInfoLocalCopy().removeAggregatedContent(groupId);
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(format("Group with id: %s evicted", groupId));
-      }
+      evictGroup(groupId);
     });
   }
 
