@@ -112,7 +112,7 @@
     </flow>
 
     <flow name="negativeTimeoutGroup">
-        <aggregators:group-based-aggregator name="5" groupId="id" groupSize="2" timeout="-50" >
+        <aggregators:group-based-aggregator name="8" groupId="id" groupSize="2" timeout="-50" >
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -128,7 +128,7 @@
     </flow>
 
     <flow name="negativeTimeoutSize">
-        <aggregators:size-based-aggregator name="6" maxSize="2" timeout="-38">
+        <aggregators:size-based-aggregator name="9" maxSize="2" timeout="-38">
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -144,7 +144,7 @@
     </flow>
 
     <flow name="negativePeriod">
-        <aggregators:time-based-aggregator name="7" period="-1000" periodUnit="MILLISECONDS"/>
+        <aggregators:time-based-aggregator name="10" period="-1000" periodUnit="MILLISECONDS"/>
         <error-handler>
             <test:on-error-check-log>
                 <test:check-summary>
@@ -156,7 +156,7 @@
     </flow>
 
     <flow name="zeroMaxSizeSizeBased">
-        <aggregators:size-based-aggregator name="7" maxSize="0">
+        <aggregators:size-based-aggregator name="11" maxSize="0">
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -172,7 +172,7 @@
     </flow>
 
     <flow name="zeroMaxSizeTimeBased">
-        <aggregators:time-based-aggregator name="8" period="1000" periodUnit="MILLISECONDS" maxSize="0"/>
+        <aggregators:time-based-aggregator name="12" period="1000" periodUnit="MILLISECONDS" maxSize="0"/>
         <error-handler>
             <test:on-error-check-log>
                 <test:check-summary>
@@ -184,7 +184,7 @@
     </flow>
 
     <flow name="zeroGroupSize">
-        <aggregators:group-based-aggregator name="9" groupId="id" groupSize="0" >
+        <aggregators:group-based-aggregator name="13" groupId="id" groupSize="0" >
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -200,7 +200,7 @@
     </flow>
 
     <flow name="negativeMaxSizeSizeBased">
-        <aggregators:size-based-aggregator name="10" maxSize="-1000">
+        <aggregators:size-based-aggregator name="14" maxSize="-1000">
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -216,7 +216,7 @@
     </flow>
 
     <flow name="negativeGroupSize">
-        <aggregators:group-based-aggregator name="12" groupId="id" groupSize="-1000" >
+        <aggregators:group-based-aggregator name="15" groupId="id" groupSize="-1000" >
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>

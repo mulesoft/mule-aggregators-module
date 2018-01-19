@@ -26,6 +26,7 @@ import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInfor
 import org.mule.extension.aggregator.internal.storage.info.GroupAggregatorSharedInformation;
 import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.extension.aggregator.internal.task.SimpleAsyncTask;
+import org.mule.runtime.api.message.ItemSequenceInfo;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.core.api.event.CoreEvent;
@@ -36,6 +37,7 @@ import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContext
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.reactivestreams.Publisher;
@@ -65,8 +67,9 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
     IncrementalAggregationRoute incrementalAggregationRoute = context.getParameter("incrementalAggregation");
     AggregationCompleteRoute aggregationCompleteRoute = context.getParameter("aggregationComplete");
     GroupBasedAggregatorParameterGroup parameters = createParameters(context.getParameters());
+    Optional<ItemSequenceInfo> itemSequenceInfo = getItemSequenceInfo(executionContext);
     aggregate(parameters, incrementalAggregationRoute, aggregationCompleteRoute,
-              new CompletionCallbackWrapper(context.getVariable(COMPLETION_CALLBACK_CONTEXT_PARAM), event));
+              new CompletionCallbackWrapper(context.getVariable(COMPLETION_CALLBACK_CONTEXT_PARAM), event), itemSequenceInfo);
     return null;
   }
 
@@ -90,7 +93,8 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
   private void aggregate(GroupBasedAggregatorParameterGroup aggregatorParameters,
                          IncrementalAggregationRoute incrementalAggregationRoute,
                          AggregationCompleteRoute onAggregationCompleteRoute,
-                         CompletionCallbackWrapper completionCallback) {
+                         CompletionCallbackWrapper completionCallback,
+                         Optional<ItemSequenceInfo> itemSequenceInfo) {
 
     evaluateParameters(aggregatorParameters);
 
@@ -114,7 +118,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
                                   GROUP_TIMED_OUT);
       }
 
-      groupAggregatedContent.add(of(aggregatorParameters.getContent()), getCurrentTime());
+      addToStorage(groupAggregatedContent, of(aggregatorParameters.getContent()), itemSequenceInfo);
 
       if (groupAggregatedContent.isComplete()) {
         List<TypedValue> aggregatedElements = groupAggregatedContent.getAggregatedElements();

@@ -130,8 +130,39 @@
         </aggregators:time-based-aggregator>
     </flow>
 
+    <flow name="sortedItems">
+        <aggregators:time-based-aggregator name="9" period="1000" maxSize="3">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+        </aggregators:time-based-aggregator>
+    </flow>
+
+    <flow name="sortedItemsListener">
+        <aggregators:aggregator-listener aggregatorName="9" includeTimedOutGroups="false"/>
+        <flow-ref name="onComplete"/>
+    </flow>
+
+    <flow name="sortedMixedItems">
+        <aggregators:time-based-aggregator name="10" period="1000" maxSize="5">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+        </aggregators:time-based-aggregator>
+    </flow>
+
+    <flow name="sortedMixedItemsListener">
+        <aggregators:aggregator-listener aggregatorName="10" includeTimedOutGroups="false"/>
+        <flow-ref name="onComplete"/>
+    </flow>
+
     <flow name="onIncremental">
         <set-variable variableName="executionRoute" value="incrementalAggregation"/>
+        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
+    </flow>
+
+    <flow name="onComplete">
+        <set-variable variableName="executionRoute" value="aggregationComplete"/>
         <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
     </flow>
 

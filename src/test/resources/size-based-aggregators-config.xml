@@ -176,6 +176,28 @@
         </aggregators:size-based-aggregator>
     </flow>
 
+    <flow name="sortedItems">
+        <aggregators:size-based-aggregator name="11" maxSize="3">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+    </flow>
+
+    <flow name="sortedMixedItems">
+        <aggregators:size-based-aggregator name="12" maxSize="5">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+    </flow>
+
     <flow name="onComplete">
         <set-variable variableName="executionRoute" value="aggregationComplete"/>
         <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>

@@ -39,7 +39,7 @@ public class TimeBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
 
     flowRunner(flowName).withPayload(2).run();
     assertRouteExecutedNTimes(INCREMENTAL_AGGREGATION_ROUTE_KEY, 2);
-    assertRouteNthExecution(INCREMENTAL_AGGREGATION_ROUTE_KEY, 2, 2);
+    assertRouteNthExecution(INCREMENTAL_AGGREGATION_ROUTE_KEY, 2, 1, 2);
   }
 
   @Test

@@ -17,9 +17,19 @@ public interface AggregatedContent extends Serializable {
   /**
    * Add a new element to the storage
    *
-   * @param newElement
+   * @param newElement the element to be added
+   * @param timestamp the moment when the element was added
    */
   public void add(TypedValue newElement, Long timestamp);
+
+  /**
+   * Add a new element to the storage
+   *
+   * @param newElement the element to be added
+   * @param timestamp the moment when the element was added
+   * @param sequenceNumber the position of the new element inside content being aggregated
+   */
+  public void add(TypedValue newElement, Long timestamp, int sequenceNumber);
 
   /**
    * Gets the aggregated elements from the storage
