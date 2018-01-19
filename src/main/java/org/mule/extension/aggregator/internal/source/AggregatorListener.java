@@ -26,6 +26,8 @@ import javax.inject.Inject;
  */
 public class AggregatorListener extends Source<Message, AggregationAttributes> {
 
+  private final Object startLock = new Object();
+
   @Inject
   private AggregatorManager manager;
 
@@ -43,7 +45,7 @@ public class AggregatorListener extends Source<Message, AggregationAttributes> {
 
   @Override
   public void onStart(SourceCallback<Message, AggregationAttributes> sourceCallback) throws MuleException {
-    synchronized (started) {
+    synchronized (startLock) {
       this.sourceCallback = sourceCallback;
       manager.registerListener(aggregatorName, this);
       started = true;
@@ -52,13 +54,13 @@ public class AggregatorListener extends Source<Message, AggregationAttributes> {
 
   @Override
   public void onStop() {
-    synchronized (started) {
+    synchronized (startLock) {
       started = false;
     }
   }
 
   public boolean isStarted() {
-    synchronized (started) {
+    synchronized (startLock) {
       return started;
     }
   }
