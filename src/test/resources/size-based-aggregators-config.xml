@@ -177,7 +177,10 @@
     </flow>
 
     <flow name="sortedItems">
-        <aggregators:size-based-aggregator name="9" content="#[payload]" maxSize="3">
+        <aggregators:size-based-aggregator name="9" maxSize="3">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -185,7 +188,10 @@
     </flow>
 
     <flow name="sortedMixedItems">
-        <aggregators:size-based-aggregator name="9" content="#[payload]" maxSize="5">
+        <aggregators:size-based-aggregator name="9" maxSize="5">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>

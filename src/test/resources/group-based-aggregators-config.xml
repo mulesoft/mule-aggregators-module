@@ -233,15 +233,21 @@
     </flow>
 
     <flow name="evictImmediately">
-        <aggregators:group-based-aggregator name="13" groupId="someId" groupSize="1" evictionTime="0">
+        <aggregators:group-based-aggregator name="15" groupId="someId" groupSize="1" evictionTime="0">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
         </aggregators:group-based-aggregator>
     </flow>
 
     <flow name="sortedItems">
-        <aggregators:group-based-aggregator name="13" content="#[payload]" groupId="someId" groupSize="3">
+        <aggregators:group-based-aggregator name="16" groupId="someId" groupSize="3">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
@@ -249,7 +255,10 @@
     </flow>
 
     <flow name="sortedMixedItems">
-        <aggregators:group-based-aggregator name="14" content="#[payload]" groupId="someId" groupSize="5">
+        <aggregators:group-based-aggregator name="17" groupId="someId" groupSize="5">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
