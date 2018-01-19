@@ -8,7 +8,7 @@
       http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
 
     <flow name="lowEvictionTime">
-        <aggregators:group-based-aggregator name="1" content="#[payload]" groupId="id" groupSize="2" evictionTime="100" evictionTimeUnit="MILLISECONDS">
+        <aggregators:group-based-aggregator name="1" groupId="id" groupSize="2" evictionTime="100" evictionTimeUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -24,7 +24,7 @@
     </flow>
 
     <flow name="lowTimeoutInGroup">
-        <aggregators:group-based-aggregator name="2" content="#[payload]" groupId="id" groupSize="2" timeout="100" timeoutUnit="MILLISECONDS" >
+        <aggregators:group-based-aggregator name="2" groupId="id" groupSize="2" timeout="100" timeoutUnit="MILLISECONDS" >
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -40,7 +40,7 @@
     </flow>
 
     <flow name="lowTimeoutInSize">
-        <aggregators:size-based-aggregator name="3" content="#[payload]" maxSize="2" timeout="100" timeoutUnit="MILLISECONDS">
+        <aggregators:size-based-aggregator name="3" maxSize="2" timeout="100" timeoutUnit="MILLISECONDS">
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -56,7 +56,7 @@
     </flow>
 
     <flow name="lowPeriod">
-        <aggregators:time-based-aggregator name="4" content="#[payload]" period="100" periodUnit="MILLISECONDS" maxSize="3"/>
+        <aggregators:time-based-aggregator name="4" period="100" periodUnit="MILLISECONDS" maxSize="3"/>
         <error-handler>
             <test:on-error-check-log>
                 <test:check-summary>
@@ -68,7 +68,7 @@
     </flow>
 
     <flow name="zeroTimeoutGroup">
-        <aggregators:group-based-aggregator name="5" content="#[payload]" groupId="id" groupSize="2" timeout="0" >
+        <aggregators:group-based-aggregator name="5" groupId="id" groupSize="2" timeout="0" >
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -84,7 +84,7 @@
     </flow>
 
     <flow name="zeroTimeoutSize">
-        <aggregators:size-based-aggregator name="6" content="#[payload]" maxSize="2" timeout="0">
+        <aggregators:size-based-aggregator name="6" maxSize="2" timeout="0">
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -100,7 +100,7 @@
     </flow>
 
     <flow name="zeroPeriod">
-        <aggregators:time-based-aggregator name="7" content="#[payload]" period="0" periodUnit="MILLISECONDS"/>
+        <aggregators:time-based-aggregator name="7" period="0" periodUnit="MILLISECONDS"/>
         <error-handler>
             <test:on-error-check-log>
                 <test:check-summary>
@@ -112,7 +112,7 @@
     </flow>
 
     <flow name="negativeTimeoutGroup">
-        <aggregators:group-based-aggregator name="5" content="#[payload]" groupId="id" groupSize="2" timeout="-50" >
+        <aggregators:group-based-aggregator name="5" groupId="id" groupSize="2" timeout="-50" >
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -128,7 +128,7 @@
     </flow>
 
     <flow name="negativeTimeoutSize">
-        <aggregators:size-based-aggregator name="6" content="#[payload]" maxSize="2" timeout="-38">
+        <aggregators:size-based-aggregator name="6" maxSize="2" timeout="-38">
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -144,7 +144,7 @@
     </flow>
 
     <flow name="negativePeriod">
-        <aggregators:time-based-aggregator name="7" content="#[payload]" period="-1000" periodUnit="MILLISECONDS"/>
+        <aggregators:time-based-aggregator name="7" period="-1000" periodUnit="MILLISECONDS"/>
         <error-handler>
             <test:on-error-check-log>
                 <test:check-summary>
@@ -156,7 +156,7 @@
     </flow>
 
     <flow name="zeroMaxSizeSizeBased">
-        <aggregators:size-based-aggregator name="7" content="#[payload]" maxSize="0">
+        <aggregators:size-based-aggregator name="7" maxSize="0">
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -172,7 +172,7 @@
     </flow>
 
     <flow name="zeroMaxSizeTimeBased">
-        <aggregators:time-based-aggregator name="8" content="#[payload]" period="1000" periodUnit="MILLISECONDS" maxSize="0"/>
+        <aggregators:time-based-aggregator name="8" period="1000" periodUnit="MILLISECONDS" maxSize="0"/>
         <error-handler>
             <test:on-error-check-log>
                 <test:check-summary>
@@ -184,7 +184,7 @@
     </flow>
 
     <flow name="zeroGroupSize">
-        <aggregators:group-based-aggregator name="9" content="#[payload]" groupId="id" groupSize="0" >
+        <aggregators:group-based-aggregator name="9" groupId="id" groupSize="0" >
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -200,7 +200,7 @@
     </flow>
 
     <flow name="negativeMaxSizeSizeBased">
-        <aggregators:size-based-aggregator name="10" content="#[payload]" maxSize="-1000">
+        <aggregators:size-based-aggregator name="10" maxSize="-1000">
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>
@@ -216,7 +216,7 @@
     </flow>
 
     <flow name="negativeGroupSize">
-        <aggregators:group-based-aggregator name="12" content="#[payload]" groupId="id" groupSize="-1000" >
+        <aggregators:group-based-aggregator name="12" groupId="id" groupSize="-1000" >
             <aggregators:aggregation-complete>
                 <test:processor/>
             </aggregators:aggregation-complete>

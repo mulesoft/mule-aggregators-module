@@ -119,7 +119,8 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
       if (groupAggregatedContent.isComplete()) {
         List<TypedValue> aggregatedElements = groupAggregatedContent.getAggregatedElements();
         notifyListenerOnComplete(aggregatedElements, aggregatorParameters.getGroupId());
-        handleGroupEviction(aggregatorParameters.getGroupId(), aggregatorParameters.getEvictionTime(),         aggregatorParameters.getEvictionTimeUnit());
+        handleGroupEviction(aggregatorParameters.getGroupId(), aggregatorParameters.getEvictionTime(),
+                            aggregatorParameters.getEvictionTimeUnit());
         executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedElements,
                                            getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
                                            completionCallback);

@@ -234,7 +234,10 @@
     </flow>
 
     <flow name="evictImmediately">
-        <aggregators:group-based-aggregator name="13" content="#[payload]" groupId="someId" groupSize="1" evictionTime="0">
+        <aggregators:group-based-aggregator name="13" groupId="someId" groupSize="1" evictionTime="0">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
