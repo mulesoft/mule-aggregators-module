@@ -118,8 +118,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
       if (groupAggregatedContent.isComplete()) {
         List<TypedValue> aggregatedElements = groupAggregatedContent.getAggregatedElements();
         notifyListenerOnComplete(aggregatedElements, aggregatorParameters.getGroupId());
-        registerGroupEvictionIfNeeded(aggregatorParameters.getGroupId(), aggregatorParameters.getEvictionTime(),
-                                      aggregatorParameters.getEvictionTimeUnit());
+        handleGroupEviction(aggregatorParameters.getGroupId(), aggregatorParameters.getEvictionTime(),aggregatorParameters.getEvictionTimeUnit());
         executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedElements,
                                            getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
                                            completionCallback);
@@ -140,18 +139,37 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
     if (parameterGroup.getGroupSize() == null) {
       throw new ModuleException("groupSize expression resolves to null", NO_GROUP_SIZE);
     }
-    evaluateConfiguredDelay("evictionTime", parameterGroup.getEvictionTime(), parameterGroup.getEvictionTimeUnit());
+
+    //Any negative value should be allowed because it means that the group should never be evicted.
+    //If the value is 0, it means evict immediately.
+    if(parameterGroup.getEvictionTime() > 0) {
+      evaluateConfiguredDelay("evictionTime", parameterGroup.getEvictionTime(), parameterGroup.getEvictionTimeUnit());
+    }
+
     if (parameterGroup.isTimeoutSet()) {
       evaluateConfiguredDelay("timeout", parameterGroup.getTimeout(), parameterGroup.getTimeoutUnit());
     }
   }
 
+  private void handleGroupEviction(String groupId, int evictionTime, TimeUnit evictionUnit) {
+    if(evictionTime == 0) { //Evict immediately
+      evictGroup(groupId);
+    }else if (evictionTime > 0) {
+      registerGroupEvictionIfNeeded(groupId, evictionTime, evictionUnit);
+    }
+    //If eviction time is less than 0, then remember group forever.
+  }
+
+  private void evictGroup(String groupId) {
+    getSharedInfoLocalCopy().removeAggregatedContent(groupId);
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(format("Group with id: %s evicted", groupId));
+    }
+  }
+
   private void onGroupEviction(String groupId) {
     executeSynchronized(() -> {
-      getSharedInfoLocalCopy().removeAggregatedContent(groupId);
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(format("Group with id: %s evicted", groupId));
-      }
+      evictGroup(groupId);
     });
   }
 
