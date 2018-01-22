@@ -6,7 +6,7 @@
  */
 package org.mule.extension.aggregator.internal.operations;
 
-import org.mule.extension.aggregator.api.GroupBasedAggregatorParameterGroup;
+import org.mule.extension.aggregator.internal.parameter.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.errors.GroupBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;

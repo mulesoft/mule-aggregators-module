@@ -10,7 +10,7 @@ import static java.lang.String.format;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.runtime.api.metadata.TypedValue.of;
 import static org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextProperties.COMPLETION_CALLBACK_CONTEXT_PARAM;
-import org.mule.extension.aggregator.api.SizeBasedAggregatorParameterGroup;
+import org.mule.extension.aggregator.internal.parameter.SizeBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
