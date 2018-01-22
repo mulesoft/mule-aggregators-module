@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.aggregator.internal.routes;
+package org.mule.extension.aggregator.api;
 
 
 import java.util.Date;

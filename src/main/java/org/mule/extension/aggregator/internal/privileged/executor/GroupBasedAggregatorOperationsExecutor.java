@@ -14,10 +14,10 @@ import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.NO_GROUP_SIZE;
 import static org.mule.runtime.api.metadata.TypedValue.of;
 import static org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextProperties.COMPLETION_CALLBACK_CONTEXT_PARAM;
-import org.mule.extension.aggregator.api.GroupBasedAggregatorParameterGroup;
+import org.mule.extension.aggregator.internal.parameter.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
-import org.mule.extension.aggregator.internal.routes.AggregationAttributes;
+import org.mule.extension.aggregator.api.AggregationAttributes;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
 import org.mule.extension.aggregator.internal.storage.content.AbstractAggregatedContent;
 import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;

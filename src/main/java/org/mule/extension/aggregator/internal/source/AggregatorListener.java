@@ -7,7 +7,7 @@
 package org.mule.extension.aggregator.internal.source;
 
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
-import org.mule.extension.aggregator.internal.routes.AggregationAttributes;
+import org.mule.extension.aggregator.api.AggregationAttributes;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;

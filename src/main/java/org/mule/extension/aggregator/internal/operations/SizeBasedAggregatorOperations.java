@@ -8,7 +8,7 @@ package org.mule.extension.aggregator.internal.operations;
 
 
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
-import org.mule.extension.aggregator.api.SizeBasedAggregatorParameterGroup;
+import org.mule.extension.aggregator.internal.parameter.SizeBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.errors.SizeBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;

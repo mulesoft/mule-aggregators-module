@@ -7,7 +7,7 @@
 package org.mule.extension.aggregator.internal.operations;
 
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
-import org.mule.extension.aggregator.api.TimeBasedAggregatorParameterGroup;
+import org.mule.extension.aggregator.internal.parameter.TimeBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.errors.TimeBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
 import org.mule.runtime.extension.api.annotation.Alias;
