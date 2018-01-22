@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorExecutor {
 
-  private String groupId = getUUID();
   private int groupSize;
 
   void setGroupSize(int groupSize) {
@@ -39,15 +38,20 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
 
   void resetGroup() {
     getSharedInfoLocalCopy().setAggregatedContent(new SimpleAggregatedContent(groupSize));
-    groupId = getUUID();
+    getSharedInfoLocalCopy().setAggregationId(getUUID());
   }
 
-  String getGroupId() {
-    return groupId;
+  String getAggregationId() {
+    String id = getSharedInfoLocalCopy().getAggregationId();
+    if (id == null) {
+      id = getUUID();
+      getSharedInfoLocalCopy().setAggregationId(id);
+    }
+    return id;
   }
 
   AggregationAttributes getAttributes(AggregatedContent aggregatedContent) {
-    return new AggregationAttributes(groupId,
+    return new AggregationAttributes(getAggregationId(),
                                      aggregatedContent.getFirstValueArrivalTime(),
                                      aggregatedContent.getLastValueArrivalTime(),
                                      aggregatedContent.isComplete());

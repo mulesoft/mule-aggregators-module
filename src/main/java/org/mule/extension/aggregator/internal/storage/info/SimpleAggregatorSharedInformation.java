@@ -15,6 +15,7 @@ public class SimpleAggregatorSharedInformation implements AggregatorSharedInform
 
   private static final long serialVersionUID = 2720335740399722498L;
   private AggregatedContent content;
+  private String AggregationId;
   private AsyncTask asyncTask;
 
   public AggregatedContent getAggregatedContent() {
@@ -39,5 +40,13 @@ public class SimpleAggregatorSharedInformation implements AggregatorSharedInform
 
   public AsyncTask getRegisteredTask() {
     return asyncTask;
+  }
+
+  public String getAggregationId() {
+    return AggregationId;
+  }
+
+  public void setAggregationId(String aggregationId) {
+    AggregationId = aggregationId;
   }
 }

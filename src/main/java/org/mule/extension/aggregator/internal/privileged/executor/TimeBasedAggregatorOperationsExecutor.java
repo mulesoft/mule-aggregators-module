@@ -104,7 +104,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
       addToStorage(aggregatedContent, of(aggregatorParameters.getContent()), itemSequenceInfo);
 
       if (aggregatedContent.isComplete()) {
-        notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getGroupId());
+        notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAggregationId());
         resetGroup();
         completionCallback.success(Result.builder().build());
       } else if (incrementalAggregationRoute != null) {
@@ -140,7 +140,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
 
   private void getElementsAndNotifyListener() {
     executeSynchronized(() -> {
-      notifyListenerOnComplete(getAggregatedContent().getAggregatedElements(), getGroupId());
+      notifyListenerOnComplete(getAggregatedContent().getAggregatedElements(), getAggregationId());
       resetGroup();
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("Aggregation period complete");
