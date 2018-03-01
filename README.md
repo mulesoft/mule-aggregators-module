@@ -33,3 +33,17 @@ Add this dependency to your Mule application's pom.xml
 			<version>1.1.0-SNAPSHOT</version>
 		</dependency>
 ```
+
+NOTE: There is currently no Studio7 support for this module, so if you include the classifier element in the dependency:
+
+```
+Add this dependency to your Mule application's pom.xml
+```xml
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-aggregators-module</artifactId>
+			<version>1.1.0-SNAPSHOT</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+```
+the Aggregator module will appear in Studio7 in the Mule application's Mule Palette, but there will be no message processors nor any global elements to add to your Mule XML configuration files. 
