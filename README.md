@@ -46,4 +46,4 @@ Add this dependency to your Mule application's pom.xml
 			<classifier>mule-plugin</classifier>
 		</dependency>
 ```
-the Aggregator module will appear in Studio7 in the Mule application's Mule Palette, but there will be no message processors nor any global elements to add to your Mule XML configuration files. 
+the Aggregators module will appear in Studio7 in the Mule application's Mule Palette, but there will be no message processors nor any global elements to add to your Mule XML configuration files. 
