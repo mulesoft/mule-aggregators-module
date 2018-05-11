@@ -86,10 +86,10 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
     AsyncTask task = getSharedInfoLocalCopy().getRegisteredTask();
     if (task != null) {
       if (!task.isScheduled()) {
-        scheduleTask(task, () -> {
+        scheduleTask(task, () -> executeSynchronized(() -> {
           onTaskExecution();
           getSharedInfoLocalCopy().unregisterTask();
-        });
+        }));
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug(format("Scheduled task to be executed in %d %s", task.getDelay(), task.getDelayTimeUnit()));
         }

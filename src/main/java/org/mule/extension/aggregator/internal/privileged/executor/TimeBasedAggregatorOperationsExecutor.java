@@ -139,13 +139,11 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
   }
 
   private void getElementsAndNotifyListener() {
-    executeSynchronized(() -> {
-      notifyListenerOnComplete(getAggregatedContent().getAggregatedElements(), getAggregationId());
-      resetGroup();
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Aggregation period complete");
-      }
-    });
+    notifyListenerOnComplete(getAggregatedContent().getAggregatedElements(), getAggregationId());
+    resetGroup();
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Aggregation period complete");
+    }
   }
 
 }

@@ -143,12 +143,10 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
   }
 
   private void onTimeout() {
-    executeSynchronized(() -> {
-      notifyListenerOnTimeout(getAggregatedContent().getAggregatedElements(), getAggregationId());
-      resetGroup();
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Aggregation timed out");
-      }
-    });
+    notifyListenerOnTimeout(getAggregatedContent().getAggregatedElements(), getAggregationId());
+    resetGroup();
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Aggregation timed out");
+    }
   }
 }

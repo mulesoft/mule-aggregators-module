@@ -185,23 +185,19 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
   }
 
   private void onGroupEviction(String groupId) {
-    executeSynchronized(() -> {
-      evictGroup(groupId);
-    });
+    evictGroup(groupId);
   }
 
   private void onTimeout(String groupId) {
-    executeSynchronized(() -> {
-      AggregatedContent groupStorage = getSharedInfoLocalCopy().getAggregatedContent(groupId);
-      if (groupStorage != null) {
-        List<TypedValue> elements = groupStorage.getAggregatedElements();
-        ((SimpleAggregatedContent) groupStorage).setTimedOut();
-        notifyListenerOnTimeout(elements, groupId);
-        if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug(format("Group with id: %s timed out", groupId));
-        }
+    AggregatedContent groupStorage = getSharedInfoLocalCopy().getAggregatedContent(groupId);
+    if (groupStorage != null) {
+      List<TypedValue> elements = groupStorage.getAggregatedElements();
+      ((SimpleAggregatedContent) groupStorage).setTimedOut();
+      notifyListenerOnTimeout(elements, groupId);
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(format("Group with id: %s timed out", groupId));
       }
-    });
+    }
   }
 
 
@@ -282,10 +278,10 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
 
   private void scheduleGroupEvictionIfNeeded(String groupId, AsyncTask task) {
     if (!task.isScheduled()) {
-      scheduleTask(task, () -> {
+      scheduleTask(task, () -> executeSynchronized(() -> {
         onGroupEviction(groupId);
         getSharedInfoLocalCopy().unregisterGroupEvictionTask(groupId);
-      });
+      }));
       task.setScheduled(getCurrentTime());
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Scheduled group eviction for groupId: %s to be executed in %d %s", groupId, task.getDelay(),
@@ -301,10 +297,10 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
 
   private void scheduleTimeoutIfNeeded(String groupId, AsyncTask task) {
     if (!task.isScheduled()) {
-      scheduleTask(task, () -> {
+      scheduleTask(task, () -> executeSynchronized(() -> {
         onTimeout(groupId);
         getSharedInfoLocalCopy().unregisterTimeoutTask(groupId);
-      });
+      }));
       task.setScheduled(getCurrentTime());
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Scheduled timeout for groupId: %s to be executed in %d %s", groupId, task.getDelay(),
