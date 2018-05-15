@@ -156,6 +156,20 @@
         <flow-ref name="onComplete"/>
     </flow>
 
+    <flow name="scheduledAggregationNotExecuted">
+        <aggregators:time-based-aggregator name="11" maxSize="3" period="2" periodUnit="SECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+        </aggregators:time-based-aggregator>
+    </flow>
+
+    <flow name="scheduledAggregationNotExecutedListener">
+        <aggregators:aggregator-listener aggregatorName="11" includeTimedOutGroups="true"/>
+        <flow-ref name="onComplete"/>
+        <flow-ref name="onListener"/>
+    </flow>
+
     <flow name="onIncremental">
         <set-variable variableName="executionRoute" value="incrementalAggregation"/>
         <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>

@@ -104,7 +104,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
       AggregatedContent aggregatedContent = getAggregatedContent();
 
       if (aggregatorParameters.isTimeoutSet()) {
-        registerTaskIfNeeded(aggregatorParameters.getTimeout(), aggregatorParameters.getTimeoutUnit());
+        registerAsyncAggregationIfNeeded(aggregatorParameters.getTimeout(), aggregatorParameters.getTimeoutUnit());
       }
 
       addToStorage(aggregatedContent, of(aggregatorParameters.getContent()), itemSequenceInfo);
@@ -113,7 +113,8 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
         notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAggregationId());
         executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedContent.getAggregatedElements(),
                                            getAttributes(aggregatedContent), completionCallback);
-        resetGroup();
+        onCompleteAggregation();
+
       } else if (incrementalAggregationRoute != null) {
         executeRouteWithAggregatedElements(incrementalAggregationRoute, aggregatedContent.getAggregatedElements(),
                                            getAttributes(aggregatedContent), completionCallback);
@@ -138,7 +139,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
   }
 
   @Override
-  void onTaskExecution() {
+  void onAsyncAggregationExecution() {
     onTimeout();
   }
 

@@ -97,7 +97,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
     //executing a new event.
     executeSynchronized(() -> {
 
-      registerTaskIfNeeded(aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
+      registerAsyncAggregationIfNeeded(aggregatorParameters.getPeriod(), aggregatorParameters.getPeriodUnit());
 
       AggregatedContent aggregatedContent = getAggregatedContent();
 
@@ -105,7 +105,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
 
       if (aggregatedContent.isComplete()) {
         notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAggregationId());
-        resetGroup();
+        onCompleteAggregation();
         completionCallback.success(Result.builder().build());
       } else if (incrementalAggregationRoute != null) {
         executeRouteWithAggregatedElements(incrementalAggregationRoute, aggregatedContent.getAggregatedElements(),
@@ -134,7 +134,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
   }
 
   @Override
-  void onTaskExecution() {
+  void onAsyncAggregationExecution() {
     getElementsAndNotifyListener();
   }
 

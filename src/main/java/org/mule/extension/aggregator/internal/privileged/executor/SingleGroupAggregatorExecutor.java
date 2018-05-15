@@ -66,11 +66,11 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
     return aggregatedContent;
   }
 
-  void registerTaskIfNeeded(int delay, TimeUnit unit) {
-    if (getSharedInfoLocalCopy().shouldRegisterNextTask()) {
+  void registerAsyncAggregationIfNeeded(int delay, TimeUnit unit) {
+    if (getSharedInfoLocalCopy().shouldRegisterNextAsyncAggregation()) {
       AsyncTask task = new SimpleAsyncTask(delay, unit);
       task.setRegistered(getCurrentTime());
-      getSharedInfoLocalCopy().registerTask(task);
+      getSharedInfoLocalCopy().registerAsyncAggregationTask(task);
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Registered task to be executed in %d %s", delay, unit));
       }
@@ -82,37 +82,38 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
   }
 
   @Override
-  void doScheduleRegisteredTasks() {
-    AsyncTask task = getSharedInfoLocalCopy().getRegisteredTask();
+  void doScheduleRegisteredAsyncAggregations() {
+    AsyncTask task = getSharedInfoLocalCopy().getRegisteredAsyncAggregationTask();
     if (task != null) {
       if (!task.isScheduled()) {
         scheduleTask(task, () -> executeSynchronized(() -> {
-          onTaskExecution();
-          getSharedInfoLocalCopy().unregisterTask();
+          //Check if task is still registered because maybe the execution is not needed
+          if (getSharedInfoLocalCopy().getRegisteredAsyncAggregationTask() != null) {
+            onAsyncAggregationExecution();
+            getSharedInfoLocalCopy().unregisterAsyncAggregationTask();
+          }
         }));
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug(format("Scheduled task to be executed in %d %s", task.getDelay(), task.getDelayTimeUnit()));
         }
-        task.setScheduled(getCurrentTime());
       } else {
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug("Attempted to schedule task but it was already scheduled");
         }
       }
-
       task.setScheduled(getCurrentTime());
     }
   }
 
   @Override
-  void doSetRegisteredTasksAsNotScheduled() {
-    AsyncTask task = getSharedInfoLocalCopy().getRegisteredTask();
+  void doSetRegisteredAsyncAggregationsAsNotScheduled() {
+    AsyncTask task = getSharedInfoLocalCopy().getRegisteredAsyncAggregationTask();
     if (task != null) {
       task.setUnscheduled();
     }
   }
 
-  abstract void onTaskExecution();
+  abstract void onAsyncAggregationExecution();
 
   @Override
   SimpleAggregatorSharedInformation getSharedInfoLocalCopy() throws ModuleException {
@@ -122,6 +123,11 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
   @Override
   AggregatorSharedInformation createSharedInfo() {
     return new SimpleAggregatorSharedInformation();
+  }
+
+  void onCompleteAggregation() {
+    resetGroup();
+    getSharedInfoLocalCopy().unregisterAsyncAggregationTask();
   }
 
 }

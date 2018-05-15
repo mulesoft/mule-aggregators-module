@@ -198,6 +198,22 @@
         </aggregators:size-based-aggregator>
     </flow>
 
+    <flow name="scheduledAggregationNotExecuted">
+        <aggregators:size-based-aggregator name="14" maxSize="3" timeout="2" timeoutUnit="SECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+    </flow>
+
+    <flow name="scheduledAggregationNotExecutedListener">
+        <aggregators:aggregator-listener aggregatorName="14" includeTimedOutGroups="true"/>
+        <flow-ref name="onListener"/>
+    </flow>
+
     <flow name="onComplete">
         <set-variable variableName="executionRoute" value="aggregationComplete"/>
         <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>

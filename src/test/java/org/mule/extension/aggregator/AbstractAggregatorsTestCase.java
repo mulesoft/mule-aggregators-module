@@ -85,5 +85,18 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
     assertRouteNthExecution(AGGREGATION_COMPLETE_ROUTE_KEY, 1, 0, 2, 5, 1, 2);
   }
 
+  @Test
+  @Description("scheduled period aggregation is not executed after size aggregation")
+  public void scheduledAggregationNotExecutedAfterSize() throws Exception {
+    final String flowName = "scheduledAggregationNotExecuted";
+    final String payload = "lrm";
+    flowRunner(flowName).withPayload(payload).run();
+    flowRunner(flowName).withPayload(payload).run();
+    sleep(1000); //Wait a little bit to make sure the timeout aggregation was actually scheduled
+    flowRunner(flowName).withPayload(payload).run();
+    assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
+    sleep(1000); //Wait to make sure timeout is never executed
+    assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
+  }
 
 }

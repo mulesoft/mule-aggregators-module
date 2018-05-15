@@ -128,6 +128,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
         executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedElements,
                                            getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
                                            completionCallback);
+        getSharedInfoLocalCopy().getRegisteredTimeoutAsyncAggregations().remove(aggregatorParameters.getGroupId());
       } else if (incrementalAggregationRoute != null) {
         executeRouteWithAggregatedElements(incrementalAggregationRoute, groupAggregatedContent.getAggregatedElements(),
                                            getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
@@ -238,7 +239,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
     if (getSharedInfoLocalCopy().shouldRegisterTimeout(groupId)) {
       AsyncTask task = new SimpleAsyncTask(delay, unit);
       task.setRegistered(getCurrentTime());
-      getSharedInfoLocalCopy().registerTimeoutTask(groupId, task);
+      getSharedInfoLocalCopy().registerTimeoutAsyncAggregation(groupId, task);
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Registered timeout to be executed for groupId: %s in %d %s", groupId, delay, unit));
       }
@@ -265,15 +266,15 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
   }
 
   @Override
-  void doScheduleRegisteredTasks() {
+  void doScheduleRegisteredAsyncAggregations() {
     getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach(this::scheduleGroupEvictionIfNeeded);
-    getSharedInfoLocalCopy().getRegisteredTimeoutTasks().forEach(this::scheduleTimeoutIfNeeded);
+    getSharedInfoLocalCopy().getRegisteredTimeoutAsyncAggregations().forEach(this::scheduleTimeoutIfNeeded);
   }
 
   @Override
-  void doSetRegisteredTasksAsNotScheduled() {
+  void doSetRegisteredAsyncAggregationsAsNotScheduled() {
     getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach((key, value) -> value.setUnscheduled());
-    getSharedInfoLocalCopy().getRegisteredTimeoutTasks().forEach((key, value) -> value.setUnscheduled());
+    getSharedInfoLocalCopy().getRegisteredTimeoutAsyncAggregations().forEach((key, value) -> value.setUnscheduled());
   }
 
   private void scheduleGroupEvictionIfNeeded(String groupId, AsyncTask task) {
@@ -298,8 +299,10 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
   private void scheduleTimeoutIfNeeded(String groupId, AsyncTask task) {
     if (!task.isScheduled()) {
       scheduleTask(task, () -> executeSynchronized(() -> {
-        onTimeout(groupId);
-        getSharedInfoLocalCopy().unregisterTimeoutTask(groupId);
+        if (getSharedInfoLocalCopy().getRegisteredTimeoutAsyncAggregations().get(groupId) != null) {
+          onTimeout(groupId);
+          getSharedInfoLocalCopy().unregisterTimeoutAsyncAggregation(groupId);
+        }
       }));
       task.setScheduled(getCurrentTime());
       if (LOGGER.isDebugEnabled()) {
