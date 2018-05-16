@@ -17,7 +17,6 @@ import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecuti
 import org.mule.runtime.api.event.Event;
 import org.mule.runtime.core.api.event.CoreEvent;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.context.annotation.Description;
 

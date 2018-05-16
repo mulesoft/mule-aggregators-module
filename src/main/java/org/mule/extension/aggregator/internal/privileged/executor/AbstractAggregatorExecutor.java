@@ -164,7 +164,7 @@ public abstract class AbstractAggregatorExecutor
     if (clusterService.isPrimaryPollingInstance()) {
       if (!started) {
         startIfNeeded(objectStore);
-        setRegisteredTasksAsNotScheduled();
+        setRegisteredAsyncAggregationsAsNotScheduled();
         scheduler = schedulerService.cpuLightScheduler();
         try {
           taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_KEY)
@@ -174,7 +174,8 @@ public abstract class AbstractAggregatorExecutor
           LOGGER.warn(format("Error trying to configure %s, the value could not be parsed to a long. Using default value: %d %s",
                              TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, TASK_SCHEDULING_PERIOD_UNIT));
         }
-        scheduler.scheduleAtFixedRate(this::scheduleRegisteredTasks, 0, taskSchedulingPeriod, TASK_SCHEDULING_PERIOD_UNIT);
+        scheduler.scheduleAtFixedRate(this::scheduleRegisteredAsyncAggregations, 0, taskSchedulingPeriod,
+                                      TASK_SCHEDULING_PERIOD_UNIT);
         started = true;
       }
     }
@@ -192,22 +193,22 @@ public abstract class AbstractAggregatorExecutor
     route.getChain().process(elements, attributes, callback::success, (e, r) -> callback.error(e));
   }
 
-  private void scheduleRegisteredTasks() {
-    executeSynchronized(this::doScheduleRegisteredTasks);
+  private void scheduleRegisteredAsyncAggregations() {
+    executeSynchronized(this::doScheduleRegisteredAsyncAggregations);
   }
 
-  abstract void doScheduleRegisteredTasks();
+  abstract void doScheduleRegisteredAsyncAggregations();
 
-  private void setRegisteredTasksAsNotScheduled() {
-    executeSynchronized(this::doSetRegisteredTasksAsNotScheduled);
+  private void setRegisteredAsyncAggregationsAsNotScheduled() {
+    executeSynchronized(this::doSetRegisteredAsyncAggregationsAsNotScheduled);
   }
 
-  abstract void doSetRegisteredTasksAsNotScheduled();
+  abstract void doSetRegisteredAsyncAggregationsAsNotScheduled();
 
   /**
    * When scheduling the {@param runnable}, we should compute the actual delay value to set to the scheduler giving that it will be different from the one set by the user.
    * <p/>
-   * Since tasks will be scheduled once the periodic process that handles that is executed {@link #scheduleRegisteredTasks()}, we should account for the time waited
+   * Since tasks will be scheduled once the periodic process that handles that is executed {@link #scheduleRegisteredAsyncAggregations()}, we should account for the time waited
    * until that process execution takes place.
    * Also, if in a cluster, the task could've been already scheduled in another primary node that was disconnected, we should consider that offset as well.
    * <p/>

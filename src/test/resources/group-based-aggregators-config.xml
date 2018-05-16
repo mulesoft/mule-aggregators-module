@@ -39,7 +39,7 @@
 
     <flow name="shortEvictionTime">
         <aggregators:group-based-aggregator name="3"  groupId="#[vars.gid]" groupSize="1"
-                                            evictionTime="500" evictionTimeUnit="MILLISECONDS">
+                                            evictionTime="50" evictionTimeUnit="MILLISECONDS">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -105,7 +105,7 @@
 
     <flow name="groupTimedOutExceptionThrowingFlow">
         <aggregators:group-based-aggregator name="7"  groupSize="100" groupId="#[vars.gid]"
-                                            timeout="500" timeoutUnit="MILLISECONDS">
+                                            timeout="50" timeoutUnit="MILLISECONDS">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -158,7 +158,7 @@
 
     <flow name="shortTimeoutAndEvictionTime">
         <aggregators:group-based-aggregator name="10"  groupSize="1" groupId="#[vars.gid]"
-                                            timeout="1000" timeoutUnit="MILLISECONDS" evictionTime="500"
+                                            timeout="100" timeoutUnit="MILLISECONDS" evictionTime="50"
                                             evictionTimeUnit="MILLISECONDS">
             <aggregators:content>
                 #[payload]
@@ -263,6 +263,22 @@
                 <flow-ref name="onComplete"/>
             </aggregators:aggregation-complete>
         </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="scheduledAggregationNotExecuted">
+        <aggregators:group-based-aggregator name="18"  groupId="someId" groupSize="3" timeout="200" timeoutUnit="MILLISECONDS">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="scheduledAggregationNotExecutedListener">
+        <aggregators:aggregator-listener aggregatorName="18" includeTimedOutGroups="true"/>
+        <flow-ref name="onListener"/>
     </flow>
 
     <flow name="onComplete">

@@ -31,7 +31,7 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
   static final String LISTENER_ROUTE_KEY = "listenerCalled";
 
   @Rule
-  public SystemProperty schedulingTasksPeriod = new SystemProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY, "500");
+  public SystemProperty schedulingTasksPeriod = new SystemProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY, "50");
 
   @Before
   public void reset() {
@@ -85,5 +85,18 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
     assertRouteNthExecution(AGGREGATION_COMPLETE_ROUTE_KEY, 1, 0, 2, 5, 1, 2);
   }
 
+  @Test
+  @Description("scheduled period aggregation is not executed after size aggregation")
+  public void scheduledAggregationNotExecutedAfterSize() throws Exception {
+    final String flowName = "scheduledAggregationNotExecuted";
+    final String payload = "lrm";
+    flowRunner(flowName).withPayload(payload).run();
+    flowRunner(flowName).withPayload(payload).run();
+    sleep(100); //Wait a little bit to make sure the timeout aggregation was actually scheduled
+    flowRunner(flowName).withPayload(payload).run();
+    assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
+    sleep(100); //Wait to make sure timeout is never executed
+    assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
+  }
 
 }

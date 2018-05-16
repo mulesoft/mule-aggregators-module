@@ -52,15 +52,15 @@ public class GroupAggregatorSharedInformation implements AggregatorSharedInforma
     return registeredTimeouts.get(groupId) == null;
   }
 
-  public void registerTimeoutTask(String groupId, AsyncTask timeoutTask) {
+  public void registerTimeoutAsyncAggregation(String groupId, AsyncTask timeoutTask) {
     registeredTimeouts.put(groupId, timeoutTask);
   }
 
-  public void unregisterTimeoutTask(String groupId) {
+  public void unregisterTimeoutAsyncAggregation(String groupId) {
     registeredTimeouts.remove(groupId);
   }
 
-  public Map<String, AsyncTask> getRegisteredTimeoutTasks() {
+  public Map<String, AsyncTask> getRegisteredTimeoutAsyncAggregations() {
     return registeredTimeouts;
   }
 }
