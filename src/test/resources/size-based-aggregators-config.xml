@@ -199,7 +199,7 @@
     </flow>
 
     <flow name="scheduledAggregationNotExecuted">
-        <aggregators:size-based-aggregator name="14" maxSize="3" timeout="2" timeoutUnit="SECONDS">
+        <aggregators:size-based-aggregator name="14" maxSize="3" timeout="200" timeoutUnit="MILLISECONDS">
             <aggregators:content>
                 #[payload]
             </aggregators:content>

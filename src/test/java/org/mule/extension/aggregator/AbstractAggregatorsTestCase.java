@@ -31,7 +31,7 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
   static final String LISTENER_ROUTE_KEY = "listenerCalled";
 
   @Rule
-  public SystemProperty schedulingTasksPeriod = new SystemProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY, "500");
+  public SystemProperty schedulingTasksPeriod = new SystemProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY, "50");
 
   @Before
   public void reset() {
@@ -92,10 +92,10 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
     final String payload = "lrm";
     flowRunner(flowName).withPayload(payload).run();
     flowRunner(flowName).withPayload(payload).run();
-    sleep(1000); //Wait a little bit to make sure the timeout aggregation was actually scheduled
+    sleep(100); //Wait a little bit to make sure the timeout aggregation was actually scheduled
     flowRunner(flowName).withPayload(payload).run();
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
-    sleep(1000); //Wait to make sure timeout is never executed
+    sleep(100); //Wait to make sure timeout is never executed
     assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
   }
 

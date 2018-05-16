@@ -116,7 +116,7 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
     assertRouteNthExecution(AGGREGATION_COMPLETE_ROUTE_KEY, 1, 1);
 
-    sleep(1000); //Let the group be evicted
+    sleep(100); //Let the group be evicted
 
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(2).run();
     //No exception will be thrown because when the timeout should have been executed, the group was already evicted.
@@ -133,7 +133,7 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
     assertRouteNthExecution(AGGREGATION_COMPLETE_ROUTE_KEY, 1, 1);
 
-    sleep(1000); //Let the group be evicted
+    sleep(100); //Let the group be evicted
 
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(1).run();
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 2);
@@ -156,7 +156,7 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
     final String randomString = "this is not random at all, is it?";
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(randomString).runNoVerify();
 
-    sleep(1000); //Let the group execute timeout
+    sleep(100); //Let the group execute timeout
 
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(randomString).run();
   }
