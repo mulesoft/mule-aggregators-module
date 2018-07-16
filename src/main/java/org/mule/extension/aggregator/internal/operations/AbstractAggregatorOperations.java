@@ -26,7 +26,7 @@ public abstract class AbstractAggregatorOperations {
   @Placement(tab = ADVANCED_TAB)
   @DisplayName(value = "Object Store (*)")
   @Summary(
-      value = "In order to add an Object Store configuration, an Object Store implementation needs to be present in the project. An option is to add the Mule Object Store Module provided by MuleSoft")
+      value = "In order to create an Object Store configuration, an Object Store implementation needs to be present in the project. An option is to add the Mule Object Store Module provided by MuleSoft")
   @Expression(NOT_SUPPORTED)
   @Optional
   @ObjectStoreReference
