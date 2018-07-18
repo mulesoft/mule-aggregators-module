@@ -18,9 +18,8 @@ import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAG
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.startIfNeeded;
 import static org.mule.runtime.extension.api.error.MuleErrors.ANY;
-import org.mule.extension.aggregator.internal.config.AggregatorManager;
-import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
 import org.mule.extension.aggregator.api.AggregationAttributes;
+import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.source.AggregatorListener;
 import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
@@ -58,6 +57,7 @@ import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContext
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
@@ -189,8 +189,8 @@ public abstract class AbstractAggregatorExecutor
   }
 
   void executeRouteWithAggregatedElements(Route route, List<TypedValue> elements, AggregationAttributes attributes,
-                                          CompletionCallbackWrapper callback) {
-    route.getChain().process(elements, attributes, callback::success, (e, r) -> callback.error(e));
+                                          CompletableFuture<Result<Object, Object>> future) {
+    route.getChain().process(elements, attributes, future::complete, (e, r) -> future.completeExceptionally(e));
   }
 
   private void scheduleRegisteredAsyncAggregations() {

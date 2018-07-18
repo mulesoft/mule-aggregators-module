@@ -26,6 +26,8 @@ import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContext
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.reactivestreams.Publisher;
@@ -97,9 +99,10 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
 
     evaluateParameters(aggregatorParameters);
 
+    CompletableFuture<Result<Object, Object>> future = new CompletableFuture<>();
+
     //We should synchronize the access to the storage because if the group is released due to a timeout, we may get duplicates.
     executeSynchronized(() -> {
-
 
       AggregatedContent aggregatedContent = getAggregatedContent();
 
@@ -112,16 +115,24 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
       if (aggregatedContent.isComplete()) {
         notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAggregationId());
         executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedContent.getAggregatedElements(),
-                                           getAttributes(aggregatedContent), completionCallback);
+                                           getAttributes(aggregatedContent), future);
         onCompleteAggregation();
 
       } else if (incrementalAggregationRoute != null) {
         executeRouteWithAggregatedElements(incrementalAggregationRoute, aggregatedContent.getAggregatedElements(),
-                                           getAttributes(aggregatedContent), completionCallback);
+                                           getAttributes(aggregatedContent), future);
       } else {
-        completionCallback.success(Result.builder().build());
+        future.complete(Result.builder().build());
       }
     });
+
+    try {
+      completionCallback.success(future.get());
+    } catch (ExecutionException e) {
+      completionCallback.error(e.getCause());
+    } catch (InterruptedException e) {
+      completionCallback.error(e);
+    }
   }
 
   private void evaluateParameters(SizeBasedAggregatorParameterGroup aggregatorParameters) {
