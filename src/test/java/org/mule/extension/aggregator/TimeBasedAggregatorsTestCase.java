@@ -23,8 +23,8 @@ import org.springframework.context.annotation.Description;
 public class TimeBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
 
   @Override
-  protected String getConfigFile() {
-    return "time-based-aggregators-config.xml";
+  protected String[] getConfigFiles() {
+    return new String[] {"time-based-aggregators-config.xml", "global-object-store-config.xml"};
   }
 
   @Test

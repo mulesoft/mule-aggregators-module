@@ -18,9 +18,9 @@ import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAG
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.startIfNeeded;
 import static org.mule.runtime.extension.api.error.MuleErrors.ANY;
+import org.mule.extension.aggregator.api.AggregationAttributes;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
-import org.mule.extension.aggregator.api.AggregationAttributes;
 import org.mule.extension.aggregator.internal.source.AggregatorListener;
 import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.extension.aggregator.internal.storage.info.AggregatorSharedInformation;
@@ -28,10 +28,8 @@ import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.runtime.api.cluster.ClusterService;
 import org.mule.runtime.api.component.ConfigurationProperties;
 import org.mule.runtime.api.exception.MuleException;
-import org.mule.runtime.api.lifecycle.Disposable;
-import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
-import org.mule.runtime.api.lifecycle.Startable;
+import org.mule.runtime.api.lifecycle.Lifecycle;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.message.ItemSequenceInfo;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
@@ -58,7 +56,10 @@ import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContext
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 
@@ -78,7 +79,7 @@ import org.slf4j.LoggerFactory;
  * @since 1.0
  */
 public abstract class AbstractAggregatorExecutor
-    implements ComponentExecutor<OperationModel>, Initialisable, Startable, Disposable {
+    implements ComponentExecutor<OperationModel>, Lifecycle {
 
   final Logger LOGGER = LoggerFactory.getLogger(getClass());
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
@@ -117,7 +118,12 @@ public abstract class AbstractAggregatorExecutor
   private PrimaryNodeLifecycleNotificationListener notificationListener;
   private AggregatorSharedInformation sharedInfoLocalCopy;
   private LazyValue<ObjectStore<AggregatorSharedInformation>> storage;
+
   private boolean started = false;
+
+  private final Object stoppingLock = new Object();
+  private boolean shouldSynchronizeToOS = true;
+
   private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
 
   protected void injectParameters(Map<String, Object> parameters) {
@@ -182,6 +188,13 @@ public abstract class AbstractAggregatorExecutor
   }
 
   @Override
+  public void stop() throws MuleException {
+    synchronized (stoppingLock) {
+      shouldSynchronizeToOS = false;
+    }
+  }
+
+  @Override
   public void dispose() {
     if (scheduler != null) {
       scheduler.stop();
@@ -189,8 +202,18 @@ public abstract class AbstractAggregatorExecutor
   }
 
   void executeRouteWithAggregatedElements(Route route, List<TypedValue> elements, AggregationAttributes attributes,
-                                          CompletionCallbackWrapper callback) {
-    route.getChain().process(elements, attributes, callback::success, (e, r) -> callback.error(e));
+                                          CompletableFuture<Result<Object, Object>> future) {
+    route.getChain().process(elements, attributes, future::complete, (e, r) -> future.completeExceptionally(e));
+  }
+
+  void finishExecution(CompletableFuture<Result<Object, Object>> future, CompletionCallbackWrapper completionCallback) {
+    try {
+      completionCallback.success(future.get());
+    } catch (ExecutionException e) {
+      completionCallback.error(e.getCause());
+    } catch (InterruptedException e) {
+      completionCallback.error(e);
+    }
   }
 
   private void scheduleRegisteredAsyncAggregations() {
@@ -261,15 +284,19 @@ public abstract class AbstractAggregatorExecutor
     });
   }
 
-  synchronized void executeSynchronized(Runnable task) {
-    Lock lock = lockFactory.createLock(getAggregatorKey());
-    lock.lock();
-    try {
-      pullSharedInfo();
-      task.run();
-      pushSharedInfo();
-    } finally {
-      lock.unlock();
+  void executeSynchronized(Runnable task) {
+    synchronized (stoppingLock) {
+      if (shouldSynchronizeToOS) {
+        Lock lock = lockFactory.createLock(getAggregatorKey());
+        lock.lock();
+        try {
+          pullSharedInfo();
+          task.run();
+          pushSharedInfo();
+        } finally {
+          lock.unlock();
+        }
+      }
     }
   }
 

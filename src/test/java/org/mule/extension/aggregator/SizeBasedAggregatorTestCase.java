@@ -25,8 +25,8 @@ import org.springframework.context.annotation.Description;
 public class SizeBasedAggregatorTestCase extends AbstractAggregatorsTestCase {
 
   @Override
-  protected String getConfigFile() {
-    return "size-based-aggregators-config.xml";
+  protected String[] getConfigFiles() {
+    return new String[] {"size-based-aggregators-config.xml", "global-object-store-config.xml"};
   }
 
   @Test

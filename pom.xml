@@ -20,6 +20,7 @@
     <properties>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <muleObjectStoreConnectorTestVersion>1.2.0-SNAPSHOT</muleObjectStoreConnectorTestVersion>
+        <muleFileConnectorTestVersion>1.2.0-SNAPSHOT</muleFileConnectorTestVersion>
     </properties>
 
     <dependencies>
@@ -34,6 +35,13 @@
             <groupId>org.mule.connectors</groupId>
             <artifactId>mule-objectstore-connector</artifactId>
             <version>${muleObjectStoreConnectorTestVersion}</version>
+            <classifier>mule-plugin</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.connectors</groupId>
+            <artifactId>mule-file-connector</artifactId>
+            <version>${muleFileConnectorTestVersion}</version>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
