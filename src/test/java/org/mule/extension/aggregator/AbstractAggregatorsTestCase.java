@@ -76,7 +76,7 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
     URI resourceUri = null;
     try {
       resourceUri = currentThread().getContextClassLoader().getResource(BIG_PAYLOAD_FILE_NAME).toURI();
-    }catch (URISyntaxException e) {
+    } catch (URISyntaxException e) {
       fail();
     }
     return new File(resourceUri).getParentFile().getAbsolutePath();
@@ -150,8 +150,8 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
     final byte[] payloadBytes = toByteArray(payload);
     flowRunner(flowName).run();
     Event resultEvent = flowRunner(flowName).run();
-    List<TypedValue> aggregatedElements = (List<TypedValue>) ((TypedValue)resultEvent.getVariables().get("result")).getValue();
-    assertThat(((Message)aggregatedElements.get(0).getValue()).getPayload().getValue(), is(equalTo(payloadBytes)));
+    List<TypedValue> aggregatedElements = (List<TypedValue>) ((TypedValue) resultEvent.getVariables().get("result")).getValue();
+    assertThat(((Message) aggregatedElements.get(0).getValue()).getPayload().getValue(), is(equalTo(payloadBytes)));
   }
 
 }
