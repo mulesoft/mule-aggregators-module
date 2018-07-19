@@ -38,6 +38,7 @@ import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContext
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.reactivestreams.Publisher;
@@ -98,6 +99,8 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
 
     evaluateParameters(aggregatorParameters);
 
+    CompletableFuture<Result<Object, Object>> future = new CompletableFuture<>();
+
     executeSynchronized(() -> {
 
       if (aggregatorParameters.isTimeoutSet()) {
@@ -127,16 +130,18 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
                             aggregatorParameters.getEvictionTimeUnit());
         executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedElements,
                                            getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
-                                           completionCallback);
+                                           future);
         getSharedInfoLocalCopy().getRegisteredTimeoutAsyncAggregations().remove(aggregatorParameters.getGroupId());
       } else if (incrementalAggregationRoute != null) {
         executeRouteWithAggregatedElements(incrementalAggregationRoute, groupAggregatedContent.getAggregatedElements(),
                                            getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent),
-                                           completionCallback);
+                                           future);
       } else {
-        completionCallback.success(Result.builder().build());
+        future.complete(Result.builder().build());
       }
     });
+
+    finishExecution(future, completionCallback);
   }
 
   private void evaluateParameters(GroupBasedAggregatorParameterGroup parameterGroup) throws ModuleException {

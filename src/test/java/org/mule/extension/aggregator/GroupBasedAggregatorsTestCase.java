@@ -34,8 +34,8 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Override
-  protected String getConfigFile() {
-    return "group-based-aggregators-config.xml";
+  protected String[] getConfigFiles() {
+    return new String[] {"group-based-aggregators-config.xml", "global-object-store-config.xml"};
   }
 
 

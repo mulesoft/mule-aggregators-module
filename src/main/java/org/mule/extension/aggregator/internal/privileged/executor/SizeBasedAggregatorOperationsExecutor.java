@@ -27,7 +27,6 @@ import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContext
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.reactivestreams.Publisher;
@@ -126,13 +125,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
       }
     });
 
-    try {
-      completionCallback.success(future.get());
-    } catch (ExecutionException e) {
-      completionCallback.error(e.getCause());
-    } catch (InterruptedException e) {
-      completionCallback.error(e);
-    }
+    finishExecution(future, completionCallback);
   }
 
   private void evaluateParameters(SizeBasedAggregatorParameterGroup aggregatorParameters) {

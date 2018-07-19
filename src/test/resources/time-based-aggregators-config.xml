@@ -3,7 +3,9 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators"
       xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xmlns:file="http://www.mulesoft.org/schema/mule/file"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
       http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd
       http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
 
@@ -168,6 +170,15 @@
         <aggregators:aggregator-listener aggregatorName="11" includeTimedOutGroups="true"/>
         <flow-ref name="onComplete"/>
         <flow-ref name="onListener"/>
+    </flow>
+
+    <flow name="aggregateMessageWithBigPayloadOnPersistentOS">
+        <file:read config-ref="globalFileConfig" path="big_payload"/>
+        <aggregators:time-based-aggregator name="12" maxSize="3" period="2" periodUnit="SECONDS" objectStore="globalObjectStore">
+            <aggregators:incremental-aggregation>
+                <set-variable variableName="result" value="#[payload]"/>
+            </aggregators:incremental-aggregation>
+        </aggregators:time-based-aggregator>
     </flow>
 
     <flow name="onIncremental">
