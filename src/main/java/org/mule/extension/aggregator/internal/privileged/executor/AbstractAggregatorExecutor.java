@@ -28,10 +28,11 @@ import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.runtime.api.cluster.ClusterService;
 import org.mule.runtime.api.component.ConfigurationProperties;
 import org.mule.runtime.api.exception.MuleException;
-import org.mule.runtime.api.lifecycle.Disposable;
 import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
+import org.mule.runtime.api.lifecycle.Lifecycle;
 import org.mule.runtime.api.lifecycle.Startable;
+import org.mule.runtime.api.lifecycle.Stoppable;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.message.ItemSequenceInfo;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
@@ -61,6 +62,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 
@@ -80,7 +82,7 @@ import org.slf4j.LoggerFactory;
  * @since 1.0
  */
 public abstract class AbstractAggregatorExecutor
-    implements ComponentExecutor<OperationModel>, Initialisable, Startable, Disposable {
+    implements ComponentExecutor<OperationModel>, Initialisable, Startable, Stoppable {
 
   final Logger LOGGER = LoggerFactory.getLogger(getClass());
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
@@ -119,7 +121,11 @@ public abstract class AbstractAggregatorExecutor
   private PrimaryNodeLifecycleNotificationListener notificationListener;
   private AggregatorSharedInformation sharedInfoLocalCopy;
   private LazyValue<ObjectStore<AggregatorSharedInformation>> storage;
+
+  //We can't use the same flag for start and stop because of clister awareness. Everytime the primaryNode changes, the start phase is executed so the start flag should be false if the node was not primary at the beginning so that when it becomes primary, all the logic is executed.
+  //On the other hand, the stop flag is to control the OS accesses after the aggregator has been stopped. Some scheduled tasks could remain in the scheduler and they may want to access an stopped OS.
   private boolean started = false;
+  private AtomicBoolean stopped = new AtomicBoolean(false);
   private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
 
   protected void injectParameters(Map<String, Object> parameters) {
@@ -181,10 +187,12 @@ public abstract class AbstractAggregatorExecutor
         started = true;
       }
     }
+    stopped.set(false);
   }
 
   @Override
-  public void dispose() {
+  public void stop() throws MuleException {
+    stopped.set(true);
     if (scheduler != null) {
       scheduler.stop();
     }
@@ -274,14 +282,17 @@ public abstract class AbstractAggregatorExecutor
   }
 
   synchronized void executeSynchronized(Runnable task) {
-    Lock lock = lockFactory.createLock(getAggregatorKey());
-    lock.lock();
-    try {
-      pullSharedInfo();
-      task.run();
-      pushSharedInfo();
-    } finally {
-      lock.unlock();
+    //Don't execute if aggregator is stopped because it may want to access an stopped OS
+    if (!stopped.get()) {
+      Lock lock = lockFactory.createLock(getAggregatorKey());
+      lock.lock();
+      try {
+        pullSharedInfo();
+        task.run();
+        pushSharedInfo();
+      } finally {
+        lock.unlock();
+      }
     }
   }
 
