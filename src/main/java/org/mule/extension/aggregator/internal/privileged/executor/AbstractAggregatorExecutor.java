@@ -119,13 +119,11 @@ public abstract class AbstractAggregatorExecutor
   private AggregatorSharedInformation sharedInfoLocalCopy;
   private LazyValue<ObjectStore<AggregatorSharedInformation>> storage;
 
-  //We can't use the same flag for start and stop because of cluster awareness.
-  // Every time the primaryNode changes, the start phase is executed. That is why the start flag should be false if the node
-  // was not primary at the beginning so that when it becomes primary, all the logic is executed.
-  //On the other hand, the stop flag is to control the OS accesses after the aggregator has been stopped.
-  // Some scheduled tasks could remain in the scheduler and they may want to access an stopped OS.
   private boolean started = false;
-  private AtomicBoolean stopped = new AtomicBoolean(false);
+
+  private final Object stoppingLock = new Object();
+  private boolean shouldSynchronizeToOS = true;
+
   private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
 
   protected void injectParameters(Map<String, Object> parameters) {
@@ -187,12 +185,13 @@ public abstract class AbstractAggregatorExecutor
         started = true;
       }
     }
-    stopped.set(false);
   }
 
   @Override
   public void stop() throws MuleException {
-    stopped.set(true);
+    synchronized (stoppingLock) {
+      shouldSynchronizeToOS = false;
+    }
   }
 
   @Override
@@ -285,17 +284,18 @@ public abstract class AbstractAggregatorExecutor
     });
   }
 
-  synchronized void executeSynchronized(Runnable task) {
-    //Don't execute if aggregator is stopped because it may want to access an stopped OS
-    if (!stopped.get()) {
-      Lock lock = lockFactory.createLock(getAggregatorKey());
-      lock.lock();
-      try {
-        pullSharedInfo();
-        task.run();
-        pushSharedInfo();
-      } finally {
-        lock.unlock();
+  void executeSynchronized(Runnable task) {
+    synchronized (stoppingLock) {
+      if (shouldSynchronizeToOS) {
+        Lock lock = lockFactory.createLock(getAggregatorKey());
+        lock.lock();
+        try {
+          pullSharedInfo();
+          task.run();
+          pushSharedInfo();
+        } finally {
+          lock.unlock();
+        }
       }
     }
   }
