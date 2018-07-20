@@ -244,6 +244,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
     if (getSharedInfoLocalCopy().shouldRegisterTimeout(groupId)) {
       AsyncTask task = new SimpleAsyncTask(delay, unit);
       task.setRegistered(getCurrentTime());
+      
       getSharedInfoLocalCopy().registerTimeoutAsyncAggregation(groupId, task);
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Registered timeout to be executed for groupId: %s in %d %s", groupId, delay, unit));

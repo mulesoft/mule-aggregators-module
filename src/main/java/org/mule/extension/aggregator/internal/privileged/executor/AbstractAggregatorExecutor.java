@@ -85,6 +85,7 @@ public abstract class AbstractAggregatorExecutor
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
   private static final String DEFAULT_TASK_SCHEDULING_PERIOD = "1000";
   private static final TimeUnit TASK_SCHEDULING_PERIOD_UNIT = MILLISECONDS;
+  private static final Long INITIAL_FIXED_RATE_TASK_SCHEDULING_DELAY = 1000L;
 
   @Inject
   @Named(OBJECT_STORE_MANAGER)
@@ -180,8 +181,16 @@ public abstract class AbstractAggregatorExecutor
           LOGGER.warn(format("Error trying to configure %s, the value could not be parsed to a long. Using default value: %d %s",
                              TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, TASK_SCHEDULING_PERIOD_UNIT));
         }
-        scheduler.scheduleAtFixedRate(this::scheduleRegisteredAsyncAggregations, 0, taskSchedulingPeriod,
+        scheduler.scheduleAtFixedRate(
+                                      () -> {
+                                        if (started) {
+                                          scheduleRegisteredAsyncAggregations();
+                                        }
+                                      },
+                                      INITIAL_FIXED_RATE_TASK_SCHEDULING_DELAY,
+                                      taskSchedulingPeriod,
                                       TASK_SCHEDULING_PERIOD_UNIT);
+
         started = true;
       }
     }
@@ -248,9 +257,10 @@ public abstract class AbstractAggregatorExecutor
    */
   void scheduleTask(AsyncTask task, Runnable runnable) {
     long now = getCurrentTime();
-    long delay = task.getDelayTimeUnit().toMillis(task.getDelay()) - (now - task.getRegisteringTimestamp());
+    long configuredDelay = task.getDelayTimeUnit().toMillis(task.getDelay());
+    long delay = configuredDelay - (now - task.getRegisteringTimestamp());
     if (task.getSchedulingTimestamp().isPresent()) {
-      delay = delay - (getCurrentTime() - task.getSchedulingTimestamp().getAsLong());
+      delay = configuredDelay - (now - task.getSchedulingTimestamp().getAsLong());
     }
     scheduler.schedule(runnable, delay, MILLISECONDS);
   }
