@@ -59,7 +59,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 
@@ -120,6 +119,10 @@ public abstract class AbstractAggregatorExecutor
   private AggregatorSharedInformation sharedInfoLocalCopy;
   private LazyValue<ObjectStore<AggregatorSharedInformation>> storage;
 
+  //The started flag should be checked to avoid scheduling tasks when the stop phase has already been called and there
+  //is no more OS to store aggregations.
+  //Also, when clustered, only the primaryNode should have this flag in true so that when another node changes to primary
+  //all the logic in the start() method is executed.
   private boolean started = false;
 
   private final Object stoppingLock = new Object();
@@ -257,7 +260,6 @@ public abstract class AbstractAggregatorExecutor
     long now = getCurrentTime();
     long configuredDelay = task.getDelayTimeUnit().toMillis(task.getDelay());
     long delay = configuredDelay - (now - task.getRegisteringTimestamp());
-    System.out.println("Delay = " + Long.toString(delay));
     scheduler.schedule(runnable, delay, MILLISECONDS);
   }
 
