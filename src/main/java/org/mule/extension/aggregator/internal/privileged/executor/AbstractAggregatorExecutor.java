@@ -85,7 +85,7 @@ public abstract class AbstractAggregatorExecutor
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
   private static final String DEFAULT_TASK_SCHEDULING_PERIOD = "1000";
   private static final TimeUnit TASK_SCHEDULING_PERIOD_UNIT = MILLISECONDS;
-  private static final Long INITIAL_FIXED_RATE_TASK_SCHEDULING_DELAY = 1000L;
+  private static final Long INITIAL_FIXED_RATE_TASK_SCHEDULING_DELAY = 0L;
 
   @Inject
   @Named(OBJECT_STORE_MANAGER)
@@ -200,6 +200,7 @@ public abstract class AbstractAggregatorExecutor
   public void stop() throws MuleException {
     synchronized (stoppingLock) {
       shouldSynchronizeToOS = false;
+      started = false;
     }
   }
 
@@ -242,13 +243,10 @@ public abstract class AbstractAggregatorExecutor
    * <p/>
    * Since tasks will be scheduled once the periodic process that handles that is executed {@link #scheduleRegisteredAsyncAggregations()}, we should account for the time waited
    * until that process execution takes place.
-   * Also, if in a cluster, the task could've been already scheduled in another primary node that was disconnected, we should consider that offset as well.
    * <p/>
    * Every delay will be counted from the time the first event arrives to the aggregator.
    * <p/>
-   * The offset from the previous schedule would be offset = now - previousSchedulingTimestamp.
    * The actual delay according to the time the first event arrived will be delay = configuredDelay - (now - firstEventArrivalTime)
-   * So, the total time to wait would be actualDelay = delay - offset.
    * <p/>
    * The computation could cause the delay to be zero or negative, that should mean: execute immediately {@link java.util.concurrent.ScheduledExecutorService}  }
    *
@@ -259,9 +257,7 @@ public abstract class AbstractAggregatorExecutor
     long now = getCurrentTime();
     long configuredDelay = task.getDelayTimeUnit().toMillis(task.getDelay());
     long delay = configuredDelay - (now - task.getRegisteringTimestamp());
-    if (task.getSchedulingTimestamp().isPresent()) {
-      delay = configuredDelay - (now - task.getSchedulingTimestamp().getAsLong());
-    }
+    System.out.println("Delay = " + Long.toString(delay));
     scheduler.schedule(runnable, delay, MILLISECONDS);
   }
 

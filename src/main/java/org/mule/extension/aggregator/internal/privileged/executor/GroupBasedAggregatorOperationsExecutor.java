@@ -244,7 +244,6 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
     if (getSharedInfoLocalCopy().shouldRegisterTimeout(groupId)) {
       AsyncTask task = new SimpleAsyncTask(delay, unit);
       task.setRegistered(getCurrentTime());
-      
       getSharedInfoLocalCopy().registerTimeoutAsyncAggregation(groupId, task);
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Registered timeout to be executed for groupId: %s in %d %s", groupId, delay, unit));
@@ -289,7 +288,6 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
         onGroupEviction(groupId);
         getSharedInfoLocalCopy().unregisterGroupEvictionTask(groupId);
       }));
-      task.setScheduled(getCurrentTime());
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Scheduled group eviction for groupId: %s to be executed in %d %s", groupId, task.getDelay(),
                             task.getDelayTimeUnit()));
@@ -299,6 +297,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
         LOGGER.debug(format("Attempted to schedule a group eviction for groupId: %s, but it is already scheduled", groupId));
       }
     }
+    task.setScheduled();
   }
 
 
@@ -310,7 +309,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
           getSharedInfoLocalCopy().unregisterTimeoutAsyncAggregation(groupId);
         }
       }));
-      task.setScheduled(getCurrentTime());
+      task.setScheduled();
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Scheduled timeout for groupId: %s to be executed in %d %s", groupId, task.getDelay(),
                             task.getDelayTimeUnit()));
