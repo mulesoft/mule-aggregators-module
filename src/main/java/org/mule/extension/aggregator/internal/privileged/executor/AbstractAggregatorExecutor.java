@@ -177,7 +177,7 @@ public abstract class AbstractAggregatorExecutor
         setRegisteredAsyncAggregationsAsNotScheduled();
         scheduler = schedulerService.cpuLightScheduler();
         try {
-          taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_KEY)
+          taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
               .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
                   .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
         } catch (NumberFormatException e) {

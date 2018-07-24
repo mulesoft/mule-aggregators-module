@@ -47,7 +47,6 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.springframework.context.annotation.Description;
 
 public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctionalTestCase {
