@@ -19,7 +19,6 @@ import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAG
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.startIfNeeded;
 import static org.mule.runtime.extension.api.error.MuleErrors.ANY;
-import static org.mule.runtime.api.metadata.TypedValue.of;
 import org.mule.extension.aggregator.api.AggregationAttributes;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
@@ -45,10 +44,7 @@ import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.api.store.ObjectStore;
 import org.mule.runtime.api.store.ObjectStoreException;
 import org.mule.runtime.api.store.ObjectStoreManager;
-import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
-import org.mule.runtime.api.streaming.object.CursorIterator;
-import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
 import org.mule.runtime.api.time.TimeSupplier;
 import org.mule.runtime.api.transformation.TransformationService;
 import org.mule.runtime.api.util.LazyValue;
