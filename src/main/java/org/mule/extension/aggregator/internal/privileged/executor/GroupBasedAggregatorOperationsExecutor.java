@@ -79,7 +79,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
     parameters.setEvictionTime((Integer) parameterMap.get("evictionTime"));
     parameters.setEvictionTimeUnit((TimeUnit) parameterMap.get("evictionTimeUnit"));
     parameters.setGroupId((String) parameterMap.get("groupId"));
-    parameters.setContent(parameterMap.get("content"));
+    parameters.setContent((TypedValue) parameterMap.get("content"));
     parameters.setGroupSize((Integer) parameterMap.get("groupSize"));
     parameters.setTimeout((Integer) parameterMap.get("timeout"));
     parameters.setTimeoutUnit((TimeUnit) parameterMap.get("timeoutUnit"));
@@ -121,7 +121,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
                                   GROUP_TIMED_OUT);
       }
 
-      addToStorage(groupAggregatedContent, of(aggregatorParameters.getContent()), itemSequenceInfo);
+      addToStorage(groupAggregatedContent, aggregatorParameters.getContent(), itemSequenceInfo);
 
       if (groupAggregatedContent.isComplete()) {
         List<TypedValue> aggregatedElements = groupAggregatedContent.getAggregatedElements();

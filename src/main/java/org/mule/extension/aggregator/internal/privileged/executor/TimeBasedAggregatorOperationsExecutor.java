@@ -17,6 +17,7 @@ import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.message.ItemSequenceInfo;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
+import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.ExecutionContext;
@@ -63,7 +64,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
 
   private TimeBasedAggregatorParameterGroup createParameters(Map<String, Object> parameterMap) {
     TimeBasedAggregatorParameterGroup parameters = new TimeBasedAggregatorParameterGroup();
-    parameters.setContent(parameterMap.get("content"));
+    parameters.setContent((TypedValue) parameterMap.get("content"));
     parameters.setPeriod((Integer) parameterMap.get("period"));
     parameters.setPeriodUnit((TimeUnit) parameterMap.get("periodUnit"));
     return parameters;
@@ -104,7 +105,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
 
       AggregatedContent aggregatedContent = getAggregatedContent();
 
-      addToStorage(aggregatedContent, of(aggregatorParameters.getContent()), itemSequenceInfo);
+      addToStorage(aggregatedContent, aggregatorParameters.getContent(), itemSequenceInfo);
 
       if (aggregatedContent.isComplete()) {
         notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAggregationId());

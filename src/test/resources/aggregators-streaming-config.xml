@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators"
+      xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xmlns:file="http://www.mulesoft.org/schema/mule/file"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+      http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd
+      http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
+
+    <flow name="mainFlow">
+        <flow-ref name="#[vars.flowName]"/>
+    </flow>
+
+    <flow name="aggregateFromFile">
+        <file:read config-ref="globalFileConfig" path="little_payload"/>
+        <set-payload value="#[payload]" mimeType="custom/custom"/>
+        <flow-ref name="mainFlow"/>
+    </flow>
+
+    <flow name="aggregateMessage">
+        <aggregators:size-based-aggregator name="messageAggregator"  maxSize="2" objectStore="${objectStore}">
+            <aggregators:aggregation-complete>
+                <set-variable variableName="result" value="#[payload]"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+    </flow>
+
+    <flow name="aggregatePayload">
+        <aggregators:size-based-aggregator name="payloadAggregator"  maxSize="2" objectStore="${objectStore}">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+            <aggregators:aggregation-complete>
+                <set-variable variableName="result" value="#[payload]"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
+    </flow>
+
+</mule>

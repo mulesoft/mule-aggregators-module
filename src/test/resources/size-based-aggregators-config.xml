@@ -227,7 +227,6 @@
 
     <flow name="loggingPayload">
         <file:read config-ref="globalFileConfig" path="little_payload"/>
-        <logger level="ERROR" message="#[payload]"/>
         <aggregators:size-based-aggregator name="16" maxSize="2" objectStore="${objectStore}">
             <aggregators:content>#[payload]</aggregators:content>
             <aggregators:aggregation-complete>

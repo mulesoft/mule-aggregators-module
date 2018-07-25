@@ -18,6 +18,7 @@ import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.message.ItemSequenceInfo;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
+import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.ExecutionContext;
@@ -66,7 +67,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
 
   private SizeBasedAggregatorParameterGroup createParameters(Map<String, Object> parameterMap) {
     SizeBasedAggregatorParameterGroup parameters = new SizeBasedAggregatorParameterGroup();
-    parameters.setContent(parameterMap.get("content"));
+    parameters.setContent((TypedValue) parameterMap.get("content"));
     parameters.setTimeout((Integer) parameterMap.get("timeout"));
     parameters.setTimeoutUnit((TimeUnit) parameterMap.get("timeoutUnit"));
     return parameters;
@@ -109,7 +110,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
         registerAsyncAggregationIfNeeded(aggregatorParameters.getTimeout(), aggregatorParameters.getTimeoutUnit());
       }
 
-      addToStorage(aggregatedContent, of(aggregatorParameters.getContent()), itemSequenceInfo);
+      addToStorage(aggregatedContent, aggregatorParameters.getContent(), itemSequenceInfo);
 
       if (aggregatedContent.isComplete()) {
         notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAggregationId());

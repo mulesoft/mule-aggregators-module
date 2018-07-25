@@ -6,11 +6,7 @@
  */
 package org.mule.extension.aggregator;
 
-
-import static java.lang.Thread.currentThread;
 import static java.lang.Thread.sleep;
-import static java.util.Arrays.asList;
-import static junit.framework.TestCase.fail;
 import static org.codehaus.plexus.util.IOUtil.toByteArray;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -21,51 +17,15 @@ import static org.mule.runtime.api.message.ItemSequenceInfo.of;
 import org.mule.runtime.api.event.Event;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.TypedValue;
-import org.mule.tck.junit4.rule.SystemProperty;
-import org.mule.test.runner.RunnerDelegateTo;
 
-import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.List;
 
 import org.hamcrest.Matchers;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runners.Parameterized;
 import org.springframework.context.annotation.Description;
 
-@RunnerDelegateTo(Parameterized.class)
-public abstract class CommonAggregatorsTestCase extends AbstractAggregatorsTestCase {
-
-  private static final String BIG_PAYLOAD_FILE_NAME = "big_payload";
-
-  @Rule
-  public SystemProperty workingDir = new SystemProperty("workingDir", getWorkingDir());
-
-  @Parameterized.Parameter
-  @Rule
-  public SystemProperty objectStore;
-
-  @Parameterized.Parameters
-  public static Collection<Object[]> data() {
-    return asList(new Object[][] {
-        {new SystemProperty("objectStore", "aggregatorsPersistentObjectStore")},
-        {new SystemProperty("objectStore", "aggregatorsInMemoryObjectStore")}
-    });
-  }
-
-  private static String getWorkingDir() {
-    URI resourceUri = null;
-    try {
-      resourceUri = currentThread().getContextClassLoader().getResource(BIG_PAYLOAD_FILE_NAME).toURI();
-    } catch (URISyntaxException e) {
-      fail();
-    }
-    return new File(resourceUri).getParentFile().getAbsolutePath();
-  }
+public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTestCase {
 
   @Test
   @Description("All attributes should be set and available inside a route")
@@ -130,7 +90,7 @@ public abstract class CommonAggregatorsTestCase extends AbstractAggregatorsTestC
   @Description("BigContents are correctly serialized to the OS")
   public void bigContentAggregation() throws Exception {
     final String flowName = "aggregateMessageWithBigPayloadOnPersistentOS";
-    final InputStream payload = Thread.currentThread().getContextClassLoader().getResourceAsStream("big_payload");
+    final InputStream payload = Thread.currentThread().getContextClassLoader().getResourceAsStream(BIG_PAYLOAD_FILE_NAME);
     final byte[] payloadBytes = toByteArray(payload);
     flowRunner(flowName).run();
     Event resultEvent = flowRunner(flowName).run();
