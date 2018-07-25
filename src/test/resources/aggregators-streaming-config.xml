@@ -14,6 +14,8 @@
     <flow name="aggregateFromFile">
         <file:read config-ref="globalFileConfig" path="little_payload"/>
         <set-payload value="#[payload]" mimeType="custom/custom"/>
+        <!--Log the payload to check for errors with cursor providers-->
+        <logger level="ERROR" message="#[payload]"/>
         <flow-ref name="mainFlow"/>
     </flow>
 
