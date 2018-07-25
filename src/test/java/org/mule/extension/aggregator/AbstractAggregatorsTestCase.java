@@ -152,5 +152,4 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
     List<TypedValue> aggregatedElements = (List<TypedValue>) ((TypedValue) resultEvent.getVariables().get("result")).getValue();
     assertThat(((Message) aggregatedElements.get(0).getValue()).getPayload().getValue(), is(equalTo(payloadBytes)));
   }
-
 }

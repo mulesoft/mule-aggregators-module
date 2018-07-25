@@ -225,20 +225,15 @@
         </aggregators:size-based-aggregator>
     </flow>
 
-    <flow name="onComplete">
-        <set-variable variableName="executionRoute" value="aggregationComplete"/>
-        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
+    <flow name="loggingPayload">
+        <file:read config-ref="globalFileConfig" path="little_payload"/>
+        <logger level="ERROR" message="#[payload]"/>
+        <aggregators:size-based-aggregator name="16" maxSize="2" objectStore="globalObjectStore">
+            <aggregators:content>#[payload]</aggregators:content>
+            <aggregators:aggregation-complete>
+                <set-variable variableName="result" value="#[payload]"/>
+            </aggregators:aggregation-complete>
+        </aggregators:size-based-aggregator>
     </flow>
-
-    <flow name="onIncremental">
-        <set-variable variableName="executionRoute" value="incrementalAggregation"/>
-        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
-    </flow>
-
-    <flow name="onListener">
-        <set-variable variableName="executionRoute" value="listenerCalled"/>
-        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
-    </flow>
-
 
 </mule>

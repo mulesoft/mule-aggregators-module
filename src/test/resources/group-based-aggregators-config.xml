@@ -292,19 +292,4 @@
         </aggregators:group-based-aggregator>
     </flow>
 
-    <flow name="onComplete">
-        <set-variable variableName="executionRoute" value="aggregationComplete"/>
-        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
-    </flow>
-
-    <flow name="onIncremental">
-        <set-variable variableName="executionRoute" value="incrementalAggregation"/>
-        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
-    </flow>
-
-    <flow name="onListener">
-        <set-variable variableName="executionRoute" value="listenerCalled"/>
-        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
-    </flow>
-
 </mule>

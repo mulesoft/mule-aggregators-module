@@ -35,7 +35,7 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
 
   @Override
   protected String[] getConfigFiles() {
-    return new String[] {"group-based-aggregators-config.xml", "global-object-store-config.xml"};
+    return new String[] {"group-based-aggregators-config.xml", "common-aggregators-config.xml"};
   }
 
 
