@@ -59,7 +59,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 
@@ -85,6 +84,7 @@ public abstract class AbstractAggregatorExecutor
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
   private static final String DEFAULT_TASK_SCHEDULING_PERIOD = "1000";
   private static final TimeUnit TASK_SCHEDULING_PERIOD_UNIT = MILLISECONDS;
+  private static final Long INITIAL_FIXED_RATE_TASK_SCHEDULING_DELAY = 0L;
 
   @Inject
   @Named(OBJECT_STORE_MANAGER)
@@ -119,6 +119,10 @@ public abstract class AbstractAggregatorExecutor
   private AggregatorSharedInformation sharedInfoLocalCopy;
   private LazyValue<ObjectStore<AggregatorSharedInformation>> storage;
 
+  //The started flag should be checked to avoid scheduling tasks when the stop phase has already been called and there
+  //is no more OS to store aggregations.
+  //Also, when clustered, only the primaryNode should have this flag in true so that when another node changes to primary
+  //all the logic in the start() method is executed.
   private boolean started = false;
 
   private final Object stoppingLock = new Object();
@@ -173,15 +177,23 @@ public abstract class AbstractAggregatorExecutor
         setRegisteredAsyncAggregationsAsNotScheduled();
         scheduler = schedulerService.cpuLightScheduler();
         try {
-          taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_KEY)
+          taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
               .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
                   .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
         } catch (NumberFormatException e) {
           LOGGER.warn(format("Error trying to configure %s, the value could not be parsed to a long. Using default value: %d %s",
                              TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, TASK_SCHEDULING_PERIOD_UNIT));
         }
-        scheduler.scheduleAtFixedRate(this::scheduleRegisteredAsyncAggregations, 0, taskSchedulingPeriod,
+        scheduler.scheduleAtFixedRate(
+                                      () -> {
+                                        if (started) {
+                                          scheduleRegisteredAsyncAggregations();
+                                        }
+                                      },
+                                      INITIAL_FIXED_RATE_TASK_SCHEDULING_DELAY,
+                                      taskSchedulingPeriod,
                                       TASK_SCHEDULING_PERIOD_UNIT);
+
         started = true;
       }
     }
@@ -191,6 +203,7 @@ public abstract class AbstractAggregatorExecutor
   public void stop() throws MuleException {
     synchronized (stoppingLock) {
       shouldSynchronizeToOS = false;
+      started = false;
     }
   }
 
@@ -233,13 +246,10 @@ public abstract class AbstractAggregatorExecutor
    * <p/>
    * Since tasks will be scheduled once the periodic process that handles that is executed {@link #scheduleRegisteredAsyncAggregations()}, we should account for the time waited
    * until that process execution takes place.
-   * Also, if in a cluster, the task could've been already scheduled in another primary node that was disconnected, we should consider that offset as well.
    * <p/>
    * Every delay will be counted from the time the first event arrives to the aggregator.
    * <p/>
-   * The offset from the previous schedule would be offset = now - previousSchedulingTimestamp.
    * The actual delay according to the time the first event arrived will be delay = configuredDelay - (now - firstEventArrivalTime)
-   * So, the total time to wait would be actualDelay = delay - offset.
    * <p/>
    * The computation could cause the delay to be zero or negative, that should mean: execute immediately {@link java.util.concurrent.ScheduledExecutorService}  }
    *
@@ -248,10 +258,8 @@ public abstract class AbstractAggregatorExecutor
    */
   void scheduleTask(AsyncTask task, Runnable runnable) {
     long now = getCurrentTime();
-    long delay = task.getDelayTimeUnit().toMillis(task.getDelay()) - (now - task.getRegisteringTimestamp());
-    if (task.getSchedulingTimestamp().isPresent()) {
-      delay = delay - (getCurrentTime() - task.getSchedulingTimestamp().getAsLong());
-    }
+    long configuredDelay = task.getDelayTimeUnit().toMillis(task.getDelay());
+    long delay = configuredDelay - (now - task.getRegisteringTimestamp());
     scheduler.schedule(runnable, delay, MILLISECONDS);
   }
 

@@ -288,7 +288,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
         onGroupEviction(groupId);
         getSharedInfoLocalCopy().unregisterGroupEvictionTask(groupId);
       }));
-      task.setScheduled(getCurrentTime());
+      task.setScheduled();
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Scheduled group eviction for groupId: %s to be executed in %d %s", groupId, task.getDelay(),
                             task.getDelayTimeUnit()));
@@ -309,7 +309,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
           getSharedInfoLocalCopy().unregisterTimeoutAsyncAggregation(groupId);
         }
       }));
-      task.setScheduled(getCurrentTime());
+      task.setScheduled();
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Scheduled timeout for groupId: %s to be executed in %d %s", groupId, task.getDelay(),
                             task.getDelayTimeUnit()));

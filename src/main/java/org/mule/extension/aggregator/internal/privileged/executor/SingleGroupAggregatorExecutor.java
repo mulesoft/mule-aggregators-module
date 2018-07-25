@@ -93,6 +93,7 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
             getSharedInfoLocalCopy().unregisterAsyncAggregationTask();
           }
         }));
+        task.setScheduled();
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug(format("Scheduled task to be executed in %d %s", task.getDelay(), task.getDelayTimeUnit()));
         }
@@ -101,7 +102,6 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
           LOGGER.debug("Attempted to schedule task but it was already scheduled");
         }
       }
-      task.setScheduled(getCurrentTime());
     }
   }
 

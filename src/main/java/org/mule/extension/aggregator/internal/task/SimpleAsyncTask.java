@@ -6,22 +6,16 @@
  */
 package org.mule.extension.aggregator.internal.task;
 
-import static java.util.OptionalLong.empty;
-import static java.util.OptionalLong.of;
-
-import java.util.OptionalLong;
 import java.util.concurrent.TimeUnit;
 
 
 public class SimpleAsyncTask implements AsyncTask {
 
-  private static final long NOT_SCHEDULED_TIMESTAMP = -1;
   private static final long serialVersionUID = 7509203629409368845L;
 
   private int delay;
   private TimeUnit delayUnit;
   private boolean scheduled;
-  private long schedulingTimestamp;
   private long registeringTimestamp;
 
 
@@ -29,7 +23,6 @@ public class SimpleAsyncTask implements AsyncTask {
     this.delay = delay;
     this.delayUnit = delayUnit;
     this.scheduled = false;
-    this.schedulingTimestamp = NOT_SCHEDULED_TIMESTAMP;
   }
 
   @Override
@@ -58,19 +51,13 @@ public class SimpleAsyncTask implements AsyncTask {
   }
 
   @Override
-  public OptionalLong getSchedulingTimestamp() {
-    return schedulingTimestamp == NOT_SCHEDULED_TIMESTAMP ? empty() : of(schedulingTimestamp);
-  }
-
-  @Override
   public void setUnscheduled() {
     scheduled = false;
   }
 
   @Override
-  public void setScheduled(long schedulingTimestamp) {
+  public void setScheduled() {
     scheduled = true;
-    this.schedulingTimestamp = schedulingTimestamp;
   }
 
 }
