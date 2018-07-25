@@ -10,7 +10,7 @@
       http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
 
     <flow name="incrementalAggregationRoute">
-        <aggregators:time-based-aggregator name="1"  period="1000" periodUnit="SECONDS">
+        <aggregators:time-based-aggregator name="1"  period="1000" periodUnit="SECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -21,7 +21,7 @@
     </flow>
 
     <flow name="aggregatorWithSmallPeriod">
-        <aggregators:time-based-aggregator name="2"  period="500" periodUnit="MILLISECONDS">
+        <aggregators:time-based-aggregator name="2"  period="500" periodUnit="MILLISECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -35,7 +35,7 @@
 
 
     <flow name="aggregatorWithMaxSize">
-        <aggregators:time-based-aggregator name="3"  period="1000" maxSize="3">
+        <aggregators:time-based-aggregator name="3"  period="1000" maxSize="3" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -49,7 +49,7 @@
 
 
     <flow name="beforeAndAfterAggregator">
-        <aggregators:time-based-aggregator name="4"  period="1000" maxSize="3">
+        <aggregators:time-based-aggregator name="4"  period="1000" maxSize="3" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -57,7 +57,7 @@
     </flow>
 
     <flow name="attributesAreSet">
-        <aggregators:time-based-aggregator name="5"  period="10">
+        <aggregators:time-based-aggregator name="5"  period="10" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -79,7 +79,7 @@
     </flow>
 
     <flow name="propagateVariables">
-        <aggregators:time-based-aggregator name="6"  period="1000" periodUnit="SECONDS">
+        <aggregators:time-based-aggregator name="6"  period="1000" periodUnit="SECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -90,7 +90,7 @@
     </flow>
 
     <flow name="idCheck">
-        <aggregators:time-based-aggregator name="7"  period="1000" maxSize="3">
+        <aggregators:time-based-aggregator name="7"  period="1000" maxSize="3" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -115,7 +115,7 @@
     </flow>
 
     <flow name="idChangeAfterComplete">
-        <aggregators:time-based-aggregator name="8" period="1000"  maxSize="2">
+        <aggregators:time-based-aggregator name="8" period="1000"  maxSize="2" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -133,7 +133,7 @@
     </flow>
 
     <flow name="sortedItems">
-        <aggregators:time-based-aggregator name="9" period="1000" maxSize="3">
+        <aggregators:time-based-aggregator name="9" period="1000" maxSize="3" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -146,7 +146,7 @@
     </flow>
 
     <flow name="sortedMixedItems">
-        <aggregators:time-based-aggregator name="10" period="1000" maxSize="5">
+        <aggregators:time-based-aggregator name="10" period="1000" maxSize="5" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -159,7 +159,7 @@
     </flow>
 
     <flow name="scheduledAggregationNotExecuted">
-        <aggregators:time-based-aggregator name="11" maxSize="3" period="200" periodUnit="MILLISECONDS">
+        <aggregators:time-based-aggregator name="11" maxSize="3" period="200" periodUnit="MILLISECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -174,7 +174,7 @@
 
     <flow name="aggregateMessageWithBigPayloadOnPersistentOS">
         <file:read config-ref="globalFileConfig" path="big_payload"/>
-        <aggregators:time-based-aggregator name="12" maxSize="3" period="2" periodUnit="SECONDS" objectStore="globalObjectStore">
+        <aggregators:time-based-aggregator name="12" maxSize="3" period="2" periodUnit="SECONDS" objectStore="aggregatorsPersistentObjectStore">
             <aggregators:incremental-aggregation>
                 <set-variable variableName="result" value="#[payload]"/>
             </aggregators:incremental-aggregation>

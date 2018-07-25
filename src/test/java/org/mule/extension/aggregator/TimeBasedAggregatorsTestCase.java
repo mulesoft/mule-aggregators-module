@@ -20,7 +20,7 @@ import org.mule.runtime.core.api.event.CoreEvent;
 import org.junit.Test;
 import org.springframework.context.annotation.Description;
 
-public class TimeBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
+public class TimeBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
 
   @Override
   protected String[] getConfigFiles() {

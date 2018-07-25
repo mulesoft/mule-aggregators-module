@@ -22,7 +22,7 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.springframework.context.annotation.Description;
 
-public class SizeBasedAggregatorTestCase extends AbstractAggregatorsTestCase {
+public class SizeBasedAggregatorTestCase extends CommonAggregatorsTestCase {
 
   @Override
   protected String[] getConfigFiles() {

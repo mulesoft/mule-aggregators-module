@@ -10,7 +10,7 @@
       http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
 
     <flow name="noIncrementalAggregationRoute">
-        <aggregators:size-based-aggregator name="1"  maxSize="2">
+        <aggregators:size-based-aggregator name="1"  maxSize="2" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -26,7 +26,7 @@
     </flow>
 
     <flow name="incrementalAggregationRoute">
-        <aggregators:size-based-aggregator name="2"  maxSize="2">
+        <aggregators:size-based-aggregator name="2"  maxSize="2" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -40,7 +40,7 @@
     </flow>
 
     <flow name="incrementalAggregationRouteCalledMultipleTimes">
-        <aggregators:size-based-aggregator name="3"  maxSize="4">
+        <aggregators:size-based-aggregator name="3"  maxSize="4" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -55,7 +55,7 @@
 
     <flow name="timeoutAggregator1">
         <aggregators:size-based-aggregator name="4"  maxSize="2" timeout="500"
-                                           timeoutUnit="MILLISECONDS">
+                                           timeoutUnit="MILLISECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -72,7 +72,7 @@
 
     <flow name="timeoutAggregator2">
         <aggregators:size-based-aggregator name="5"  maxSize="2" timeout="500"
-                                           timeoutUnit="MILLISECONDS">
+                                           timeoutUnit="MILLISECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -88,7 +88,7 @@
     </flow>
 
     <flow name="attributesAreSet">
-        <aggregators:size-based-aggregator name="6"  maxSize="2">
+        <aggregators:size-based-aggregator name="6"  maxSize="2" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -103,7 +103,7 @@
     </flow>
 
     <flow name="propagateVariables">
-        <aggregators:size-based-aggregator name="7"  maxSize="2">
+        <aggregators:size-based-aggregator name="7"  maxSize="2" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -117,7 +117,7 @@
     </flow>
 
     <flow name="onIncrementalIdCheck">
-        <aggregators:size-based-aggregator name="8"  maxSize="3">
+        <aggregators:size-based-aggregator name="8"  maxSize="3" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -138,7 +138,7 @@
     </flow>
 
     <flow name="onCompleteAndListenerIdCheck">
-        <aggregators:size-based-aggregator name="9"  maxSize="2">
+        <aggregators:size-based-aggregator name="9"  maxSize="2" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -158,7 +158,7 @@
     </flow>
 
     <flow name="idChangeAfterComplete">
-        <aggregators:size-based-aggregator name="10"  maxSize="2">
+        <aggregators:size-based-aggregator name="10"  maxSize="2" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -179,7 +179,7 @@
     </flow>
 
     <flow name="sortedItems">
-        <aggregators:size-based-aggregator name="11" maxSize="3">
+        <aggregators:size-based-aggregator name="11" maxSize="3" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -190,7 +190,7 @@
     </flow>
 
     <flow name="sortedMixedItems">
-        <aggregators:size-based-aggregator name="12" maxSize="5">
+        <aggregators:size-based-aggregator name="12" maxSize="5" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -201,7 +201,7 @@
     </flow>
 
     <flow name="scheduledAggregationNotExecuted">
-        <aggregators:size-based-aggregator name="14" maxSize="3" timeout="200" timeoutUnit="MILLISECONDS">
+        <aggregators:size-based-aggregator name="14" maxSize="3" timeout="200" timeoutUnit="MILLISECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -218,7 +218,7 @@
 
     <flow name="aggregateMessageWithBigPayloadOnPersistentOS">
         <file:read config-ref="globalFileConfig" path="big_payload"/>
-        <aggregators:size-based-aggregator name="15" maxSize="2" objectStore="globalObjectStore">
+        <aggregators:size-based-aggregator name="15" maxSize="2" objectStore="aggregatorsPersistentObjectStore">
             <aggregators:aggregation-complete>
                 <set-variable variableName="result" value="#[payload]"/>
             </aggregators:aggregation-complete>
@@ -228,7 +228,7 @@
     <flow name="loggingPayload">
         <file:read config-ref="globalFileConfig" path="little_payload"/>
         <logger level="ERROR" message="#[payload]"/>
-        <aggregators:size-based-aggregator name="16" maxSize="2" objectStore="globalObjectStore">
+        <aggregators:size-based-aggregator name="16" maxSize="2" objectStore="${objectStore}">
             <aggregators:content>#[payload]</aggregators:content>
             <aggregators:aggregation-complete>
                 <set-variable variableName="result" value="#[payload]"/>

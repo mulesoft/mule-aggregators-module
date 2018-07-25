@@ -9,8 +9,11 @@
       http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd
       http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
 
-    <os:object-store name="globalObjectStore"
+    <os:object-store name="aggregatorsPersistentObjectStore"
                      persistent="true"/>
+
+    <os:object-store name="aggregatorsInMemoryObjectStore"
+                     persistent="false"/>
 
     <file:config name="globalFileConfig">
         <file:connection workingDir="${workingDir}" />
