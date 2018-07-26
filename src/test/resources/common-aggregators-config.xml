@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:os="http://www.mulesoft.org/schema/mule/os"
+      xmlns:file="http://www.mulesoft.org/schema/mule/file"
+      xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+      http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd
+      http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+
+    <os:object-store name="aggregatorsPersistentObjectStore"
+                     persistent="true"/>
+
+    <os:object-store name="aggregatorsInMemoryObjectStore"
+                     persistent="false"/>
+
+    <file:config name="globalFileConfig">
+        <file:connection workingDir="${workingDir}" />
+    </file:config>
+
+    <flow name="onComplete">
+        <set-variable variableName="executionRoute" value="aggregationComplete"/>
+        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
+    </flow>
+
+    <flow name="onIncremental">
+        <set-variable variableName="executionRoute" value="incrementalAggregation"/>
+        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
+    </flow>
+
+    <flow name="onListener">
+        <set-variable variableName="executionRoute" value="listenerCalled"/>
+        <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
+    </flow>
+
+</mule>

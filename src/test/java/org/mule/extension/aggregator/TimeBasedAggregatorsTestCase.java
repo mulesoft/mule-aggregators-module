@@ -20,11 +20,11 @@ import org.mule.runtime.core.api.event.CoreEvent;
 import org.junit.Test;
 import org.springframework.context.annotation.Description;
 
-public class TimeBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
+public class TimeBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
 
   @Override
   protected String[] getConfigFiles() {
-    return new String[] {"time-based-aggregators-config.xml", "global-object-store-config.xml"};
+    return new String[] {"time-based-aggregators-config.xml", "common-aggregators-config.xml"};
   }
 
   @Test

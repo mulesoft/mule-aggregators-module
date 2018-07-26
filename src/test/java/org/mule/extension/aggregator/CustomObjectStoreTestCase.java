@@ -9,7 +9,6 @@ package org.mule.extension.aggregator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.mule.extension.aggregator.GroupBasedAggregatorsTestCase.GROUP_ID_VARIABLE_KEY;
 import org.mule.extension.aggregator.internal.storage.info.GroupAggregatorSharedInformation;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
@@ -19,7 +18,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class CustomObjectStoreTestCase extends MuleArtifactFunctionalTestCase {

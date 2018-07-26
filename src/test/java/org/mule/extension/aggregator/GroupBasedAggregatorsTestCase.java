@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Description;
 /**
  * Tests for Group based aggregators
  */
-public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
+public class GroupBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
 
   public static final String GROUP_ID_VARIABLE_KEY = "gid";
 
@@ -35,7 +35,7 @@ public class GroupBasedAggregatorsTestCase extends AbstractAggregatorsTestCase {
 
   @Override
   protected String[] getConfigFiles() {
-    return new String[] {"group-based-aggregators-config.xml", "global-object-store-config.xml"};
+    return new String[] {"group-based-aggregators-config.xml", "common-aggregators-config.xml"};
   }
 
 

@@ -14,6 +14,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_KEY;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
+import static org.mule.runtime.api.message.Message.builder;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAGER;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.startIfNeeded;
@@ -32,7 +33,10 @@ import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.lifecycle.Lifecycle;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.message.ItemSequenceInfo;
+import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.meta.model.operation.OperationModel;
+import org.mule.runtime.api.metadata.DataType;
+import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.notification.NotificationListenerRegistry;
 import org.mule.runtime.api.scheduler.Scheduler;
@@ -40,7 +44,9 @@ import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.api.store.ObjectStore;
 import org.mule.runtime.api.store.ObjectStoreException;
 import org.mule.runtime.api.store.ObjectStoreManager;
+import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
 import org.mule.runtime.api.time.TimeSupplier;
+import org.mule.runtime.api.transformation.TransformationService;
 import org.mule.runtime.api.util.LazyValue;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.lifecycle.PrimaryNodeLifecycleNotificationListener;
@@ -53,6 +59,7 @@ import org.mule.runtime.extension.api.runtime.source.SourceCallback;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 import org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextAdapter;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -111,6 +118,9 @@ public abstract class AbstractAggregatorExecutor
   @Inject
   private ConfigurationProperties configProperties;
 
+  @Inject
+  private TransformationService transformationService;
+
 
   private ObjectStore<AggregatorSharedInformation> objectStore;
   private String name;
@@ -143,11 +153,38 @@ public abstract class AbstractAggregatorExecutor
     return event.getItemSequenceInfo();
   }
 
-  void addToStorage(AggregatedContent aggregatedContent, TypedValue newElement, Optional<ItemSequenceInfo> itemSequenceInfo) {
-    if (itemSequenceInfo.isPresent()) {
-      aggregatedContent.add(newElement, getCurrentTime(), itemSequenceInfo.get().getPosition());
+  private Object consumingStream(Object element) {
+    if (element instanceof InputStream) {
+      return transformationService.transform(element, DataType.INPUT_STREAM, DataType.BYTE_ARRAY);
+    } else if (element instanceof CursorStreamProvider) {
+      return transformationService.transform(element, DataType.CURSOR_STREAM_PROVIDER, DataType.BYTE_ARRAY);
     } else {
-      aggregatedContent.add(newElement, getCurrentTime());
+      return element;
+    }
+  }
+
+  private TypedValue consumingStreams(TypedValue element) {
+    Object elementValue = element.getValue();
+    MediaType elementMediaType = element.getDataType().getMediaType();
+    Object consumedValue;
+    if (elementValue instanceof Message) {
+      consumedValue = builder((Message) elementValue)
+          .payload(consumingStreams(((Message) elementValue).getPayload()))
+          .attributes(consumingStreams(((Message) elementValue).getAttributes()))
+          .build();
+    } else {
+      consumedValue = consumingStream(elementValue);
+    }
+    return new TypedValue(consumedValue, DataType.builder().fromObject(consumedValue).mediaType(elementMediaType).build());
+  }
+
+  void addToStorage(AggregatedContent aggregatedContent, TypedValue aggregatedElement,
+                    Optional<ItemSequenceInfo> itemSequenceInfo) {
+    TypedValue aggregatedElementTypedValue = consumingStreams(aggregatedElement);
+    if (itemSequenceInfo.isPresent()) {
+      aggregatedContent.add(aggregatedElementTypedValue, getCurrentTime(), itemSequenceInfo.get().getPosition());
+    } else {
+      aggregatedContent.add(aggregatedElementTypedValue, getCurrentTime());
     }
   }
 
