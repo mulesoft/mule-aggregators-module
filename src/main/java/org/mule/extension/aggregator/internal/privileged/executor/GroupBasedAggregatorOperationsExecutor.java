@@ -7,12 +7,11 @@
 package org.mule.extension.aggregator.internal.privileged.executor;
 
 import static java.lang.String.format;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_COMPLETED;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_TIMED_OUT;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.NO_GROUP_ID;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.NO_GROUP_SIZE;
-import static org.mule.runtime.api.metadata.TypedValue.of;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.AGGREGATOR_CONFIG;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.GROUP_COMPLETED;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.GROUP_TIMED_OUT;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.NO_GROUP_ID;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.NO_GROUP_SIZE;
 import static org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextProperties.COMPLETION_CALLBACK_CONTEXT_PARAM;
 import org.mule.extension.aggregator.internal.parameter.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;

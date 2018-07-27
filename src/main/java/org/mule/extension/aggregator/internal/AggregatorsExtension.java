@@ -6,7 +6,7 @@
  */
 package org.mule.extension.aggregator.internal;
 
-import org.mule.extension.aggregator.internal.errors.GroupAggregatorError;
+import org.mule.extension.aggregator.internal.errors.AggregatorError;
 import org.mule.extension.aggregator.internal.operations.GroupBasedAggregatorOperations;
 import org.mule.extension.aggregator.internal.operations.SizeBasedAggregatorOperations;
 import org.mule.extension.aggregator.internal.operations.TimeBasedAggregatorOperations;
@@ -25,7 +25,7 @@ import org.mule.runtime.extension.api.annotation.privileged.DeclarationEnrichers
 @Extension(name = "Aggregators")
 @Operations({TimeBasedAggregatorOperations.class, SizeBasedAggregatorOperations.class, GroupBasedAggregatorOperations.class})
 @Sources(AggregatorListener.class)
-@ErrorTypes(GroupAggregatorError.class)
+@ErrorTypes(AggregatorError.class)
 @DeclarationEnrichers({GroupBasedAggregatorOperationsEnricher.class, SizeBasedAggregatorOperationsEnricher.class,
     TimeBasedAggregatorOperationsEnricher.class})
 @Xml(prefix = "aggregators")

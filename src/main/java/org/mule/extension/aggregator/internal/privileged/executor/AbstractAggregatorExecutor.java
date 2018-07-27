@@ -13,12 +13,12 @@ import static java.lang.System.lineSeparator;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_KEY;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.AGGREGATOR_CONFIG;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.OBJECT_STORE_ACCESS;
 import static org.mule.runtime.api.message.Message.builder;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAGER;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.startIfNeeded;
-import static org.mule.runtime.extension.api.error.MuleErrors.ANY;
 import org.mule.extension.aggregator.api.AggregationAttributes;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
@@ -357,7 +357,7 @@ public abstract class AbstractAggregatorExecutor
         sharedInfoLocalCopy = createSharedInfo();
       }
     } catch (ObjectStoreException e) {
-      throw new ModuleException("Found error when trying to access ObjectStore", ANY, e);
+      throw new ModuleException("Found error when trying to access ObjectStore", OBJECT_STORE_ACCESS, e);
     }
   }
 
@@ -369,7 +369,7 @@ public abstract class AbstractAggregatorExecutor
       }
       getStorage().store(aggregatorKey, sharedInfoLocalCopy);
     } catch (ObjectStoreException e) {
-      throw new ModuleException("Found error when trying to access ObjectStore", ANY, e);
+      throw new ModuleException("Found error when trying to access ObjectStore", OBJECT_STORE_ACCESS, e);
     }
   }
 
