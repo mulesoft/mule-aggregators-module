@@ -8,6 +8,7 @@ package org.mule.extension.aggregator.internal.config;
 
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_KEY;
@@ -53,6 +54,7 @@ public class AggregatorManager implements Lifecycle {
   private final Object registeredAggregatorsModificationLock = new Object();
 
   private boolean initialized = false;
+  private boolean started = false;
   private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
 
   private PrimaryNodeLifecycleNotificationListener notificationListener;
@@ -85,7 +87,7 @@ public class AggregatorManager implements Lifecycle {
         @Override
         public void onNotification(MuleContextNotification notification) {
           if (clusterService.isPrimaryPollingInstance()) {
-            if ("CONTEXT_STARTED".equals(notification.getAction().getIdentifier())) {
+            if (valueOf(CONTEXT_STARTED).equals(notification.getAction().getIdentifier())) {
               notificationListenerRegistry.unregisterListener(this);
               contextStartListener = null;
               scheduler.scheduleAtFixedRate(AggregatorManager.this::syncAggregators, 0L, taskSchedulingPeriod, MILLISECONDS);
@@ -101,14 +103,17 @@ public class AggregatorManager implements Lifecycle {
   @Override
   public void start() throws MuleException {
     if (clusterService.isPrimaryPollingInstance()) {
-      scheduler = schedulerService.cpuIntensiveScheduler();
-      try {
-        taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
-            .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
-                .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
-      } catch (NumberFormatException e) {
-        LOGGER.warn(format("Error trying to configure %s, the value could not be parsed to a long. Using default value: %d %s",
-                           TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, MILLISECONDS));
+      if (!started) {
+        scheduler = schedulerService.cpuIntensiveScheduler();
+        try {
+          taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
+              .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
+                  .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
+        } catch (NumberFormatException e) {
+          LOGGER.warn(format("Error trying to configure %s, the value could not be parsed to a long. Using default value: %d %s",
+                             TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, MILLISECONDS));
+        }
+        started = true;
       }
     }
   }
@@ -118,6 +123,7 @@ public class AggregatorManager implements Lifecycle {
     if (scheduler != null) {
       scheduler.stop();
       scheduler = null;
+      started = false;
     }
   }
 
@@ -127,6 +133,10 @@ public class AggregatorManager implements Lifecycle {
       registeredListeners = null;
       availableAggregators = null;
       initialized = false;
+      if (scheduler != null) {
+        scheduler.stop();
+        scheduler = null;
+      }
     }
   }
 

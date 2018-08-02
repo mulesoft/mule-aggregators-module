@@ -88,7 +88,7 @@ import org.slf4j.LoggerFactory;
  * @since 1.0
  */
 public abstract class AbstractAggregatorExecutor
-    implements ComponentExecutor<OperationModel>, Initialisable, Startable, Stoppable {
+    implements ComponentExecutor<OperationModel>, Lifecycle {
 
   final Logger LOGGER = LoggerFactory.getLogger(getClass());
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
@@ -224,7 +224,15 @@ public abstract class AbstractAggregatorExecutor
       if (scheduler != null) {
         //Tasks will not execute because of the stoppingLock that we acquired so there is no point in letting them finish.
         scheduler.shutdownNow();
+        scheduler = null;
       }
+    }
+  }
+
+  @Override
+  public void dispose() {
+    if (scheduler != null) {
+      scheduler.shutdownNow();
     }
   }
 
