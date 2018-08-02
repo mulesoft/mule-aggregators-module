@@ -29,8 +29,11 @@ import org.mule.extension.aggregator.internal.task.AsyncTask;
 import org.mule.runtime.api.cluster.ClusterService;
 import org.mule.runtime.api.component.ConfigurationProperties;
 import org.mule.runtime.api.exception.MuleException;
+import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.lifecycle.Lifecycle;
+import org.mule.runtime.api.lifecycle.Startable;
+import org.mule.runtime.api.lifecycle.Stoppable;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.message.ItemSequenceInfo;
 import org.mule.runtime.api.message.Message;
@@ -85,13 +88,10 @@ import org.slf4j.LoggerFactory;
  * @since 1.0
  */
 public abstract class AbstractAggregatorExecutor
-    implements ComponentExecutor<OperationModel>, Lifecycle {
+    implements ComponentExecutor<OperationModel>, Initialisable, Startable, Stoppable {
 
   final Logger LOGGER = LoggerFactory.getLogger(getClass());
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
-  private static final String DEFAULT_TASK_SCHEDULING_PERIOD = "1000";
-  private static final TimeUnit TASK_SCHEDULING_PERIOD_UNIT = MILLISECONDS;
-  private static final Long INITIAL_FIXED_RATE_TASK_SCHEDULING_DELAY = 0L;
 
   @Inject
   @Named(OBJECT_STORE_MANAGER)
@@ -116,11 +116,7 @@ public abstract class AbstractAggregatorExecutor
   private ClusterService clusterService;
 
   @Inject
-  private ConfigurationProperties configProperties;
-
-  @Inject
   private TransformationService transformationService;
-
 
   private ObjectStore<AggregatorSharedInformation> objectStore;
   private String name;
@@ -137,8 +133,6 @@ public abstract class AbstractAggregatorExecutor
 
   private final Object stoppingLock = new Object();
   private boolean shouldSynchronizeToOS = true;
-
-  private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
 
   protected void injectParameters(Map<String, Object> parameters) {
     this.objectStore = (ObjectStore<AggregatorSharedInformation>) parameters.get("objectStore");
@@ -192,7 +186,7 @@ public abstract class AbstractAggregatorExecutor
   public void initialise() throws InitialisationException {
     //TODO: fix this MULE-9480
     initialiseIfNeeded(aggregatorManager);
-    aggregatorManager.registerAggregator(name);
+    aggregatorManager.registerAggregator(name, this::scheduleRegisteredAsyncAggregations);
     storage = new LazyValue<ObjectStore<AggregatorSharedInformation>>(this::getConfiguredObjectStore);
     notificationListener = new PrimaryNodeLifecycleNotificationListener(this, notificationListenerRegistry);
     notificationListener.register();
@@ -212,25 +206,11 @@ public abstract class AbstractAggregatorExecutor
       if (!started) {
         startIfNeeded(objectStore);
         setRegisteredAsyncAggregationsAsNotScheduled();
-        scheduler = schedulerService.cpuLightScheduler();
-        try {
-          taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
-              .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
-                  .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
-        } catch (NumberFormatException e) {
-          LOGGER.warn(format("Error trying to configure %s, the value could not be parsed to a long. Using default value: %d %s",
-                             TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, TASK_SCHEDULING_PERIOD_UNIT));
+        if (getStorage().isPersistent()) {
+          scheduler = schedulerService.ioScheduler();
+        } else {
+          scheduler = schedulerService.cpuLightScheduler();
         }
-        scheduler.scheduleAtFixedRate(
-                                      () -> {
-                                        if (started) {
-                                          scheduleRegisteredAsyncAggregations();
-                                        }
-                                      },
-                                      INITIAL_FIXED_RATE_TASK_SCHEDULING_DELAY,
-                                      taskSchedulingPeriod,
-                                      TASK_SCHEDULING_PERIOD_UNIT);
-
         started = true;
       }
     }
@@ -241,13 +221,10 @@ public abstract class AbstractAggregatorExecutor
     synchronized (stoppingLock) {
       shouldSynchronizeToOS = false;
       started = false;
-    }
-  }
-
-  @Override
-  public void dispose() {
-    if (scheduler != null) {
-      scheduler.stop();
+      if (scheduler != null) {
+        //Tasks will not execute because of the stoppingLock that we acquired so there is no point in letting them finish.
+        scheduler.shutdownNow();
+      }
     }
   }
 
@@ -302,13 +279,12 @@ public abstract class AbstractAggregatorExecutor
 
   void evaluateConfiguredDelay(String valueKey, int configuredDelay, TimeUnit timeUnit) throws ModuleException {
     long configuredDelayInMillis = timeUnit.toMillis(configuredDelay);
-    if (configuredDelayInMillis < taskSchedulingPeriod) {
-      throw new ModuleException(format("The configured %s : %d %s, is too small for the configured scheduling time period: %d %s. %s should be equal or bigger than the scheduling time period in order to accurately schedule it.%s Use %s global-config or %s SystemProperty to change it",
+    if (configuredDelayInMillis < aggregatorManager.getTaskSchedulingPeriodInMillis()) {
+      throw new ModuleException(format("The configured %s : %d %s, is too small for the configured scheduling time period: %d MILLISECONDS. %s should be equal or bigger than the scheduling time period in order to accurately schedule it.%s Use %s global-config or %s SystemProperty to change it",
                                        valueKey,
                                        configuredDelay,
                                        timeUnit,
-                                       taskSchedulingPeriod,
-                                       TASK_SCHEDULING_PERIOD_UNIT,
+                                       aggregatorManager.getTaskSchedulingPeriodInMillis(),
                                        valueKey,
                                        lineSeparator(),
                                        TASK_SCHEDULING_PERIOD_KEY,
