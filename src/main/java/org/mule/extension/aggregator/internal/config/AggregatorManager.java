@@ -32,6 +32,7 @@ import org.mule.runtime.core.api.lifecycle.PrimaryNodeLifecycleNotificationListe
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -55,6 +56,7 @@ public class AggregatorManager implements Lifecycle {
 
   private boolean initialized = false;
   private boolean started = false;
+  private AtomicBoolean contextStarted = new AtomicBoolean(false);
   private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
 
   private PrimaryNodeLifecycleNotificationListener notificationListener;
@@ -86,12 +88,10 @@ public class AggregatorManager implements Lifecycle {
 
         @Override
         public void onNotification(MuleContextNotification notification) {
-          if (clusterService.isPrimaryPollingInstance()) {
-            if (valueOf(CONTEXT_STARTED).equals(notification.getAction().getIdentifier())) {
-              notificationListenerRegistry.unregisterListener(this);
-              contextStartListener = null;
-              scheduler.scheduleAtFixedRate(AggregatorManager.this::syncAggregators, 0L, taskSchedulingPeriod, MILLISECONDS);
-            }
+          if (valueOf(CONTEXT_STARTED).equals(notification.getAction().getIdentifier())) {
+            notificationListenerRegistry.unregisterListener(this);
+            contextStartListener = null;
+            contextStarted.set(true);
           }
         }
       };
@@ -113,6 +113,7 @@ public class AggregatorManager implements Lifecycle {
           LOGGER.warn(format("Error trying to configure %s, the value could not be parsed to a long. Using default value: %d %s",
                              TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, MILLISECONDS));
         }
+        scheduler.scheduleAtFixedRate(AggregatorManager.this::syncAggregators, 0L, taskSchedulingPeriod, MILLISECONDS);
         started = true;
       }
     }
@@ -141,9 +142,11 @@ public class AggregatorManager implements Lifecycle {
   }
 
   private void syncAggregators() {
-    synchronized (registeredAggregatorsModificationLock) {
-      for (Runnable runnable : availableAggregators.values()) {
-        runnable.run();
+    if (contextStarted.get()) {
+      synchronized (registeredAggregatorsModificationLock) {
+        for (Runnable runnable : availableAggregators.values()) {
+          runnable.run();
+        }
       }
     }
   }
