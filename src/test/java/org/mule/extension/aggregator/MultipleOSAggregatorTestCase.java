@@ -9,6 +9,7 @@ package org.mule.extension.aggregator;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.fail;
+import org.mule.tck.junit4.FlakinessDetectorTestRunnerWithParameters;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.test.runner.RunnerDelegateTo;
 
@@ -20,6 +21,7 @@ import java.util.Collection;
 import org.junit.Rule;
 import org.junit.runners.Parameterized;
 
+@Parameterized.UseParametersRunnerFactory(FlakinessDetectorTestRunnerWithParameters.FlakinessDetectorTestRunnerWithParametersFactory.class)
 @RunnerDelegateTo(Parameterized.class)
 public abstract class MultipleOSAggregatorTestCase extends AbstractAggregatorsTestCase {
 
