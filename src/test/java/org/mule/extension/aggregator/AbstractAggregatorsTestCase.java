@@ -6,6 +6,7 @@
  */
 package org.mule.extension.aggregator;
 
+import static java.lang.Thread.sleep;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.functional.util.FlowExecutionLogger.resetLogsMap;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
@@ -20,12 +21,19 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
   static final String INCREMENTAL_AGGREGATION_ROUTE_KEY = "incrementalAggregation";
   static final String LISTENER_ROUTE_KEY = "listenerCalled";
 
+  private static final int TASK_SCHEDULING_PERIOD = 100;
+
   @Rule
-  public SystemProperty schedulingTasksPeriod = new SystemProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY, "50");
+  public SystemProperty schedulingTasksPeriod =
+      new SystemProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY, Integer.toString(TASK_SCHEDULING_PERIOD));
 
   @Before
   public void reset() {
     resetLogsMap();
+  }
+
+  protected void waitForAggregatorTask(int configuredScheduledTime) throws Exception {
+    sleep(TASK_SCHEDULING_PERIOD + configuredScheduledTime);
   }
 
 }

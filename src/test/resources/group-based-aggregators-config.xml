@@ -41,7 +41,7 @@
 
     <flow name="shortEvictionTime">
         <aggregators:group-based-aggregator name="3"  groupId="#[vars.gid]" groupSize="1"
-                                            evictionTime="50" evictionTimeUnit="MILLISECONDS" objectStore="${objectStore}">
+                                            evictionTime="100" evictionTimeUnit="MILLISECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -107,7 +107,7 @@
 
     <flow name="groupTimedOutExceptionThrowingFlow">
         <aggregators:group-based-aggregator name="7"  groupSize="100" groupId="#[vars.gid]"
-                                            timeout="50" timeoutUnit="MILLISECONDS" objectStore="${objectStore}">
+                                            timeout="100" timeoutUnit="MILLISECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
@@ -125,7 +125,7 @@
     </flow>
 
     <flow name="shortTimeoutAggregator">
-        <aggregators:group-based-aggregator name="8"  groupSize="100" timeout="500"
+        <aggregators:group-based-aggregator name="8"  groupSize="100" timeout="100"
                                             timeoutUnit="MILLISECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
@@ -142,7 +142,7 @@
     </flow>
 
     <flow name="shortTimeoutAggregator2">
-        <aggregators:group-based-aggregator name="9"  groupSize="100" timeout="500"
+        <aggregators:group-based-aggregator name="9"  groupSize="100" timeout="100"
                                             timeoutUnit="MILLISECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
@@ -160,7 +160,7 @@
 
     <flow name="shortTimeoutAndEvictionTime">
         <aggregators:group-based-aggregator name="10"  groupSize="1" groupId="#[vars.gid]"
-                                            timeout="100" timeoutUnit="MILLISECONDS" evictionTime="50"
+                                            timeout="200" timeoutUnit="MILLISECONDS" evictionTime="100"
                                             evictionTimeUnit="MILLISECONDS" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]

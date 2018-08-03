@@ -6,38 +6,125 @@
  */
 package org.mule.extension.aggregator.internal.config;
 
+import static java.lang.Long.parseLong;
+import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_KEY;
+import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+import static org.mule.runtime.core.api.context.notification.MuleContextNotification.CONTEXT_STARTED;
 import org.mule.extension.aggregator.internal.source.AggregatorListener;
+import org.mule.runtime.api.cluster.ClusterService;
+import org.mule.runtime.api.component.ConfigurationProperties;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.mule.runtime.api.lifecycle.Disposable;
-import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
+import org.mule.runtime.api.lifecycle.Lifecycle;
+import org.mule.runtime.api.notification.NotificationListenerRegistry;
+import org.mule.runtime.api.scheduler.Scheduler;
+import org.mule.runtime.api.scheduler.SchedulerService;
+import org.mule.runtime.core.api.context.notification.MuleContextNotification;
+import org.mule.runtime.core.api.context.notification.MuleContextNotificationListener;
+import org.mule.runtime.core.api.lifecycle.PrimaryNodeLifecycleNotificationListener;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controls the registration of the aggregators and listeners for proper binding between them.
  *
  * @since 1.0
  */
-public class AggregatorManager implements Initialisable, Disposable {
+public class AggregatorManager implements Lifecycle {
+
+  private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+  private static final String DEFAULT_TASK_SCHEDULING_PERIOD = "1000";
 
   private Map<String, AggregatorListener> registeredListeners;
-  private Set<String> availableAggregators;
+  private Map<String, Runnable> availableAggregators;
+
+  private final Object registeredAggregatorsModificationLock = new Object();
+
   private boolean initialized = false;
+  private boolean started = false;
+  private AtomicBoolean contextStarted = new AtomicBoolean(false);
+  private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
+
+  private PrimaryNodeLifecycleNotificationListener notificationListener;
+  private MuleContextNotificationListener<MuleContextNotification> contextStartListener;
+
+  private Scheduler scheduler;
+
+  @Inject
+  private SchedulerService schedulerService;
+
+  @Inject
+  private NotificationListenerRegistry notificationListenerRegistry;
+
+  @Inject
+  private ClusterService clusterService;
+
+  @Inject
+  private ConfigurationProperties configProperties;
 
   @Override
   public void initialise() throws InitialisationException {
     if (!initialized) {
       registeredListeners = new HashMap<>();
-      availableAggregators = new HashSet<>();
+      availableAggregators = new HashMap<>();
+      notificationListener = new PrimaryNodeLifecycleNotificationListener(this, notificationListenerRegistry);
+      notificationListener.register();
+      contextStartListener = new MuleContextNotificationListener<MuleContextNotification>() {
+
+        @Override
+        public void onNotification(MuleContextNotification notification) {
+          if (valueOf(CONTEXT_STARTED).equals(notification.getAction().getIdentifier())) {
+            notificationListenerRegistry.unregisterListener(this);
+            contextStartListener = null;
+            //This is to make sure all listeners are registered and started. They have a different lifecycle
+            contextStarted.set(true);
+          }
+        }
+      };
+      notificationListenerRegistry.registerListener(contextStartListener);
       initialized = true;
+    }
+  }
+
+  @Override
+  public void start() throws MuleException {
+    if (clusterService.isPrimaryPollingInstance()) {
+      if (!started) {
+        scheduler = schedulerService.cpuIntensiveScheduler();
+        try {
+          taskSchedulingPeriod = parseLong(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
+              .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
+                  .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
+        } catch (NumberFormatException e) {
+          LOGGER.warn(format("Error trying to configure %s, the value could not be parsed to a long. Using default value: %d %s",
+                             TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, MILLISECONDS));
+        }
+        scheduler.scheduleAtFixedRate(AggregatorManager.this::syncAggregators, 0L, taskSchedulingPeriod, MILLISECONDS);
+        started = true;
+      }
+    }
+  }
+
+  @Override
+  public void stop() throws MuleException {
+    if (scheduler != null) {
+      scheduler.stop();
+      scheduler = null;
+      started = false;
     }
   }
 
@@ -47,6 +134,21 @@ public class AggregatorManager implements Initialisable, Disposable {
       registeredListeners = null;
       availableAggregators = null;
       initialized = false;
+      //EE-6218 need to check again because of a bug in cluster mode
+      if (scheduler != null) {
+        scheduler.stop();
+        scheduler = null;
+      }
+    }
+  }
+
+  private void syncAggregators() {
+    if (contextStarted.get()) {
+      synchronized (registeredAggregatorsModificationLock) {
+        for (Runnable runnable : availableAggregators.values()) {
+          runnable.run();
+        }
+      }
     }
   }
 
@@ -55,8 +157,10 @@ public class AggregatorManager implements Initialisable, Disposable {
    *
    * @param aggregatorName the name of the aggregator registered
    */
-  public void registerAggregator(String aggregatorName) {
-    availableAggregators.add(aggregatorName);
+  public void registerAggregator(String aggregatorName, Runnable synchronizingTask) {
+    synchronized (registeredAggregatorsModificationLock) {
+      availableAggregators.put(aggregatorName, synchronizingTask);
+    }
   }
 
   /**
@@ -64,11 +168,10 @@ public class AggregatorManager implements Initialisable, Disposable {
    *
    * @param aggregatorName the name of the aggregator to register to
    * @param listener the listener to be called when needed
-   * @throws MuleException
+   * @throws MuleRuntimeException
    */
-  public void registerListener(String aggregatorName, AggregatorListener listener) throws MuleException {
-    //TODO:CHECK IF MULEEXCEPTION IS THE BEST OPTION
-    if (!availableAggregators.contains(aggregatorName)) {
+  public void registerListener(String aggregatorName, AggregatorListener listener) throws MuleRuntimeException {
+    if (!availableAggregators.keySet().contains(aggregatorName)) {
       throw new MuleRuntimeException(createStaticMessage("Listener is attempting to register to aggregator: %s ,but it does not exist",
                                                          aggregatorName));
     }
@@ -87,6 +190,15 @@ public class AggregatorManager implements Initialisable, Disposable {
    */
   public Optional<AggregatorListener> getListener(String aggregatorName) {
     return ofNullable(registeredListeners.get(aggregatorName));
+  }
+
+  /**
+   * Returns the period used for scheduling registered aggregator tasks in milliseconds.
+   *
+   * @return the configured period in milliseconds
+   */
+  public long getTaskSchedulingPeriodInMillis() {
+    return taskSchedulingPeriod;
   }
 
 

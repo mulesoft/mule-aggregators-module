@@ -47,7 +47,6 @@ public class TimeBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
     final String flowName = "aggregatorWithSmallPeriod";
     //Check that the listener is never called because the time is computed from the moment the first event is received
     assertRouteNeverExecuted(LISTENER_ROUTE_KEY);
-
     flowRunner(flowName).withPayload(1).run();
     assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
     assertRouteNthExecution(LISTENER_ROUTE_KEY, 1, 1);
