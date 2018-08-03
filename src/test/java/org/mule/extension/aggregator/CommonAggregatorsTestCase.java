@@ -79,10 +79,10 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
     final String payload = "lrm";
     flowRunner(flowName).withPayload(payload).run();
     flowRunner(flowName).withPayload(payload).run();
-    sleep(100); //Wait a little bit to make sure the timeout aggregation was actually scheduled
+    waitForAggregatorTask(0); //Wait a little bit to make sure the timeout aggregation was actually scheduled
     flowRunner(flowName).withPayload(payload).run();
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
-    sleep(100); //Wait to make sure timeout is never executed
+    waitForAggregatorTask(100); //Wait to make sure timeout is never executed
     assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
   }
 

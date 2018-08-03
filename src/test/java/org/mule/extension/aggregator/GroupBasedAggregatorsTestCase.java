@@ -6,7 +6,6 @@
  */
 package org.mule.extension.aggregator;
 
-import static java.lang.Thread.sleep;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasKey;
@@ -106,6 +105,7 @@ public class GroupBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
   public void listenerOnTimeoutNotCalledIfAttributeNotSet() throws Exception {
     final String flowName = "shortTimeoutAggregator2";
     flowRunner(flowName).withPayload(1).run();
+    waitForAggregatorTask(100);
     assertRouteNeverExecuted(LISTENER_ROUTE_KEY);
   }
 
@@ -118,7 +118,7 @@ public class GroupBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
     assertRouteNthExecution(AGGREGATION_COMPLETE_ROUTE_KEY, 1, 1);
 
-    sleep(100); //Let the group be evicted
+    waitForAggregatorTask(100); //Let the group be evicted
 
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(2).run();
     //No exception will be thrown because when the timeout should have been executed, the group was already evicted.
@@ -135,7 +135,7 @@ public class GroupBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
     assertRouteNthExecution(AGGREGATION_COMPLETE_ROUTE_KEY, 1, 1);
 
-    sleep(100); //Let the group be evicted
+    waitForAggregatorTask(100); //Let the group be evicted
 
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(1).run();
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 2);
@@ -158,7 +158,7 @@ public class GroupBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
     final String randomString = "this is not random at all, is it?";
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(randomString).runNoVerify();
 
-    sleep(100); //Let the group execute timeout
+    waitForAggregatorTask(100); //Let the group execute timeout
 
     flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, 1).withPayload(randomString).run();
   }

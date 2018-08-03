@@ -60,7 +60,6 @@ public class AggregatorManager implements Lifecycle {
   private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
 
   private PrimaryNodeLifecycleNotificationListener notificationListener;
-  //Need to add this to wait until aggregatorListeners are started before calling their callbacks
   private MuleContextNotificationListener<MuleContextNotification> contextStartListener;
 
   private Scheduler scheduler;
@@ -91,6 +90,7 @@ public class AggregatorManager implements Lifecycle {
           if (valueOf(CONTEXT_STARTED).equals(notification.getAction().getIdentifier())) {
             notificationListenerRegistry.unregisterListener(this);
             contextStartListener = null;
+            //This is to make sure all listeners are registered and started. They have a different lifecycle
             contextStarted.set(true);
           }
         }
@@ -134,6 +134,7 @@ public class AggregatorManager implements Lifecycle {
       registeredListeners = null;
       availableAggregators = null;
       initialized = false;
+      //EE-6218 need to check again because of a bug in cluster mode
       if (scheduler != null) {
         scheduler.stop();
         scheduler = null;
@@ -167,7 +168,7 @@ public class AggregatorManager implements Lifecycle {
    *
    * @param aggregatorName the name of the aggregator to register to
    * @param listener the listener to be called when needed
-   * @throws MuleException
+   * @throws MuleRuntimeException
    */
   public void registerListener(String aggregatorName, AggregatorListener listener) throws MuleRuntimeException {
     if (!availableAggregators.keySet().contains(aggregatorName)) {

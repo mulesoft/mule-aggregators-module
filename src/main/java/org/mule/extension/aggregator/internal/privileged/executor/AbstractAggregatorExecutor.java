@@ -125,9 +125,7 @@ public abstract class AbstractAggregatorExecutor
   private AggregatorSharedInformation sharedInfoLocalCopy;
   private LazyValue<ObjectStore<AggregatorSharedInformation>> storage;
 
-  //The started flag should be checked to avoid scheduling tasks when the stop phase has already been called and there
-  //is no more OS to store aggregations.
-  //Also, when clustered, only the primaryNode should have this flag in true so that when another node changes to primary
+  //When clustered, only the primaryNode should have this flag in true so that when another node changes to primary
   //all the logic in the start() method is executed.
   private boolean started = false;
 
@@ -231,6 +229,7 @@ public abstract class AbstractAggregatorExecutor
 
   @Override
   public void dispose() {
+    //EE-6218: need to check scheduler again because of a bug in cluster
     if (scheduler != null) {
       scheduler.shutdownNow();
     }

@@ -102,18 +102,20 @@ public class SizeBasedAggregatorTestCase extends CommonAggregatorsTestCase {
 
   @Test
   @Description("Listener is not called due to timeout if flag is not set")
-  public void listenerNotCalledOnTimeoutOfAttributeNotSet() throws Exception {
+  public void listenerNotCalledOnTimeoutIfAttributeNotSet() throws Exception {
     final String flowName = "timeoutAggregator1";
     flowRunner(flowName).withPayload(1).run();
+    waitForAggregatorTask(100);
     assertRouteNeverExecuted(AGGREGATION_COMPLETE_ROUTE_KEY);
     assertRouteNeverExecuted(LISTENER_ROUTE_KEY);
   }
 
   @Test
   @Description("Listener is called due to timeout if flag is set")
-  public void listenerCalledOnTimeoutOIfAttributeSet() throws Exception {
+  public void listenerCalledOnTimeoutIfAttributeSet() throws Exception {
     final String flowName = "timeoutAggregator2";
     flowRunner(flowName).withPayload(1).run();
+    waitForAggregatorTask(100);
     assertRouteNeverExecuted(AGGREGATION_COMPLETE_ROUTE_KEY);
     assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
     assertRouteNthExecution(LISTENER_ROUTE_KEY, 1, 1);
