@@ -16,7 +16,6 @@ import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecu
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
 
 import org.mule.runtime.api.event.Event;
-import org.mule.tck.junit4.FlakyTest;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,7 +25,6 @@ import org.springframework.context.annotation.Description;
 /**
  * Tests for Group based aggregators
  */
-@FlakyTest(times = 10)
 public class GroupBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
 
   public static final String GROUP_ID_VARIABLE_KEY = "gid";

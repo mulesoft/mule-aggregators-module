@@ -16,12 +16,10 @@ import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecuti
 
 import org.mule.runtime.api.event.Event;
 import org.mule.runtime.core.api.event.CoreEvent;
-import org.mule.tck.junit4.FlakyTest;
 
 import org.junit.Test;
 import org.springframework.context.annotation.Description;
 
-@FlakyTest(times = 10)
 public class TimeBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
 
   @Override
