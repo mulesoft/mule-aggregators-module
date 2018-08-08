@@ -8,14 +8,20 @@ package org.mule.extension.aggregator;
 
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
+import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteExecutedNTimes;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNeverExecuted;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
 
 import org.mule.runtime.api.event.Event;
+import org.mule.runtime.api.store.ObjectStore;
 import org.mule.runtime.core.api.event.CoreEvent;
+
+import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.context.annotation.Description;

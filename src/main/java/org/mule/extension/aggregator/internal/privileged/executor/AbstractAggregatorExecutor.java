@@ -300,14 +300,14 @@ public abstract class AbstractAggregatorExecutor
     }
   }
 
-  void notifyListenerOnComplete(List<TypedValue> elements, String id) {
-    getListenerAndExecute(listener -> executeListener(listener, elements, id));
+  void notifyListenerOnComplete(List<TypedValue> elements, AggregationAttributes aggregationAttributes) {
+    getListenerAndExecute(listener -> executeListener(listener, elements, aggregationAttributes));
   }
 
-  void notifyListenerOnTimeout(List<TypedValue> elements, String id) {
+  void notifyListenerOnTimeout(List<TypedValue> elements, AggregationAttributes aggregationAttributes) {
     getListenerAndExecute(listener -> {
       if (listener.shouldIncludeTimedOutGroups()) {
-        executeListener(listener, elements, id);
+        executeListener(listener, elements, aggregationAttributes);
       }
     });
   }
@@ -377,13 +377,14 @@ public abstract class AbstractAggregatorExecutor
     aggregatorManager.getListener(this.name).ifPresent(task);
   }
 
-  private void executeListener(AggregatorListener listener, List<TypedValue> elements, String id) {
+  private void executeListener(AggregatorListener listener, List<TypedValue> elements,
+                               AggregationAttributes aggregationAttributes) {
     if (listener.isStarted()) {
       SourceCallback callback = listener.getCallback();
       SourceCallbackContext context = callback.createContext();
-      context.setCorrelationId(id);
+      context.setCorrelationId(aggregationAttributes.getAggregationId());
       callback.handle(Result.<List<TypedValue>, AggregationAttributes>builder()
-          .output(elements).build(), context);
+          .output(elements).attributes(aggregationAttributes).build(), context);
     }
   }
 }

@@ -108,7 +108,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
       addToStorage(aggregatedContent, aggregatorParameters.getContent(), itemSequenceInfo);
 
       if (aggregatedContent.isComplete()) {
-        notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAggregationId());
+        notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAttributes(getAggregatedContent()));
         onCompleteAggregation();
         future.complete(Result.builder().build());
       } else if (incrementalAggregationRoute != null) {
@@ -144,7 +144,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
   }
 
   private void getElementsAndNotifyListener() {
-    notifyListenerOnComplete(getAggregatedContent().getAggregatedElements(), getAggregationId());
+    notifyListenerOnComplete(getAggregatedContent().getAggregatedElements(), getAttributes(getAggregatedContent()));
     resetGroup();
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Aggregation period complete");

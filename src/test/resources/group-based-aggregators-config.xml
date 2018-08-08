@@ -292,4 +292,19 @@
         </aggregators:group-based-aggregator>
     </flow>
 
+    <flow name="listenerAttributes">
+        <aggregators:group-based-aggregator name="20" groupId="id" groupSize="1" objectStore="${objectStore}">
+            <aggregators:aggregation-complete>
+                <set-variable variableName="key" value="onCompleteAttributes"/>
+                <flow-ref name="storeAttributes"/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="listenerAttributesListener">
+        <aggregators:aggregator-listener aggregatorName="20"/>
+        <set-variable variableName="key" value="onListenerAttributes"/>
+        <flow-ref name="storeAttributes"/>
+    </flow>
+
 </mule>

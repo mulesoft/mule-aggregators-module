@@ -34,4 +34,9 @@
         <test:processor class="org.mule.functional.util.FlowExecutionLogger"/>
     </flow>
 
+    <flow name="storeAttributes">
+        <set-payload value="#[ {'aggregationId' : attributes.aggregationId, 'firstItemArrivalTime' : attributes.firstItemArrivalTime , 'lastItemArrivalTime' : attributes.lastItemArrivalTime , 'isGroupComplete' : attributes.isGroupComplete} ]"/>
+        <os:store key="#[vars.key]" objectStore="${objectStore}"/>
+    </flow>
+
 </mule>

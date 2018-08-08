@@ -181,4 +181,16 @@
         </aggregators:time-based-aggregator>
     </flow>
 
+    <flow name="listenerAttributes">
+        <aggregators:time-based-aggregator name="13" maxSize="1" period="10" objectStore="${objectStore}"/>
+    </flow>
+
+    <flow name="listenerAttributesListener">
+        <aggregators:aggregator-listener aggregatorName="13"/>
+        <set-variable variableName="key" value="onListenerAttributes"/>
+        <flow-ref name="storeAttributes"/>
+        <set-variable variableName="key" value="onCompleteAttributes"/>
+        <flow-ref name="storeAttributes"/>
+    </flow>
+
 </mule>
