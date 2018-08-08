@@ -193,4 +193,14 @@
         <flow-ref name="storeAttributes"/>
     </flow>
 
+    <flow name="listenerAttributesOnTimeout">
+        <aggregators:time-based-aggregator name="14" period="100" periodUnit="MILLISECONDS" objectStore="${objectStore}"/>
+    </flow>
+
+    <flow name="listenerAttributesOnTimeoutListener">
+        <aggregators:aggregator-listener aggregatorName="14" includeTimedOutGroups="true"/>
+        <set-variable variableName="key" value="onListenerAttributes"/>
+        <flow-ref name="storeAttributes"/>
+    </flow>
+
 </mule>

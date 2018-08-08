@@ -107,6 +107,7 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
   }
 
   @Test
+  @Description("AggregatorListener receives attributes")
   public void listenerAttributes() throws Exception {
     flowRunner("listenerAttributes").run();
     ObjectStore currentObjectStore = objectStoreManager.getObjectStore(objectStore.getValue());
@@ -118,6 +119,20 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
                not(hasItem(nullValue())));
     assertThat(currentObjectStore.retrieve("onCompleteAttributes"),
                is(equalTo(currentObjectStore.retrieve("onListenerAttributes"))));
+  }
+
+  @Test
+  @Description("AggregatorListener receives attributes when timeout")
+  public void listenerAttributesWhenTimeout() throws Exception {
+    flowRunner("listenerAttributesOnTimeout").run();
+    //Let the listener be executed
+    waitForAggregatorTask(100);
+    ObjectStore currentObjectStore = objectStoreManager.getObjectStore(objectStore.getValue());
+    assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onListenerAttributes")).getValue().values(),
+               not(hasItem(nullValue())));
+    assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onListenerAttributes")).getValue()
+        .get("isGroupComplete"),
+               is(false));
   }
 
 }
