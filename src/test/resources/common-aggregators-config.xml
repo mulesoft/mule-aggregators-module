@@ -35,7 +35,7 @@
     </flow>
 
     <flow name="storeAttributes">
-        <set-payload value="#[ {'aggregationId' : attributes.aggregationId, 'firstItemArrivalTime' : attributes.firstItemArrivalTime , 'lastItemArrivalTime' : attributes.lastItemArrivalTime , 'isGroupComplete' : attributes.isGroupComplete} ]"/>
+        <set-payload value="#[ {'aggregationId' : attributes.aggregationId, 'firstItemArrivalTime' : attributes.firstItemArrivalTime , 'lastItemArrivalTime' : attributes.lastItemArrivalTime , 'isAggregationComplete' : attributes.isAggregationComplete} ]"/>
         <os:store key="#[vars.key]" objectStore="${objectStore}"/>
     </flow>
 

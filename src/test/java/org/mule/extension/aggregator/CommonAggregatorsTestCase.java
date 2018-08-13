@@ -128,7 +128,7 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
     assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onListenerAttributes")).getValue().values(),
                not(hasItem(nullValue())));
     assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onListenerAttributes")).getValue()
-        .get("isGroupComplete"),
+        .get("isAggregationComplete"),
                is(false));
   }
 

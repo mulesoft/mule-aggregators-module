@@ -62,7 +62,7 @@
                 #[payload]
             </aggregators:content>
             <aggregators:incremental-aggregation>
-                <test:assert expression="#[attributes.isGroupComplete == false]"/>
+                <test:assert expression="#[attributes.isAggregationComplete == false]"/>
                 <test:assert expression="#[attributes.aggregationId != null]"/>
                 <choice>
                     <when expression="#[sizeOf(payload) == 1]">
