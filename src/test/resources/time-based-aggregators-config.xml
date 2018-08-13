@@ -175,6 +175,9 @@
     <flow name="aggregateMessageWithBigPayloadOnPersistentOS">
         <file:read config-ref="globalFileConfig" path="big_payload"/>
         <aggregators:time-based-aggregator name="12" maxSize="3" period="2" periodUnit="SECONDS" objectStore="aggregatorsPersistentObjectStore">
+            <aggregators:content>
+                #[message]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <set-variable variableName="result" value="#[payload]"/>
             </aggregators:incremental-aggregation>

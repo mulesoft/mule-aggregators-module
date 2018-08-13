@@ -286,6 +286,9 @@
     <flow name="aggregateMessageWithBigPayloadOnPersistentOS">
         <file:read config-ref="globalFileConfig" path="big_payload"/>
         <aggregators:group-based-aggregator name="19"  groupId="someId" groupSize="2" objectStore="aggregatorsPersistentObjectStore">
+            <aggregators:content>
+                #[message]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <set-variable variableName="result" value="#[payload]"/>
             </aggregators:aggregation-complete>
@@ -309,6 +312,9 @@
 
     <flow name="listenerAttributesOnTimeout">
         <aggregators:group-based-aggregator name="21" groupId="id" groupSize="2" timeout="100" timeoutUnit="MILLISECONDS" objectStore="${objectStore}">
+            <aggregators:content>
+                #[message]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <set-variable variableName="key" value="onCompleteAttributes"/>
             </aggregators:aggregation-complete>

@@ -21,6 +21,9 @@
 
     <flow name="aggregateMessage">
         <aggregators:size-based-aggregator name="messageAggregator"  maxSize="2" objectStore="${objectStore}">
+            <aggregators:content>
+                #[message]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <set-variable variableName="result" value="#[payload]"/>
             </aggregators:aggregation-complete>
@@ -29,9 +32,6 @@
 
     <flow name="aggregatePayload">
         <aggregators:size-based-aggregator name="payloadAggregator"  maxSize="2" objectStore="${objectStore}">
-            <aggregators:content>
-                #[payload]
-            </aggregators:content>
             <aggregators:aggregation-complete>
                 <set-variable variableName="result" value="#[payload]"/>
             </aggregators:aggregation-complete>
