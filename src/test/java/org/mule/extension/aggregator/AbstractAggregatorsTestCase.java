@@ -10,7 +10,10 @@ import static java.lang.Thread.sleep;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.functional.util.FlowExecutionLogger.resetLogsMap;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
+import org.mule.runtime.api.store.ObjectStoreManager;
 import org.mule.tck.junit4.rule.SystemProperty;
+
+import javax.inject.Inject;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,6 +25,9 @@ public abstract class AbstractAggregatorsTestCase extends MuleArtifactFunctional
   static final String LISTENER_ROUTE_KEY = "listenerCalled";
 
   private static final int TASK_SCHEDULING_PERIOD = 100;
+
+  @Inject
+  ObjectStoreManager objectStoreManager;
 
   @Rule
   public SystemProperty schedulingTasksPeriod =

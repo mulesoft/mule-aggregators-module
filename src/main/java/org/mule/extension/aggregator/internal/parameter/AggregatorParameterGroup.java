@@ -31,7 +31,7 @@ public class AggregatorParameterGroup {
   @Parameter
   @Expression(SUPPORTED)
   @Content
-  @Optional(defaultValue = "#[message]")
+  @Optional(defaultValue = "#[payload]")
   private TypedValue<Object> content;
 
   public TypedValue getContent() {

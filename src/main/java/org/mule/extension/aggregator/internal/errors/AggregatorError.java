@@ -16,18 +16,19 @@ import java.util.Optional;
  *
  * @since 1.0
  */
-public enum GroupAggregatorError implements ErrorTypeDefinition<GroupAggregatorError> {
+public enum AggregatorError implements ErrorTypeDefinition<AggregatorError> {
 
-  AGGREGATOR_CONFIG, GROUP_NOT_EVICTED, NO_GROUP_ID(AGGREGATOR_CONFIG), NO_GROUP_SIZE(AGGREGATOR_CONFIG), GROUP_COMPLETED(
-      GROUP_NOT_EVICTED), GROUP_TIMED_OUT(GROUP_NOT_EVICTED);
+  AGGREGATOR_CONFIG, OBJECT_STORE_ACCESS, GROUP_NOT_EVICTED, NO_GROUP_ID(AGGREGATOR_CONFIG), NO_GROUP_SIZE(
+      AGGREGATOR_CONFIG), GROUP_COMPLETED(
+          GROUP_NOT_EVICTED), GROUP_TIMED_OUT(GROUP_NOT_EVICTED);
 
   private ErrorTypeDefinition<? extends Enum<?>> parent;
 
-  GroupAggregatorError(ErrorTypeDefinition<? extends Enum<?>> parent) {
+  AggregatorError(ErrorTypeDefinition<? extends Enum<?>> parent) {
     this.parent = parent;
   }
 
-  GroupAggregatorError() {
+  AggregatorError() {
 
   }
 
@@ -35,4 +36,5 @@ public enum GroupAggregatorError implements ErrorTypeDefinition<GroupAggregatorE
   public Optional<ErrorTypeDefinition<? extends Enum<?>>> getParent() {
     return ofNullable(parent);
   }
+
 }

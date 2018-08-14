@@ -9,17 +9,22 @@ package org.mule.extension.aggregator;
 import static java.lang.Thread.sleep;
 import static org.codehaus.plexus.util.IOUtil.toByteArray;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteExecutedNTimes;
 import static org.mule.functional.util.FlowExecutionLogger.assertRouteNthExecution;
 import static org.mule.runtime.api.message.ItemSequenceInfo.of;
 import org.mule.runtime.api.event.Event;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.TypedValue;
+import org.mule.runtime.api.store.ObjectStore;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -96,6 +101,35 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
     Event resultEvent = flowRunner(flowName).run();
     List<TypedValue> aggregatedElements = (List<TypedValue>) ((TypedValue) resultEvent.getVariables().get("result")).getValue();
     assertThat(((Message) aggregatedElements.get(0).getValue()).getPayload().getValue(), is(equalTo(payloadBytes)));
+  }
+
+  @Test
+  @Description("AggregatorListener receives attributes")
+  public void listenerAttributes() throws Exception {
+    flowRunner("listenerAttributes").run();
+    ObjectStore currentObjectStore = objectStoreManager.getObjectStore(objectStore.getValue());
+    //Let the listener be executed
+    sleep(500);
+    assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onCompleteAttributes")).getValue().values(),
+               not(hasItem(nullValue())));
+    assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onListenerAttributes")).getValue().values(),
+               not(hasItem(nullValue())));
+    assertThat(currentObjectStore.retrieve("onCompleteAttributes"),
+               is(equalTo(currentObjectStore.retrieve("onListenerAttributes"))));
+  }
+
+  @Test
+  @Description("AggregatorListener receives attributes when timeout")
+  public void listenerAttributesWhenTimeout() throws Exception {
+    flowRunner("listenerAttributesOnTimeout").run();
+    //Let the listener be executed
+    waitForAggregatorTask(100);
+    ObjectStore currentObjectStore = objectStoreManager.getObjectStore(objectStore.getValue());
+    assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onListenerAttributes")).getValue().values(),
+               not(hasItem(nullValue())));
+    assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onListenerAttributes")).getValue()
+        .get("isAggregationComplete"),
+               is(false));
   }
 
 }

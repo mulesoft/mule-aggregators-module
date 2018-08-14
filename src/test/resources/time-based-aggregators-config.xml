@@ -62,7 +62,7 @@
                 #[payload]
             </aggregators:content>
             <aggregators:incremental-aggregation>
-                <test:assert expression="#[attributes.isGroupComplete == false]"/>
+                <test:assert expression="#[attributes.isAggregationComplete == false]"/>
                 <test:assert expression="#[attributes.aggregationId != null]"/>
                 <choice>
                     <when expression="#[sizeOf(payload) == 1]">
@@ -175,10 +175,35 @@
     <flow name="aggregateMessageWithBigPayloadOnPersistentOS">
         <file:read config-ref="globalFileConfig" path="big_payload"/>
         <aggregators:time-based-aggregator name="12" maxSize="3" period="2" periodUnit="SECONDS" objectStore="aggregatorsPersistentObjectStore">
+            <aggregators:content>
+                #[message]
+            </aggregators:content>
             <aggregators:incremental-aggregation>
                 <set-variable variableName="result" value="#[payload]"/>
             </aggregators:incremental-aggregation>
         </aggregators:time-based-aggregator>
+    </flow>
+
+    <flow name="listenerAttributes">
+        <aggregators:time-based-aggregator name="13" maxSize="1" period="10" objectStore="${objectStore}"/>
+    </flow>
+
+    <flow name="listenerAttributesListener">
+        <aggregators:aggregator-listener aggregatorName="13"/>
+        <set-variable variableName="key" value="onListenerAttributes"/>
+        <flow-ref name="storeAttributes"/>
+        <set-variable variableName="key" value="onCompleteAttributes"/>
+        <flow-ref name="storeAttributes"/>
+    </flow>
+
+    <flow name="listenerAttributesOnTimeout">
+        <aggregators:time-based-aggregator name="14" period="100" periodUnit="MILLISECONDS" objectStore="${objectStore}"/>
+    </flow>
+
+    <flow name="listenerAttributesOnTimeoutListener">
+        <aggregators:aggregator-listener aggregatorName="14" includeTimedOutGroups="true"/>
+        <set-variable variableName="key" value="onListenerAttributes"/>
+        <flow-ref name="storeAttributes"/>
     </flow>
 
 </mule>

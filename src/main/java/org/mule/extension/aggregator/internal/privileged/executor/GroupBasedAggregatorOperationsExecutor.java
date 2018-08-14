@@ -7,12 +7,11 @@
 package org.mule.extension.aggregator.internal.privileged.executor;
 
 import static java.lang.String.format;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_COMPLETED;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.GROUP_TIMED_OUT;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.NO_GROUP_ID;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.NO_GROUP_SIZE;
-import static org.mule.runtime.api.metadata.TypedValue.of;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.AGGREGATOR_CONFIG;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.GROUP_COMPLETED;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.GROUP_TIMED_OUT;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.NO_GROUP_ID;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.NO_GROUP_SIZE;
 import static org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextProperties.COMPLETION_CALLBACK_CONTEXT_PARAM;
 import org.mule.extension.aggregator.internal.parameter.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
@@ -125,7 +124,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
 
       if (groupAggregatedContent.isComplete()) {
         List<TypedValue> aggregatedElements = groupAggregatedContent.getAggregatedElements();
-        notifyListenerOnComplete(aggregatedElements, aggregatorParameters.getGroupId());
+        notifyListenerOnComplete(aggregatedElements, getAttributes(aggregatorParameters.getGroupId(), groupAggregatedContent));
         handleGroupEviction(aggregatorParameters.getGroupId(), aggregatorParameters.getEvictionTime(),
                             aggregatorParameters.getEvictionTimeUnit());
         executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedElements,
@@ -199,7 +198,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
     if (groupStorage != null) {
       List<TypedValue> elements = groupStorage.getAggregatedElements();
       ((SimpleAggregatedContent) groupStorage).setTimedOut();
-      notifyListenerOnTimeout(elements, groupId);
+      notifyListenerOnTimeout(elements, getAttributes(groupId, groupStorage));
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Group with id: %s timed out", groupId));
       }

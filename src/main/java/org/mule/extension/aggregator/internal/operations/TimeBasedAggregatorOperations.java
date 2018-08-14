@@ -7,8 +7,8 @@
 package org.mule.extension.aggregator.internal.operations;
 
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
+import org.mule.extension.aggregator.internal.errors.AggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.parameter.TimeBasedAggregatorParameterGroup;
-import org.mule.extension.aggregator.internal.errors.TimeBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.Expression;
@@ -51,7 +51,7 @@ public class TimeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
    * @param completionCallback Callback to notify route completion
    */
   @Alias("timeBasedAggregator")
-  @Throws(TimeBasedAggregatorErrorProvider.class)
+  @Throws(AggregatorErrorProvider.class)
   public void aggregateByTime(
                               @ParameterGroup(
                                   name = "Aggregator config") TimeBasedAggregatorParameterGroup aggregatorParameters,

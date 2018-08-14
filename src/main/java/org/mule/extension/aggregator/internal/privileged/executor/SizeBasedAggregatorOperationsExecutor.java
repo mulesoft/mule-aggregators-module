@@ -7,8 +7,7 @@
 package org.mule.extension.aggregator.internal.privileged.executor;
 
 import static java.lang.String.format;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
-import static org.mule.runtime.api.metadata.TypedValue.of;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextProperties.COMPLETION_CALLBACK_CONTEXT_PARAM;
 import org.mule.extension.aggregator.internal.parameter.SizeBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
@@ -113,7 +112,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
       addToStorage(aggregatedContent, aggregatorParameters.getContent(), itemSequenceInfo);
 
       if (aggregatedContent.isComplete()) {
-        notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAggregationId());
+        notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAttributes(aggregatedContent));
         executeRouteWithAggregatedElements(onAggregationCompleteRoute, aggregatedContent.getAggregatedElements(),
                                            getAttributes(aggregatedContent), future);
         onCompleteAggregation();
@@ -149,7 +148,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
   }
 
   private void onTimeout() {
-    notifyListenerOnTimeout(getAggregatedContent().getAggregatedElements(), getAggregationId());
+    notifyListenerOnTimeout(getAggregatedContent().getAggregatedElements(), getAttributes(getAggregatedContent()));
     resetGroup();
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Aggregation timed out");

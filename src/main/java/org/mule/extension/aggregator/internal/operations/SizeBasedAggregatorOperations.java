@@ -8,8 +8,8 @@ package org.mule.extension.aggregator.internal.operations;
 
 
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
+import org.mule.extension.aggregator.internal.errors.AggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.parameter.SizeBasedAggregatorParameterGroup;
-import org.mule.extension.aggregator.internal.errors.SizeBasedAggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
 import org.mule.runtime.extension.api.annotation.Alias;
@@ -61,7 +61,7 @@ public class SizeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
    * @param completionCallback router callback
    */
   @Alias("sizeBasedAggregator")
-  @Throws(SizeBasedAggregatorErrorProvider.class)
+  @Throws(AggregatorErrorProvider.class)
   public void aggregateBySize(
                               @ParameterGroup(
                                   name = "Aggregator config") SizeBasedAggregatorParameterGroup aggregatorParameters,

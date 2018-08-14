@@ -13,12 +13,12 @@ import static java.lang.System.lineSeparator;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_KEY;
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.AGGREGATOR_CONFIG;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.OBJECT_STORE_ACCESS;
 import static org.mule.runtime.api.message.Message.builder;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAGER;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.startIfNeeded;
-import static org.mule.runtime.extension.api.error.MuleErrors.ANY;
 import org.mule.extension.aggregator.api.AggregationAttributes;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
@@ -300,14 +300,14 @@ public abstract class AbstractAggregatorExecutor
     }
   }
 
-  void notifyListenerOnComplete(List<TypedValue> elements, String id) {
-    getListenerAndExecute(listener -> executeListener(listener, elements, id));
+  void notifyListenerOnComplete(List<TypedValue> elements, AggregationAttributes aggregationAttributes) {
+    getListenerAndExecute(listener -> executeListener(listener, elements, aggregationAttributes));
   }
 
-  void notifyListenerOnTimeout(List<TypedValue> elements, String id) {
+  void notifyListenerOnTimeout(List<TypedValue> elements, AggregationAttributes aggregationAttributes) {
     getListenerAndExecute(listener -> {
       if (listener.shouldIncludeTimedOutGroups()) {
-        executeListener(listener, elements, id);
+        executeListener(listener, elements, aggregationAttributes);
       }
     });
   }
@@ -357,7 +357,7 @@ public abstract class AbstractAggregatorExecutor
         sharedInfoLocalCopy = createSharedInfo();
       }
     } catch (ObjectStoreException e) {
-      throw new ModuleException("Found error when trying to access ObjectStore", ANY, e);
+      throw new ModuleException("Found error when trying to access ObjectStore", OBJECT_STORE_ACCESS, e);
     }
   }
 
@@ -369,7 +369,7 @@ public abstract class AbstractAggregatorExecutor
       }
       getStorage().store(aggregatorKey, sharedInfoLocalCopy);
     } catch (ObjectStoreException e) {
-      throw new ModuleException("Found error when trying to access ObjectStore", ANY, e);
+      throw new ModuleException("Found error when trying to access ObjectStore", OBJECT_STORE_ACCESS, e);
     }
   }
 
@@ -377,13 +377,14 @@ public abstract class AbstractAggregatorExecutor
     aggregatorManager.getListener(this.name).ifPresent(task);
   }
 
-  private void executeListener(AggregatorListener listener, List<TypedValue> elements, String id) {
+  private void executeListener(AggregatorListener listener, List<TypedValue> elements,
+                               AggregationAttributes aggregationAttributes) {
     if (listener.isStarted()) {
       SourceCallback callback = listener.getCallback();
       SourceCallbackContext context = callback.createContext();
-      context.setCorrelationId(id);
+      context.setCorrelationId(aggregationAttributes.getAggregationId());
       callback.handle(Result.<List<TypedValue>, AggregationAttributes>builder()
-          .output(elements).build(), context);
+          .output(elements).attributes(aggregationAttributes).build(), context);
     }
   }
 }

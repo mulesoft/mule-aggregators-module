@@ -7,8 +7,7 @@
 package org.mule.extension.aggregator.internal.privileged.executor;
 
 import static java.lang.String.format;
-import static org.mule.extension.aggregator.internal.errors.GroupAggregatorError.AGGREGATOR_CONFIG;
-import static org.mule.runtime.api.metadata.TypedValue.of;
+import static org.mule.extension.aggregator.internal.errors.AggregatorError.AGGREGATOR_CONFIG;
 import static org.mule.runtime.module.extension.api.runtime.privileged.ExecutionContextProperties.COMPLETION_CALLBACK_CONTEXT_PARAM;
 import org.mule.extension.aggregator.internal.parameter.TimeBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
@@ -108,7 +107,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
       addToStorage(aggregatedContent, aggregatorParameters.getContent(), itemSequenceInfo);
 
       if (aggregatedContent.isComplete()) {
-        notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAggregationId());
+        notifyListenerOnComplete(aggregatedContent.getAggregatedElements(), getAttributes(getAggregatedContent()));
         onCompleteAggregation();
         future.complete(Result.builder().build());
       } else if (incrementalAggregationRoute != null) {
@@ -144,7 +143,7 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
   }
 
   private void getElementsAndNotifyListener() {
-    notifyListenerOnComplete(getAggregatedContent().getAggregatedElements(), getAggregationId());
+    notifyListenerOnComplete(getAggregatedContent().getAggregatedElements(), getAttributes(getAggregatedContent()));
     resetGroup();
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("Aggregation period complete");

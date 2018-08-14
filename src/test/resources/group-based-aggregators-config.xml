@@ -177,7 +177,7 @@
                 #[payload]
             </aggregators:content>
             <aggregators:aggregation-complete>
-                <test:assert expression="#[attributes.isGroupComplete == true]"/>
+                <test:assert expression="#[attributes.isAggregationComplete == true]"/>
                 <test:assert expression="#[attributes.aggregationId == 'uniqueId']"/>
                 <test:assert expression="#[attributes.firstItemArrivalTime != attributes.lastItemArrivalTime ]"/>
                 <test:assert expression="#[attributes.firstItemArrivalTime != null]"/>
@@ -286,10 +286,45 @@
     <flow name="aggregateMessageWithBigPayloadOnPersistentOS">
         <file:read config-ref="globalFileConfig" path="big_payload"/>
         <aggregators:group-based-aggregator name="19"  groupId="someId" groupSize="2" objectStore="aggregatorsPersistentObjectStore">
+            <aggregators:content>
+                #[message]
+            </aggregators:content>
             <aggregators:aggregation-complete>
                 <set-variable variableName="result" value="#[payload]"/>
             </aggregators:aggregation-complete>
         </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="listenerAttributes">
+        <aggregators:group-based-aggregator name="20" groupId="id" groupSize="1" objectStore="${objectStore}">
+            <aggregators:aggregation-complete>
+                <set-variable variableName="key" value="onCompleteAttributes"/>
+                <flow-ref name="storeAttributes"/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="listenerAttributesListener">
+        <aggregators:aggregator-listener aggregatorName="20"/>
+        <set-variable variableName="key" value="onListenerAttributes"/>
+        <flow-ref name="storeAttributes"/>
+    </flow>
+
+    <flow name="listenerAttributesOnTimeout">
+        <aggregators:group-based-aggregator name="21" groupId="id" groupSize="2" timeout="100" timeoutUnit="MILLISECONDS" objectStore="${objectStore}">
+            <aggregators:content>
+                #[message]
+            </aggregators:content>
+            <aggregators:aggregation-complete>
+                <set-variable variableName="key" value="onCompleteAttributes"/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="listenerAttributesOnTimeoutListener">
+        <aggregators:aggregator-listener aggregatorName="21" includeTimedOutGroups="true"/>
+        <set-variable variableName="key" value="onListenerAttributes"/>
+        <flow-ref name="storeAttributes"/>
     </flow>
 
 </mule>
