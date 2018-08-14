@@ -123,7 +123,7 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
   public void listenerAttributesWhenTimeout() throws Exception {
     flowRunner("listenerAttributesOnTimeout").run();
     //Let the listener be executed
-    waitForAggregatorTask(100);
+    waitForAggregatorTask(200);
     ObjectStore currentObjectStore = objectStoreManager.getObjectStore(objectStore.getValue());
     assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onListenerAttributes")).getValue().values(),
                not(hasItem(nullValue())));
