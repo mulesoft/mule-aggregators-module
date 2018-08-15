@@ -8,7 +8,6 @@ package org.mule.extension.aggregator.internal.task;
 
 
 import java.io.Serializable;
-import java.util.OptionalLong;
 import java.util.concurrent.TimeUnit;
 
 /**

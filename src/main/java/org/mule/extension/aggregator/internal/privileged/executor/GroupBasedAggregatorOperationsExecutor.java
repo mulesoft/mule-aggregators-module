@@ -56,6 +56,11 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
 
   private static final String AGGREGATOR_KEY = "GroupBasedAggregator";
 
+  //Need to store this because we need to access the values onTimeout. Keep in mind that this can only be done
+  //because expressions are not supported for this parameters. Otherwise, another solution should be used.
+  private int lastConfiguredEvictionTime;
+  private TimeUnit lastConfiguredEvictionTimeUnit;
+
   public GroupBasedAggregatorOperationsExecutor(Map<String, Object> params) {
     injectParameters(params);
   }
@@ -97,6 +102,10 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
                          Optional<ItemSequenceInfo> itemSequenceInfo) {
 
     evaluateParameters(aggregatorParameters);
+
+    //Need to store t
+    lastConfiguredEvictionTime = aggregatorParameters.getEvictionTime();
+    lastConfiguredEvictionTimeUnit = aggregatorParameters.getEvictionTimeUnit();
 
     CompletableFuture<Result<Object, Object>> future = new CompletableFuture<>();
 
@@ -199,6 +208,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
       List<TypedValue> elements = groupStorage.getAggregatedElements();
       ((SimpleAggregatedContent) groupStorage).setTimedOut();
       notifyListenerOnTimeout(elements, getAttributes(groupId, groupStorage));
+      handleGroupEviction(groupId, lastConfiguredEvictionTime, lastConfiguredEvictionTimeUnit);
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(format("Group with id: %s timed out", groupId));
       }
