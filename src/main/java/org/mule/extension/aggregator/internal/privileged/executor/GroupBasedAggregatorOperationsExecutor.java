@@ -103,7 +103,6 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
 
     evaluateParameters(aggregatorParameters);
 
-    //Need to store t
     lastConfiguredEvictionTime = aggregatorParameters.getEvictionTime();
     lastConfiguredEvictionTimeUnit = aggregatorParameters.getEvictionTimeUnit();
 
