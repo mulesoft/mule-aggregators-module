@@ -21,6 +21,8 @@ import org.mule.runtime.api.event.Event;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.store.ObjectStore;
+import org.mule.tck.probe.JUnitLambdaProbe;
+import org.mule.tck.probe.PollingProber;
 
 import java.io.InputStream;
 import java.util.List;
@@ -120,16 +122,21 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
 
   @Test
   @Description("AggregatorListener receives attributes when timeout")
-  public void listenerAttributesWhenTimeout() throws Exception {
+  public void tilistenerAttributesWhenTimeout() throws Exception {
     flowRunner("listenerAttributesOnTimeout").run();
     //Let the listener be executed
-    waitForAggregatorTask(200);
+    waitForAggregatorTask(100);
     ObjectStore currentObjectStore = objectStoreManager.getObjectStore(objectStore.getValue());
-    assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onListenerAttributes")).getValue().values(),
-               not(hasItem(nullValue())));
-    assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onListenerAttributes")).getValue()
-        .get("isAggregationComplete"),
-               is(false));
+    new PollingProber(1000, 100).check(new JUnitLambdaProbe(
+                                                            () -> {
+                                                              assertThat(((TypedValue<Map<String, Object>>) currentObjectStore
+                                                                  .retrieve("onListenerAttributes")).getValue().values(),
+                                                                         not(hasItem(nullValue())));
+                                                              assertThat(((TypedValue<Map<String, Object>>) currentObjectStore
+                                                                  .retrieve("onListenerAttributes")).getValue()
+                                                                      .get("isAggregationComplete"), is(false));
+                                                              return true;
+                                                            }));
   }
 
 }

@@ -327,4 +327,22 @@
         <flow-ref name="storeAttributes"/>
     </flow>
 
+    <flow name="shortTimeoutAndEvictionTime2">
+        <aggregators:group-based-aggregator name="22"  groupSize="2" groupId="#[vars.gid]"
+                                            timeout="200" timeoutUnit="MILLISECONDS" evictionTime="100"
+                                            evictionTimeUnit="MILLISECONDS" objectStore="${objectStore}">
+            <aggregators:content>
+                #[payload]
+            </aggregators:content>
+            <aggregators:aggregation-complete>
+                <flow-ref name="onComplete"/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="shortTimeoutAndEvictionTimeListener">
+        <aggregators:aggregator-listener aggregatorName="22" includeTimedOutGroups="true"/>
+        <flow-ref name="onListener"/>
+    </flow>
+
 </mule>

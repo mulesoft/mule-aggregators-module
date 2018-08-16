@@ -6,16 +6,12 @@
  */
 package org.mule.extension.aggregator.internal.storage.content;
 
-import static com.google.common.collect.Iterables.mergeSorted;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.StreamSupport.stream;
 import org.mule.runtime.api.metadata.TypedValue;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

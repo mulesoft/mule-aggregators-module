@@ -207,6 +207,7 @@ public class GroupBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
     assertRouteNthExecution(LISTENER_ROUTE_KEY, 1, groupId);
   }
 
+  @Test
   @Description("Eviction time of 0 means evict immediately")
   public void evictGroupImmediately() throws Exception {
     final String flowName = "evictImmediately";
@@ -214,6 +215,24 @@ public class GroupBasedAggregatorsTestCase extends CommonAggregatorsTestCase {
       flowRunner(flowName).withPayload(i).run();
       assertRouteNthExecution(AGGREGATION_COMPLETE_ROUTE_KEY, i, i);
     }
+  }
+
+  @Test
+  @Description("Groups are evicted after they timeout")
+  public void groupsAreEvictedAfterTimeout() throws Exception {
+    final String flowName = "shortTimeoutAndEvictionTime2";
+    final String testPayload = "testy-testy";
+    final String gId = "gid";
+    flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, gId).withPayload(testPayload).run();
+    //Wait for group to timeout
+    waitForAggregatorTask(200);
+    assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1);
+    assertRouteNthExecution(LISTENER_ROUTE_KEY, 1, testPayload);
+    //Wait for group eviction
+    waitForAggregatorTask(100);
+
+    //Send a new element to the aggregator and it should not fail
+    flowRunner(flowName).withVariable(GROUP_ID_VARIABLE_KEY, gId).withPayload(testPayload).run();
   }
 
 }
