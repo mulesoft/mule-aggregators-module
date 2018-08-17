@@ -19,8 +19,8 @@
 
     <properties>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
-        <muleObjectStoreConnectorTestVersion>1.2.0-SNAPSHOT</muleObjectStoreConnectorTestVersion>
-        <muleFileConnectorTestVersion>1.2.0-SNAPSHOT</muleFileConnectorTestVersion>
+        <muleObjectStoreConnectorTestVersion>1.1.1</muleObjectStoreConnectorTestVersion>
+        <muleFileConnectorTestVersion>1.2.0</muleFileConnectorTestVersion>
     </properties>
 
     <dependencies>
