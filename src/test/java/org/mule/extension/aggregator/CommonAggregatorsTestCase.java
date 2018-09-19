@@ -111,18 +111,24 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
     flowRunner("listenerAttributes").run();
     ObjectStore currentObjectStore = objectStoreManager.getObjectStore(objectStore.getValue());
     //Let the listener be executed
-    sleep(500);
-    assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onCompleteAttributes")).getValue().values(),
-               not(hasItem(nullValue())));
-    assertThat(((TypedValue<Map<String, Object>>) currentObjectStore.retrieve("onListenerAttributes")).getValue().values(),
-               not(hasItem(nullValue())));
-    assertThat(currentObjectStore.retrieve("onCompleteAttributes"),
-               is(equalTo(currentObjectStore.retrieve("onListenerAttributes"))));
+    new PollingProber(1000, 100).check(new JUnitLambdaProbe(
+                                                            () -> {
+                                                              assertThat(((TypedValue<Map<String, Object>>) currentObjectStore
+                                                                  .retrieve("onCompleteAttributes")).getValue().values(),
+                                                                         not(hasItem(nullValue())));
+                                                              assertThat(((TypedValue<Map<String, Object>>) currentObjectStore
+                                                                  .retrieve("onListenerAttributes")).getValue().values(),
+                                                                         not(hasItem(nullValue())));
+                                                              assertThat(currentObjectStore.retrieve("onCompleteAttributes"),
+                                                                         is(equalTo(currentObjectStore
+                                                                             .retrieve("onListenerAttributes"))));
+                                                              return true;
+                                                            }));
   }
 
   @Test
   @Description("AggregatorListener receives attributes when timeout")
-  public void tilistenerAttributesWhenTimeout() throws Exception {
+  public void listenerAttributesWhenTimeout() throws Exception {
     flowRunner("listenerAttributesOnTimeout").run();
     //Let the listener be executed
     waitForAggregatorTask(100);
