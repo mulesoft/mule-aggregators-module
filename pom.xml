@@ -26,6 +26,13 @@
     <dependencies>
         <dependency>
             <groupId>org.mule.tests.plugin</groupId>
+            <artifactId>mule-core-deprecated-schema-plugin</artifactId>
+            <version>${mule.version}</version>
+            <classifier>mule-plugin</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.tests.plugin</groupId>
             <artifactId>mule-tests-component-plugin</artifactId>
             <version>4.1.5-SNAPSHOT</version>
             <classifier>mule-plugin</classifier>
