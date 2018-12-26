@@ -21,6 +21,7 @@
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <muleObjectStoreConnectorTestVersion>1.1.1</muleObjectStoreConnectorTestVersion>
         <muleFileConnectorTestVersion>1.2.0</muleFileConnectorTestVersion>
+        <muleTestsComponentPlugin>4.1.5</muleTestsComponentPlugin>
     </properties>
 
     <dependencies>
@@ -34,7 +35,7 @@
         <dependency>
             <groupId>org.mule.tests.plugin</groupId>
             <artifactId>mule-tests-component-plugin</artifactId>
-            <version>4.1.5-SNAPSHOT</version>
+            <version>${muleTestsComponentPlugin}</version>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
