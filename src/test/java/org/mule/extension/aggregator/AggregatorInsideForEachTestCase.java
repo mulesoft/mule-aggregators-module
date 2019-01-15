@@ -11,17 +11,15 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import org.mule.runtime.api.event.Event;
 import org.mule.runtime.api.metadata.TypedValue;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
-public class MigrationToolTestCase extends AbstractAggregatorsTestCase {
+public class AggregatorInsideForEachTestCase extends AbstractAggregatorsTestCase {
 
   @Override
   protected String[] getConfigFiles() {
-    return new String[] {"migration-tool-config.xml"};
+    return new String[] {"aggregator-inside-foreach-config.xml"};
   }
 
   @Test
