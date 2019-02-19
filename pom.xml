@@ -25,7 +25,6 @@
         <muleVmConnectorTestVersion>1.1.0</muleVmConnectorTestVersion>
         <javaXmlBindApiVersion>2.3.1</javaXmlBindApiVersion>
         <javaXmlBindVersion>2.3.1</javaXmlBindVersion>
-        <javaActivationVersion>1.1.1</javaActivationVersion>
         <istackCommonsRuntimeVersion>2.24</istackCommonsRuntimeVersion>
         <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
     </properties>
@@ -64,12 +63,6 @@
             <artifactId>mule-vm-connector</artifactId>
             <version>${muleVmConnectorTestVersion}</version>
             <classifier>mule-plugin</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>${javax.activation.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
