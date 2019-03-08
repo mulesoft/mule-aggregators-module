@@ -64,4 +64,9 @@ public interface AsyncTask extends Serializable {
    */
   void setUnscheduled();
 
+  /**
+   * return the task id
+   */
+  String getId();
+
 }
