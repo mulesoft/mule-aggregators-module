@@ -83,12 +83,14 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
 
   @Override
   void doScheduleRegisteredAsyncAggregations() {
-    AsyncTask task = getSharedInfoLocalCopy().getRegisteredAsyncAggregationTask();
+    final AsyncTask task = getSharedInfoLocalCopy().getRegisteredAsyncAggregationTask();
     if (task != null) {
       if (!task.isScheduled()) {
         scheduleTask(task, () -> executeSynchronized(() -> {
           //Check if task is still registered because maybe the execution is not needed
-          if (getSharedInfoLocalCopy().getRegisteredAsyncAggregationTask() != null) {
+          if (getSharedInfoLocalCopy().getRegisteredAsyncAggregationTask() != null
+              //If the registered task changes prior to this execution, it means that the aggregation was completed by maxSize being reached, should not execute
+              && task.getId().equals(getSharedInfoLocalCopy().getRegisteredAsyncAggregationTask().getId())) {
             onAsyncAggregationExecution();
             getSharedInfoLocalCopy().unregisterAsyncAggregationTask();
           }

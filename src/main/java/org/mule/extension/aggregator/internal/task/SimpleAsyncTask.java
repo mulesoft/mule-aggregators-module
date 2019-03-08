@@ -6,6 +6,8 @@
  */
 package org.mule.extension.aggregator.internal.task;
 
+import static org.mule.runtime.core.api.util.UUID.getUUID;
+
 import java.util.concurrent.TimeUnit;
 
 
@@ -17,12 +19,14 @@ public class SimpleAsyncTask implements AsyncTask {
   private TimeUnit delayUnit;
   private boolean scheduled;
   private long registeringTimestamp;
+  private String id;
 
 
   public SimpleAsyncTask(int delay, TimeUnit delayUnit) {
     this.delay = delay;
     this.delayUnit = delayUnit;
     this.scheduled = false;
+    this.id = getUUID();
   }
 
   @Override
@@ -60,4 +64,8 @@ public class SimpleAsyncTask implements AsyncTask {
     scheduled = true;
   }
 
+  @Override
+  public String getId() {
+    return this.id;
+  }
 }

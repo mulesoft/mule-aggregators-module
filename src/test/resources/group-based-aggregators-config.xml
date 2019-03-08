@@ -268,7 +268,7 @@
     </flow>
 
     <flow name="scheduledAggregationNotExecuted">
-        <aggregators:group-based-aggregator name="18"  groupId="someId" groupSize="3" timeout="200" timeoutUnit="MILLISECONDS" objectStore="${objectStore}">
+        <aggregators:group-based-aggregator name="18"  groupId="someId" groupSize="3" timeout="200" timeoutUnit="MILLISECONDS" evictionTime="0" objectStore="${objectStore}">
             <aggregators:content>
                 #[payload]
             </aggregators:content>
