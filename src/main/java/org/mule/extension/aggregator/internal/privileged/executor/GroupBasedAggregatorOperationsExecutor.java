@@ -310,12 +310,11 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
 
 
   private void scheduleTimeoutIfNeeded(String groupId, AsyncTask task) {
-    final AsyncTask scheduledTask = task;
     if (!task.isScheduled()) {
       scheduleTask(task, () -> executeSynchronized(() -> {
         if (getSharedInfoLocalCopy().getRegisteredTimeoutAsyncAggregations().get(groupId) != null
             //If the registered task changes prior to this execution, it means that the aggregation was completed by maxSize being reached, should not execute
-            && scheduledTask.getId()
+            && task.getId()
                 .equals(getSharedInfoLocalCopy().getRegisteredTimeoutAsyncAggregations().get(groupId).getId())) {
           onTimeout(groupId);
           getSharedInfoLocalCopy().unregisterTimeoutAsyncAggregation(groupId);
