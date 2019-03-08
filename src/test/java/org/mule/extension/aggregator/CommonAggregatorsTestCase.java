@@ -94,6 +94,30 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
   }
 
   @Test
+  @Description("scheduled period aggregation is not executed after size aggregation even if another is scheduled")
+  public void scheduledAggregationNotExecutedAfterSizeWithAnotherAggregationScheduled() throws Exception {
+    final String flowName = "scheduledAggregationNotExecuted";
+    final String payload = "lrm";
+    flowRunner(flowName).withPayload(payload).run();
+    //Wait until task is scheduled
+    waitForAggregatorTask(0);
+
+    flowRunner(flowName).withPayload(payload).run(); //Add one more element
+    flowRunner(flowName).withPayload(payload).run(); //Should trigger aggregation
+
+    flowRunner(flowName).withPayload(payload).run(); //Should schedule a new one
+
+    sleep(200); //After sleep, first scheduled task should have been released and second one should still need some time for registering
+
+    assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
+    assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1); //Nothing should be executed before the 200ms mark
+
+    sleep(100); //Second task should be executed
+    assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 2); //The async aggregation should have been executed
+
+  }
+
+  @Test
   @Description("BigContents are correctly serialized to the OS")
   public void bigContentAggregation() throws Exception {
     final String flowName = "aggregateMessageWithBigPayloadOnPersistentOS";
