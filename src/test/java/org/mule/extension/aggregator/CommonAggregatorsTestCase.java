@@ -135,7 +135,7 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
     flowRunner("listenerAttributes").run();
     ObjectStore currentObjectStore = objectStoreManager.getObjectStore(objectStore.getValue());
     //Let the listener be executed
-    new PollingProber(3000, 100).check(new JUnitLambdaProbe(
+    new PollingProber(2000, 100).check(new JUnitLambdaProbe(
                                                             () -> {
                                                               assertThat(((TypedValue<Map<String, Object>>) currentObjectStore
                                                                   .retrieve("onCompleteAttributes")).getValue().values(),
@@ -157,7 +157,7 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
     //Let the listener be executed
     waitForAggregatorTask(100);
     ObjectStore currentObjectStore = objectStoreManager.getObjectStore(objectStore.getValue());
-    new PollingProber(3000, 100).check(new JUnitLambdaProbe(
+    new PollingProber(2000, 100).check(new JUnitLambdaProbe(
                                                             () -> {
                                                               assertThat(((TypedValue<Map<String, Object>>) currentObjectStore
                                                                   .retrieve("onListenerAttributes")).getValue().values(),
