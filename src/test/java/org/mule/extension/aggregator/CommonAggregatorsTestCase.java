@@ -107,7 +107,7 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
 
     flowRunner(flowName).withPayload(payload).run(); //Should schedule a new one
 
-    sleep(200); //After sleep, first scheduled task should have been released and second one should still need some time for registering
+    sleep(150); //After sleep, first scheduled task should have been released and second one should still need some time for registering
 
     assertRouteExecutedNTimes(AGGREGATION_COMPLETE_ROUTE_KEY, 1);
     assertRouteExecutedNTimes(LISTENER_ROUTE_KEY, 1); //Nothing should be executed before the 200ms mark
@@ -135,7 +135,7 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
     flowRunner("listenerAttributes").run();
     ObjectStore currentObjectStore = objectStoreManager.getObjectStore(objectStore.getValue());
     //Let the listener be executed
-    new PollingProber(1000, 100).check(new JUnitLambdaProbe(
+    new PollingProber(2000, 100).check(new JUnitLambdaProbe(
                                                             () -> {
                                                               assertThat(((TypedValue<Map<String, Object>>) currentObjectStore
                                                                   .retrieve("onCompleteAttributes")).getValue().values(),
@@ -157,7 +157,7 @@ public abstract class CommonAggregatorsTestCase extends MultipleOSAggregatorTest
     //Let the listener be executed
     waitForAggregatorTask(100);
     ObjectStore currentObjectStore = objectStoreManager.getObjectStore(objectStore.getValue());
-    new PollingProber(1000, 100).check(new JUnitLambdaProbe(
+    new PollingProber(2000, 100).check(new JUnitLambdaProbe(
                                                             () -> {
                                                               assertThat(((TypedValue<Map<String, Object>>) currentObjectStore
                                                                   .retrieve("onListenerAttributes")).getValue().values(),
