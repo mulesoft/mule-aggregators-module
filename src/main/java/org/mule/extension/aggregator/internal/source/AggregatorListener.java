@@ -7,13 +7,16 @@
 package org.mule.extension.aggregator.internal.source;
 
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
+
 import org.mule.extension.aggregator.api.AggregationAttributes;
+import org.mule.extension.aggregator.api.stereotype.AggregatorStereotype;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.annotation.Expression;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.mule.runtime.extension.api.annotation.param.stereotype.AllowedStereotypes;
 import org.mule.runtime.extension.api.runtime.source.Source;
 import org.mule.runtime.extension.api.runtime.source.SourceCallback;
 
@@ -33,6 +36,7 @@ public class AggregatorListener extends Source<Message, AggregationAttributes> {
 
   @Parameter
   @Expression(NOT_SUPPORTED)
+  @AllowedStereotypes({AggregatorStereotype.class})
   private String aggregatorName;
 
   @Parameter

@@ -7,6 +7,7 @@
 package org.mule.extension.aggregator.internal.parameter;
 
 import static org.mule.runtime.api.meta.ExpressionSupport.SUPPORTED;
+
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.extension.api.annotation.Expression;
 import org.mule.runtime.extension.api.annotation.param.Content;
