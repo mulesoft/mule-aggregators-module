@@ -13,7 +13,7 @@ import org.mule.runtime.extension.api.stereotype.StereotypeDefinition;
 import java.util.Optional;
 
 /**
- * {@link StereotypeDefinition} for a generic {@code aggregate} operation.
+ * {@link StereotypeDefinition} for a generic {@code AbstractAggregatorOperations}.
  *
  * @since 1.1, 1.0.2
  */
