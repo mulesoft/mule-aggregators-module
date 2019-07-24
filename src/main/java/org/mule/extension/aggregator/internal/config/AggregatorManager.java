@@ -15,6 +15,8 @@ import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDUL
 import static org.mule.extension.aggregator.api.AggregatorConstants.TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.core.api.context.notification.MuleContextNotification.CONTEXT_STARTED;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.aggregator.internal.source.AggregatorListener;
 import org.mule.runtime.api.cluster.ClusterService;
 import org.mule.runtime.api.component.ConfigurationProperties;
@@ -37,7 +39,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Controls the registration of the aggregators and listeners for proper binding between them.
@@ -46,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AggregatorManager implements Lifecycle {
 
-  private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+  private static final Logger LOGGER = getLogger(AggregatorManager.class);
   private static final String DEFAULT_TASK_SCHEDULING_PERIOD = "1000";
 
   private Map<String, AggregatorListener> registeredListeners;
@@ -56,7 +57,7 @@ public class AggregatorManager implements Lifecycle {
 
   private boolean initialized = false;
   private boolean started = false;
-  private AtomicBoolean contextStarted = new AtomicBoolean(false);
+  private final AtomicBoolean contextStarted = new AtomicBoolean(false);
   private long taskSchedulingPeriod = parseLong(DEFAULT_TASK_SCHEDULING_PERIOD);
 
   private PrimaryNodeLifecycleNotificationListener notificationListener;
@@ -110,7 +111,8 @@ public class AggregatorManager implements Lifecycle {
               .orElse(configProperties.resolveStringProperty(TASK_SCHEDULING_PERIOD_SYSTEM_PROPERTY_KEY)
                   .orElse(DEFAULT_TASK_SCHEDULING_PERIOD)));
         } catch (NumberFormatException e) {
-          LOGGER.warn(format("Error trying to configure %s, the value could not be parsed to a long. Using default value: %d %s",
+          LOGGER
+              .warn(format("Error trying to configure '%s', the value could not be parsed to a long. Using default value: %d %s",
                              TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, MILLISECONDS));
         }
         scheduler.scheduleAtFixedRate(AggregatorManager.this::syncAggregators, 0L, taskSchedulingPeriod, MILLISECONDS);
@@ -172,11 +174,11 @@ public class AggregatorManager implements Lifecycle {
    */
   public void registerListener(String aggregatorName, AggregatorListener listener) throws MuleRuntimeException {
     if (!availableAggregators.keySet().contains(aggregatorName)) {
-      throw new MuleRuntimeException(createStaticMessage("Listener is attempting to register to aggregator: %s ,but it does not exist",
+      throw new MuleRuntimeException(createStaticMessage("Listener is attempting to register to aggregator: '%s', but it does not exist",
                                                          aggregatorName));
     }
     if (registeredListeners.containsKey(aggregatorName)) {
-      throw new MuleRuntimeException(createStaticMessage("Aggregator %s already has a listener", aggregatorName));
+      throw new MuleRuntimeException(createStaticMessage("Aggregator '%s' already has a listener", aggregatorName));
     }
     registeredListeners.put(aggregatorName, listener);
   }
