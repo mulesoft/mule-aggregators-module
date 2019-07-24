@@ -113,7 +113,7 @@ public class AggregatorManager implements Lifecycle {
         } catch (NumberFormatException e) {
           LOGGER
               .warn(format("Error trying to configure '%s', the value could not be parsed to a long. Using default value: %d %s",
-                             TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, MILLISECONDS));
+                           TASK_SCHEDULING_PERIOD_KEY, taskSchedulingPeriod, MILLISECONDS));
         }
         scheduler.scheduleAtFixedRate(AggregatorManager.this::syncAggregators, 0L, taskSchedulingPeriod, MILLISECONDS);
         started = true;
