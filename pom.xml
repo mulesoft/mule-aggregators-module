@@ -22,7 +22,7 @@
         <muleObjectStoreConnectorTestVersion>1.2.0-SNAPSHOT</muleObjectStoreConnectorTestVersion>
         <muleFileConnectorTestVersion>1.3.2</muleFileConnectorTestVersion>
         <muleTestsComponentPlugin>4.1.5</muleTestsComponentPlugin>
-        <muleVmConnectorTestVersion>1.1.0</muleVmConnectorTestVersion>
+        <muleVmConnectorTestVersion>2.0.0</muleVmConnectorTestVersion>
     </properties>
 
     <dependencies>
