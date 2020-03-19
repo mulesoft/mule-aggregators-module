@@ -12,7 +12,7 @@
     <groupId>org.mule.modules</groupId>
     <artifactId>mule-aggregators-module</artifactId>
     <packaging>mule-extension</packaging>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
 
     <name>Mule Aggregators Module</name>
     <description>Extension containing Mule Aggregators</description>
