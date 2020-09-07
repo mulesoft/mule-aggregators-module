@@ -90,15 +90,20 @@ public class AggregatorManager implements Lifecycle {
         public void onNotification(MuleContextNotification notification) {
           if (valueOf(CONTEXT_STARTED).equals(notification.getAction().getIdentifier())) {
             notificationListenerRegistry.unregisterListener(this);
-            contextStartListener = null;
-            //This is to make sure all listeners are registered and started. They have a different lifecycle
-            contextStarted.set(true);
+            onContextStarted();
           }
         }
+
       };
       notificationListenerRegistry.registerListener(contextStartListener);
       initialized = true;
     }
+  }
+
+  public void onContextStarted() {
+    contextStartListener = null;
+    // This is to make sure all listeners are registered and started. They have a different lifecycle
+    contextStarted.set(true);
   }
 
   @Override

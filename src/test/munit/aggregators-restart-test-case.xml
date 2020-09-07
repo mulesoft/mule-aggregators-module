@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators"
+      xmlns:os="http://www.mulesoft.org/schema/mule/os"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                          http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd
+                          http://www.mulesoft.org/schema/mule/munit-tools http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+                          http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+                          http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+
+    <configuration-properties file="test.properties"/>
+
+    <munit:config name="aggregators-restart"/>
+
+    <!--  -->
+    <!-- Migrated from mule-ee-distributions -->
+    <!-- https://github.com/mulesoft/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/AggregatorsTestCase.java#L106 -->
+    <!--  -->
+
+    <munit:test name="sizeBasedAggregatorKeepsElementsAfterRedeploys"
+                tags="Aggregators Extension"
+                description="Size Based Aggregator keeps elements after redeploys id OS is persistent">
+        <munit:execution>
+            <foreach collection="#[1 to 2]">
+                <set-variable variableName="result" value="NOT_COMPLETE"/>
+                <aggregators:size-based-aggregator name="sba"  maxSize="2">
+                    <aggregators:content>#['testPayload']</aggregators:content>
+                    <aggregators:aggregation-complete>
+                        <set-variable variableName="result" value="COMPLETE"/>
+                    </aggregators:aggregation-complete>
+                </aggregators:size-based-aggregator>
+                
+                <choice>
+                    <when expression="#[payload == 1]">
+                        <munit-tools:assert-that expression="#[vars.result]" is="#[MunitTools::equalTo('NOT_COMPLETE')]"/>
+                        <!-- restart! -->
+                        <set-payload value="#[java!org::mule::extension::aggregator::munit::AggregatorTestUtils::restartAggregator(payload, app.registry['aggregators.aggregatorManager'], app.registry['_muleConfigurationComponentLocator'], 'sizeBasedAggregatorKeepsElementsAfterRedeploys/route/0/processors/0/processors/1')]"/>
+                    </when>
+                    <when expression="#[payload == 2]">
+                        <munit-tools:assert-that expression="#[vars.result]" is="#[MunitTools::equalTo('COMPLETE')]"/>
+                    </when>
+                </choice>
+            </foreach>
+        </munit:execution>
+    </munit:test>
+
+    <!--  -->
+    <!-- Migrated from mule-ee-distributions -->
+    <!-- https://github.com/mulesoft/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/AggregatorsTestCase.java#L112 -->
+    <!--  -->
+
+    <munit:test name="groupBasedAggregatorKeepsElementsAfterRedeploys"
+                tags="Aggregators Extension"
+                description="Group Based Aggregator keeps elements after redeploys id OS is persistent">
+        <munit:execution>
+            <foreach collection="#[1 to 2]">
+                <set-variable variableName="result" value="NOT_COMPLETE"/>
+                <aggregators:group-based-aggregator name="gba" groupId="someId" groupSize="2" evictionTime="0">
+                    <aggregators:content>#['testPayload']</aggregators:content>
+                    <aggregators:aggregation-complete>
+                        <set-variable variableName="result" value="COMPLETE"/>
+                    </aggregators:aggregation-complete>
+                </aggregators:group-based-aggregator>
+                
+                <choice>
+                    <when expression="#[payload == 1]">
+                        <munit-tools:assert-that expression="#[vars.result]" is="#[MunitTools::equalTo('NOT_COMPLETE')]"/>
+                        <!-- restart! -->
+                        <set-payload value="#[java!org::mule::extension::aggregator::munit::AggregatorTestUtils::restartAggregator(payload, app.registry['aggregators.aggregatorManager'], app.registry['_muleConfigurationComponentLocator'], 'groupBasedAggregatorKeepsElementsAfterRedeploys/route/0/processors/0/processors/1')]"/>
+                    </when>
+                    <when expression="#[payload == 2]">
+                        <munit-tools:assert-that expression="#[vars.result]" is="#[MunitTools::equalTo('COMPLETE')]"/>
+                    </when>
+                </choice>
+            </foreach>
+        </munit:execution>
+    </munit:test>
+
+    <!--  -->
+    <!-- Migrated from mule-ee-distributions -->
+    <!-- https://github.com/mulesoft/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/AggregatorsTestCase.java#L118 -->
+    <!--  -->
+
+    <munit:test name="timeBasedAggregatorKeepsElementsAfterRedeploys"
+                tags="Aggregators Extension"
+                description="Time Based Aggregator keeps elements after redeploys id OS is persistent">
+        <munit:execution>
+            <foreach collection="#[1 to 2]">
+                <set-variable variableName="result" value="NOT_COMPLETE"/>
+                <aggregators:time-based-aggregator name="tba" maxSize="3" period="300">
+                    <aggregators:content>#['testPayload']</aggregators:content>
+                    <aggregators:incremental-aggregation>
+                        <choice>
+                            <when expression="#[sizeOf(payload) == 2]">
+                                <set-variable variableName="result" value="COMPLETE"/>
+                            </when>
+                        </choice>
+                    </aggregators:incremental-aggregation>
+                </aggregators:time-based-aggregator>
+                
+                <choice>
+                    <when expression="#[payload == 1]">
+                        <munit-tools:assert-that expression="#[vars.result]" is="#[MunitTools::equalTo('NOT_COMPLETE')]"/>
+                        <!-- restart! -->
+                        <set-payload value="#[java!org::mule::extension::aggregator::munit::AggregatorTestUtils::restartAggregator(payload, app.registry['aggregators.aggregatorManager'], app.registry['_muleConfigurationComponentLocator'], 'timeBasedAggregatorKeepsElementsAfterRedeploys/route/0/processors/0/processors/1')]"/>
+                    </when>
+                    <when expression="#[payload == 2]">
+                        <munit-tools:assert-that expression="#[vars.result]" is="#[MunitTools::equalTo('COMPLETE')]"/>
+                    </when>
+                </choice>
+            </foreach>
+        </munit:execution>
+    </munit:test>
+
+    <!--  -->
+    <!-- Migrated from mule-ee-distributions -->
+    <!-- https://github.com/mulesoft/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/AggregatorsTestCase.java#L126 -->
+    <!--  -->
+
+    <munit:test name="groupBasedAggregatorKeepsElementsAfterRedeploysMultipleGroups"
+                tags="Aggregators Extension"
+                description="Group Based Aggregator keeps elements after redeploys id OS is persistent with multiple groups">
+        <munit:execution>
+            <foreach collection="#[0 to 19]">
+                <set-variable variableName="result" value="NOT_COMPLETE"/>
+                <set-variable variableName="groupId" value="#[payload mod 10]"/>
+                <logger level="WARN" message="#[payload]"/>
+                <aggregators:group-based-aggregator name="mgba" groupId="#[vars.groupId]" groupSize="2" evictionTime="0">
+                    <aggregators:content>
+                        #[payload]
+                    </aggregators:content>
+                    <aggregators:aggregation-complete>
+                        <logger level="WARN" message="COMPLETE!"/>
+                        <set-variable variableName="result" value="COMPLETE"/>
+                    </aggregators:aggregation-complete>
+                </aggregators:group-based-aggregator>
+                
+                <choice>
+                    <when expression="#[payload &lt; 9]">
+                        <munit-tools:assert-that expression="#[vars.result]" is="#[MunitTools::equalTo('NOT_COMPLETE')]"/>
+                    </when>
+                    <when expression="#[payload == 9]">
+                        <munit-tools:assert-that expression="#[vars.result]" is="#[MunitTools::equalTo('NOT_COMPLETE')]"/>
+                        <!-- restart! -->
+                        <set-payload value="#[java!org::mule::extension::aggregator::munit::AggregatorTestUtils::restartAggregator(payload, app.registry['aggregators.aggregatorManager'], app.registry['_muleConfigurationComponentLocator'], 'groupBasedAggregatorKeepsElementsAfterRedeploysMultipleGroups/route/0/processors/0/processors/3')]"/>
+                    </when>
+                    <when expression="#[payload &gt; 10]">
+                        <munit-tools:assert-that expression="#[vars.result]" is="#[MunitTools::equalTo('COMPLETE')]"/>
+                    </when>
+                </choice>
+            </foreach>
+        </munit:execution>
+    </munit:test>
+
+</mule>

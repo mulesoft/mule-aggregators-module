@@ -1,0 +1,356 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:file="http://www.mulesoft.org/schema/mule/file"
+      xmlns:os="http://www.mulesoft.org/schema/mule/os"
+      xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                          http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+                          http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+                          http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd
+                          http://www.mulesoft.org/schema/mule/munit-tools http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+                          http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd">
+
+    <configuration-properties file="test.properties"/>
+
+    <file:config name="fileConfig">
+        <file:connection workingDir="${app.home}"/>
+    </file:config>
+
+    <os:object-store name="objectStore" persistent="false" />
+
+    <munit:config name="aggregators-scenarios"/>
+
+    <!--  -->
+    <!-- Migrated from mule-ee-distributions -->
+    <!-- https://github.com/mulesoft/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/integration/scenarios/AggregatorsScenariosTestCase.java#L185 -->
+    <!--  -->
+
+    <munit:test name="testSizeBasedAggregation"
+                tags="Aggregators Extension,Integration Tests"
+                description="Verify the size based aggregator">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="invoiceAggregatorSizeBasedListenerFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <file:read config-ref="fileConfig" path="#['input' ++ p('file.separator') ++ 'invoices.json']"/>
+            <foreach>
+                <aggregators:size-based-aggregator maxSize="${aggregatorsSize}" timeout="${sizeBasedAggregatorTimeout}"
+                                                   name="invoicesAggregatorSizeBased">
+                    <aggregators:incremental-aggregation>
+                        <logger level="INFO" message="Invoice Aggregated"/>
+                    </aggregators:incremental-aggregation>
+                    <aggregators:aggregation-complete>
+                        <logger level="INFO" message="Aggregation Completed"/>
+                    </aggregators:aggregation-complete>
+                </aggregators:size-based-aggregator>
+            </foreach>
+        </munit:execution>
+        <munit:validation>
+            <!-- Build the list of the expected invoice aggregations to be performed by the app -->
+            <file:read config-ref="fileConfig" path="#['input' ++ p('file.separator') ++ 'invoices.json']"
+                       target="expectedAggregations"
+                       targetValue="#[%dw 2.0 import * from dw::core::Arrays --- payload divideBy ${aggregatorsSize}]"/>
+
+            <!-- Assert that aggregations where performed as expected -->
+            <munit-tools:dequeue target="actualAggregations"
+                                 targetValue="#[%dw 2.0 output application/json --- payload]"/>
+
+            <munit-tools:assert-that expression="#[vars.actualAggregations]" is="#[MunitTools::equalTo(vars.expectedAggregations[0])]"/>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="invoiceAggregatorSizeBasedListenerFlow">
+        <aggregators:aggregator-listener aggregatorName="invoicesAggregatorSizeBased" includeTimedOutGroups="true"/>
+        
+        <munit-tools:queue/>
+    </flow>
+
+    <!--  -->
+    <!-- Migrated from mule-ee-distributions -->
+    <!-- https://github.com/mulesoft/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/integration/scenarios/AggregatorsScenariosTestCase.java#L201 -->
+    <!--  -->
+
+    <munit:test name="testSizeBasedAggregationWithTimeout"
+                tags="Aggregators Extension,Integration Tests" 
+                description="Verify the size based aggregator timeout behavior">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="invoiceAggregatorSizeBasedWithTimeoutListenerFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <file:read config-ref="fileConfig" path="#['input' ++ p('file.separator') ++ 'invoices.json']"/>
+
+            <foreach>
+                <aggregators:size-based-aggregator maxSize="${aggregatorsSize}" timeout="${sizeBasedAggregatorTimeout}"
+                                                   name="invoicesAggregatorSizeBasedWithTimeout">
+                    <aggregators:incremental-aggregation>
+                        <logger level="INFO" message="Invoice Aggregated"/>
+                    </aggregators:incremental-aggregation>
+                    <aggregators:aggregation-complete>
+                        <logger level="INFO" message="Aggregation Completed"/>
+                    </aggregators:aggregation-complete>
+                </aggregators:size-based-aggregator>
+            
+                <choice>
+                    <when expression="#[vars.counter == 1]">
+                        <munit-tools:sleep time="${sizeBasedAggregatorTimeoutSleep}" timeUnit="SECONDS"/>
+                    </when>
+                </choice>
+            </foreach>
+        </munit:execution>
+        <munit:validation>
+            <!-- Build the list of the expected invoice aggregations to be performed by the app -->
+            <file:read config-ref="fileConfig" path="#['input' ++ p('file.separator') ++ 'invoices.json']"
+                       target="expectedAggregations"
+                       targetValue="#[%dw 2.0 import * from dw::core::Arrays --- [[payload[0]]] ++ (payload[1 to -1] divideBy ${aggregatorsSize})]"/>
+
+            <!-- Assert that aggregations where performed as expected -->
+            <munit-tools:dequeue target="actualAggregations"
+                                 targetValue="#[%dw 2.0 output application/json --- payload]"/>
+
+            <munit-tools:assert-that expression="#[vars.actualAggregations]" is="#[MunitTools::equalTo(vars.expectedAggregations[0])]"/>
+
+            <munit-tools:dequeue target="actualAggregations"
+                                 targetValue="#[%dw 2.0 output application/json --- payload]"/>
+
+            <munit-tools:assert-that expression="#[vars.actualAggregations]" is="#[MunitTools::equalTo(vars.expectedAggregations[1])]"/>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="invoiceAggregatorSizeBasedWithTimeoutListenerFlow">
+        <aggregators:aggregator-listener aggregatorName="invoicesAggregatorSizeBasedWithTimeout" includeTimedOutGroups="true"/>
+        
+        <munit-tools:queue/>
+    </flow>
+
+    <!--  -->
+    <!-- Migrated from mule-ee-distributions -->
+    <!-- https://github.com/mulesoft/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/integration/scenarios/AggregatorsScenariosTestCase.java#L252 -->
+    <!--  -->
+
+    <munit:test name="testTimeBasedAggregation"
+                tags="Aggregators Extension,Integration Tests"
+                description="Verify the time based aggregator">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="flightOrdersAggregatorListenerFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <file:read config-ref="fileConfig" path="#['input' ++ p('file.separator') ++ 'flight-orders.json']"/>
+
+            <foreach>
+                <aggregators:time-based-aggregator period="${timeBasedAggregatorTimeout}" name="flightOrdersAggregator">
+                    <aggregators:content><![CDATA[#[%dw 2.0 output application/json --- payload]]]></aggregators:content>
+                    <aggregators:incremental-aggregation>
+                        <logger level="INFO" message="Flight order aggregated."/>
+                    </aggregators:incremental-aggregation>
+                </aggregators:time-based-aggregator>
+            
+                <choice>
+                    <when expression="#[(vars.counter mod 2) == 0]">
+                        <munit-tools:sleep time="${timeBasedAggregatorTimeoutSleep}" timeUnit="SECONDS"/>
+                    </when>
+                </choice>
+            </foreach>
+        </munit:execution>
+        <munit:validation>
+            <!-- Build the list of the expected flight aggregations to be performed by the app -->
+            <file:read config-ref="fileConfig" path="input/flight-orders.json"
+                       target="expectedAggregations"
+                       targetValue="#[%dw 2.0 import * from dw::core::Arrays --- payload divideBy ${aggregatorsSize}]"/>
+
+            <!-- Consume message of processed flight orders -->
+            <munit-tools:dequeue target="actualAggregations"
+                                 targetValue="#[%dw 2.0 output application/json --- payload orderBy($.date)]"/>
+
+            <munit-tools:assert-that expression="#[vars.actualAggregations]" is="#[MunitTools::equalTo(vars.expectedAggregations[0] orderBy($.date))]"/>
+
+            <!-- Consume message of processed flight orders -->
+            <munit-tools:dequeue target="actualAggregations"
+                                 targetValue="#[%dw 2.0 output application/json --- payload orderBy($.date)]"/>
+            
+            <munit-tools:assert-that expression="#[vars.actualAggregations]" is="#[MunitTools::equalTo(vars.expectedAggregations[1] orderBy($.date))]"/>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="flightOrdersAggregatorListenerFlow">
+        <aggregators:aggregator-listener aggregatorName="flightOrdersAggregator"/>
+
+        <!-- Send flight orders to message queue -->
+        <munit-tools:queue/>
+    </flow>
+
+    <!--  -->
+    <!-- Migrated from mule-ee-distributions -->
+    <!-- https://github.com/mulesoft/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/integration/scenarios/AggregatorsScenariosTestCase.java#L267 -->
+    <!--  -->
+
+    <munit:test name="testGroupBaseAggregatorWithMetadataFiles"
+                tags="Aggregators Extension,Integration Tests"
+                description="Verify the group based aggregator with grouping information from metadata files loaded at runtime">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="csvFilesAggregatorListenerFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <file:list config-ref="fileConfig" directoryPath="#['input' ++ p('file.separator') ++ 'csv']">
+                <file:matcher filenamePattern="*.csv"/>
+            </file:list>
+    
+            <foreach>
+                <set-variable variableName="metadataFilePath"
+                              value="#['input' ++ p('file.separator') ++ 'csv' ++ p('file.separator') ++ attributes.name replace '.csv' with '_metadata.xml']"/>
+                <file:read config-ref="fileConfig"
+                           path="#[vars.metadataFilePath]"
+                           target="metadata" targetValue="#[output application/json --- payload.metadata]"/>
+        
+                <aggregators:group-based-aggregator name="filesAggregator" groupId="#[vars.metadata.groupId]"
+                                                    groupSize="#[vars.metadata.groupSize]" evictionTime="10">
+                    <aggregators:incremental-aggregation>
+                        <logger level="INFO" message="Element added to the aggregation "/>
+                    </aggregators:incremental-aggregation>
+                    <aggregators:aggregation-complete>
+                        <logger level="INFO" message="Aggregation has been completed"/>
+                        <set-payload value="#[output application/csv --- flatten(payload)]"/>
+
+                        <logger level="INFO" message="#['Writing file ' ++ attributes.aggregationId ++ '.csv ...']"/>
+                        <logger level="INFO" message="#[payload]"/>
+                        <file:write config-ref="fileConfig"
+                                    path="#['${app.home}' ++ p('file.separator') ++ 'output' ++ p('file.separator') ++ 'csvOutDir' ++ p('file.separator') ++ attributes.aggregationId ++ '.csv']"/>
+                    </aggregators:aggregation-complete>
+                </aggregators:group-based-aggregator>
+            </foreach>    
+        </munit:execution>
+        <munit:validation>
+            <file:list config-ref="fileConfig" directoryPath="#['${app.home}' ++ p('file.separator') ++ 'expected-output' ++ p('file.separator') ++ 'csv']"
+                       target="expectedCsvFiles"/>
+
+            <!-- Wait for the 2 groups to finish -->
+            <munit-tools:dequeue/>
+            <munit-tools:dequeue/>
+            
+            <!-- Assert that CSV files were aggregated as expected -->
+            <file:list config-ref="fileConfig" directoryPath="#['${app.home}' ++ p('file.separator') ++ 'output' ++ p('file.separator') ++ 'csvOutDir']"
+                       target="csvOutputDirFiles"/>
+            
+            <foreach collection="#[vars.csvOutputDirFiles]">
+                <logger level="INFO" message="#['Asserting for file ' ++ attributes.fileName ++ '...']"/>
+                <set-payload value="#[payload orderBy($.email)]"/>
+
+                <set-variable variableName="expectedCsvFile"
+                              value="#[(vars.expectedCsvFiles filter ($.attributes.fileName == attributes.fileName))[0]]"/>
+                <set-variable variableName="expectedCsvFileContent" value="#[vars.expectedCsvFile.payload orderBy($.email)]"/>
+
+                <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo(vars.expectedCsvFileContent)]"/>
+            </foreach>
+
+            <!-- Assert that CSV files were aggregated as expected -->
+            <file:list config-ref="fileConfig" directoryPath="#['${app.home}' ++ p('file.separator') ++ 'output' ++ p('file.separator') ++ 'csvListenerOutDir']"
+                       target="csvListenerOutputDirFiles"/>
+
+            <foreach collection="#[vars.csvListenerOutputDirFiles]">
+                <logger level="INFO" message="#['Asserting for file ' ++ attributes.fileName ++ '...']"/>
+                <set-payload value="#[payload orderBy($.email)]"/>
+
+                <set-variable variableName="expectedCsvFile"
+                              value="#[(vars.expectedCsvFiles filter ($.attributes.fileName == attributes.fileName))[0]]"/>
+                <set-variable variableName="expectedCsvFileContent" value="#[vars.expectedCsvFile.payload orderBy($.email)]"/>
+
+                <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo(vars.expectedCsvFileContent)]"/>
+            </foreach>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="csvFilesAggregatorListenerFlow">
+        <aggregators:aggregator-listener aggregatorName="filesAggregator" includeTimedOutGroups="true"/>
+        <choice>
+            <when expression="#[attributes.isAggregationComplete]">
+                <logger level="INFO" message="Aggregation has been completed and is going to be processed by aggregators listener"/>
+                <set-payload value="#[output application/csv --- flatten(payload)]"/>
+
+                <logger level="INFO" message="#['Writing file ' ++ attributes.aggregationId ++ '.csv ...']"/>
+                <logger level="INFO" message="#[payload]"/>
+                <file:write config-ref="fileConfig"
+                            path="#['${app.home}' ++ p('file.separator') ++ 'output' ++ p('file.separator') ++ 'csvListenerOutDir' ++ p('file.separator') ++ attributes.aggregationId ++ '.csv']"/>
+            </when>
+        </choice>
+
+        <munit-tools:queue/>
+    </flow>
+
+    <!--  -->
+    <!-- Migrated from mule-ee-distributions -->
+    <!-- https://github.com/mulesoft/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/integration/scenarios/AggregatorsScenariosTestCase.java#L285 -->
+    <!--  -->
+
+    <munit:test name="testParallelProcessing"
+                tags="Aggregators Extension,Integration Tests"
+                description="Verify that it's possible to mimic the split aggregate behavior with the aggregators module">
+        <munit:execution>
+            <file:read config-ref="fileConfig" path="#['input' ++ p('file.separator') ++ 'users.json']"/>
+            
+            <logger level="INFO" message="The following user profile creation requests were received"/>
+            <logger level="INFO" message="#[payload]"/>
+            <set-variable value="#[sizeOf(payload)]" variableName="usersToProcess" />
+            <logger level="INFO" message="#['Number of request: $(vars.usersToProcess)']" />
+            <foreach>
+                <async>
+                    <logger level="INFO" message="Creating profile for..." />
+                    <logger level="INFO" message="#[payload]" />
+                    <set-payload value="#['User profile creation #$(payload.id) has been completed']" />
+                    <aggregators:group-based-aggregator name="processedUsersCreation" groupSize="#[vars.usersToProcess]">
+                        <aggregators:content ><![CDATA[#[payload]]]></aggregators:content>
+                        <aggregators:incremental-aggregation >
+                            <logger level="INFO" message="Element added to the aggregation"/>
+                        </aggregators:incremental-aggregation>
+                        <aggregators:aggregation-complete >
+                            <logger level="INFO" message="Aggregation completed"/>
+                            <logger level="INFO" message="#[payload]"/>
+                            <os:store key="#[correlationId]" objectStore="objectStore"/>
+                        </aggregators:aggregation-complete>
+                    </aggregators:group-based-aggregator>
+                </async>
+            </foreach>
+
+            <until-successful maxRetries="100" millisBetweenRetries="1000">
+                <logger level="INFO" message="let's find out if aggregation has been completed!!!" />
+                <os:retrieve key="#[correlationId]" objectStore="objectStore"/>
+                <set-payload value="#[output application/json --- payload]" />
+                <os:remove key="#[correlationId]" objectStore="objectStore"/>
+            </until-successful>
+            <munit-tools:queue/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:dequeue target="result"/>
+
+            <munit-tools:assert-that expression="#[vars.result orderBy($)]"
+                                     is="#[MunitTools::equalTo(['User profile creation #1 has been completed',
+                                     'User profile creation #2 has been completed',
+                                     'User profile creation #3 has been completed',
+                                     'User profile creation #4 has been completed',
+                                     'User profile creation #5 has been completed'])]"/>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="processedUsersAggregatorFlow">
+        <aggregators:group-based-aggregator name="processedUsersCreation" groupSize="#[vars.usersToProcess]">
+            <aggregators:content ><![CDATA[#[payload]]]></aggregators:content>
+            <aggregators:incremental-aggregation >
+                <logger level="INFO" message="Element added to the aggregation"/>
+            </aggregators:incremental-aggregation>
+            <aggregators:aggregation-complete >
+                <logger level="INFO" message="Aggregation completed"/>
+                <logger level="INFO" message="#[payload]"/>
+                <os:store key="#[correlationId]" objectStore="objectStore"/>
+            </aggregators:aggregation-complete>
+        </aggregators:group-based-aggregator>
+    </flow>
+
+    <flow name="retrieveCompletedAggregationFlow">
+        <logger level="INFO" message="let's find out if aggregation has been completed!!!" />
+        <os:retrieve key="#[correlationId]" objectStore="objectStore"/>
+        <set-payload value="#[output application/json --- payload]" />
+        <os:remove key="#[correlationId]" objectStore="objectStore"/>
+    </flow>
+
+</mule>
