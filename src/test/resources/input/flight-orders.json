@@ -1,0 +1,85 @@
+[{
+  "id": "07d6cf2f-db08-4e8f-b231-b65e830fc025",
+  "date": "2018-07-31T00:00:15Z",
+  "price": "$290.89",
+  "passenger": [
+    {
+      "id": "5038f1ef-adbc-4a67-9959-f6e4c371d128",
+      "name": "Virginie Vernazza"
+    },
+    {
+      "id": "3c27e330-7c2d-4ad6-8e01-a46e2dbb42d4",
+      "name": "Charmion Gorsse"
+    }
+  ],
+  "flight": {
+    "id": "60a97880-0cf7-4a43-b1cc-f575c6d039c2",
+    "origin": "Gueret",
+    "destination": "Hagersten",
+    "date": "2018-08-09T08:22:29Z"
+  }
+}, {
+  "id": "952e2f77-4d2a-46cd-a4b5-e1b1bd5bbe00",
+  "date": "2018-07-31T00:00:00Z",
+  "price": "$442.62",
+  "passenger": [
+    {
+      "id": "45c6f10d-2a7d-4b6d-b18c-1a0548284e8c",
+      "name": "Arnold Bagnell"
+    },
+    {
+      "id": "84439b1e-8422-4d8b-9f57-dcab810b9d6e",
+      "name": "Bryon Stinson"
+    },
+    {
+      "id": "7cb46e57-0152-424c-b32e-48131fbcb668",
+      "name": "Frieda Smithend"
+    }
+  ],
+  "flight": {
+    "id": "860709e3-69a8-44bd-b0c3-c367357d5e80",
+    "origin": "Xiaojia",
+    "destination": "Vinsady",
+    "date": "2018-08-09T16:26:07Z"
+  }
+}, {
+  "id": "8314fd3f-69cc-40c5-8066-854d270546c8",
+  "date": "2018-07-31T00:01:30Z",
+  "price": "$599.78",
+  "passenger": [
+    {
+      "id": "17aca69c-fe79-49c5-808a-574ea05b7dff",
+      "name": "Cordelia Paynter"
+    },
+    {
+      "id": "1c47c7c6-36bf-48aa-a03e-565c7f25ac2b",
+      "name": "Hamid Pudan"
+    },
+    {
+      "id": "8e3bea00-f558-420b-920a-2d30193f62be",
+      "name": "Calli Ordish"
+    }
+  ],
+  "flight": {
+    "id": "1193fdd2-5882-4edb-af97-14a4f91a4b03",
+    "origin": "Pancur",
+    "destination": "Extrema",
+    "date": "2018-08-09T09:59:19Z"
+  }
+}, {
+  "id": "480f84c8-f1f3-4111-baca-47c2c5bf14a6",
+  "date": "2018-07-31T00:01:20Z",
+  "price": "$966.83",
+  "passenger": [
+    {
+      "id": "94bb3c63-8bd9-4b6c-8959-c58136320a01",
+      "name": "Oliver Nann"
+    }
+  ],
+  "flight": {
+    "id": "e9c329aa-4764-4345-b060-ca4074c6e04d",
+    "origin": "Brak",
+    "destination": "Novhorodka",
+    "date": "2018-08-09T06:26:35Z"
+  }
+}]

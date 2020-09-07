@@ -7,7 +7,6 @@
 package org.mule.extension.aggregator.internal.privileged.executor;
 
 
-import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static java.lang.System.lineSeparator;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -19,6 +18,7 @@ import static org.mule.runtime.api.message.Message.builder;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_STORE_MANAGER;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.startIfNeeded;
+
 import org.mule.extension.aggregator.api.AggregationAttributes;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.privileged.CompletionCallbackWrapper;
@@ -39,6 +39,7 @@ import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.notification.NotificationListenerRegistry;
 import org.mule.runtime.api.scheduler.Scheduler;
+import org.mule.runtime.api.scheduler.SchedulerConfig;
 import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.api.store.ObjectStore;
 import org.mule.runtime.api.store.ObjectStoreException;
@@ -181,7 +182,7 @@ public abstract class AbstractAggregatorExecutor
     //TODO: fix this MULE-9480
     initialiseIfNeeded(aggregatorManager);
     aggregatorManager.registerAggregator(name, this::scheduleRegisteredAsyncAggregations);
-    storage = new LazyValue<ObjectStore<AggregatorSharedInformation>>(this::getConfiguredObjectStore);
+    storage = new LazyValue<>(this::getConfiguredObjectStore);
     notificationListener = new PrimaryNodeLifecycleNotificationListener(this, notificationListenerRegistry);
     notificationListener.register();
   }
@@ -201,9 +202,9 @@ public abstract class AbstractAggregatorExecutor
         startIfNeeded(objectStore);
         setRegisteredAsyncAggregationsAsNotScheduled();
         if (getStorage().isPersistent()) {
-          scheduler = schedulerService.ioScheduler();
+          scheduler = schedulerService.ioScheduler(SchedulerConfig.config().withShutdownTimeout(0, MILLISECONDS));
         } else {
-          scheduler = schedulerService.cpuLightScheduler();
+          scheduler = schedulerService.cpuLightScheduler(SchedulerConfig.config().withShutdownTimeout(0, MILLISECONDS));
         }
         started = true;
       }
@@ -217,7 +218,7 @@ public abstract class AbstractAggregatorExecutor
       started = false;
       if (scheduler != null) {
         //Tasks will not execute because of the stoppingLock that we acquired so there is no point in letting them finish.
-        scheduler.shutdownNow();
+        scheduler.stop();
         scheduler = null;
       }
     }
@@ -227,7 +228,7 @@ public abstract class AbstractAggregatorExecutor
   public void dispose() {
     //EE-6218: need to check scheduler again because of a bug in cluster
     if (scheduler != null) {
-      scheduler.shutdownNow();
+      scheduler.stop();
     }
   }
 
@@ -383,4 +384,5 @@ public abstract class AbstractAggregatorExecutor
           .output(elements).attributes(aggregationAttributes).build(), context);
     }
   }
+
 }
