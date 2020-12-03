@@ -21,7 +21,7 @@
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <muleObjectStoreConnectorTestVersion>1.2.0-SNAPSHOT</muleObjectStoreConnectorTestVersion>
         <muleFileConnectorTestVersion>1.3.3</muleFileConnectorTestVersion>
-        <muleTestsComponentPlugin>4.1.5</muleTestsComponentPlugin>
+        <muleTestsComponentPlugin>4.4.0-20201202</muleTestsComponentPlugin>
         <muleVmConnectorTestVersion>2.0.0</muleVmConnectorTestVersion>
 
         <!-- Remove when a new parent version with MTF is available -->
