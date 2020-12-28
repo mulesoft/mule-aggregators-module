@@ -20,7 +20,7 @@
     <properties>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <muleObjectStoreConnectorTestVersion>1.2.0-SNAPSHOT</muleObjectStoreConnectorTestVersion>
-        <muleFileConnectorTestVersion>1.3.3</muleFileConnectorTestVersion>
+        <muleFileConnectorTestVersion>1.3.4</muleFileConnectorTestVersion>
         <muleTestsComponentPlugin>4.1.5</muleTestsComponentPlugin>
         <muleVmConnectorTestVersion>2.0.0</muleVmConnectorTestVersion>
 
@@ -30,7 +30,7 @@
         <munit.extensions.maven.plugin.version>1.0.0</munit.extensions.maven.plugin.version>
         <munit.version>2.3.0</munit.version>
         <mtf-tools.version>1.0.0</mtf-tools.version>
-        <mavenResources.version>3.0.2</mavenResources.version>
+        <mavenResources.version>3.2.0</mavenResources.version>
     </properties>
 
     <build>
