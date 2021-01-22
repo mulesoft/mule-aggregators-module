@@ -181,6 +181,63 @@
         <munit-tools:queue/>
     </flow>
 
+    <munit:test name="testTimeBasedAggregationWithSequenceNumber"
+                tags="Aggregators Extension,Integration Tests"
+                description="Verify the time based aggregator with sequence number">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="flightOrdersAggregatorSeqListenerFlow"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <file:read config-ref="fileConfig" path="#['input' ++ p('file.separator') ++ 'flight-orders.json']"/>
+
+            <foreach>
+                <scatter-gather>
+                    <route>
+                        <aggregators:time-based-aggregator period="${timeBasedAggregatorTimeout}" name="flightOrdersAggregatorSeq">
+                            <aggregators:content><![CDATA[#[%dw 2.0 output application/json --- payload]]]></aggregators:content>
+                            <aggregators:incremental-aggregation>
+                                <logger level="INFO" message="Flight order aggregated."/>
+                            </aggregators:incremental-aggregation>
+                        </aggregators:time-based-aggregator>
+                    </route>
+                    <route>
+                        <logger level="INFO" message="Flight order aggregated."/>
+                    </route>
+                </scatter-gather>
+                <choice>
+                    <when expression="#[(vars.counter mod 2) == 0]">
+                        <munit-tools:sleep time="${timeBasedAggregatorTimeoutSleep}" timeUnit="SECONDS"/>
+                    </when>
+                </choice>
+            </foreach>
+        </munit:execution>
+        <munit:validation>
+            <!-- Build the list of the expected flight aggregations to be performed by the app -->
+            <file:read config-ref="fileConfig" path="input/flight-orders.json"
+                       target="expectedAggregations"
+                       targetValue="#[%dw 2.0 import * from dw::core::Arrays --- payload divideBy ${aggregatorsSize}]"/>
+
+            <!-- Consume message of processed flight orders -->
+            <munit-tools:dequeue target="actualAggregations"
+                                 targetValue="#[%dw 2.0 output application/json --- payload orderBy($.date)]"/>
+
+            <munit-tools:assert-that expression="#[vars.actualAggregations]" is="#[MunitTools::equalTo(vars.expectedAggregations[0] orderBy($.date))]"/>
+
+            <!-- Consume message of processed flight orders -->
+            <munit-tools:dequeue target="actualAggregations"
+                                 targetValue="#[%dw 2.0 output application/json --- payload orderBy($.date)]"/>
+
+            <munit-tools:assert-that expression="#[vars.actualAggregations]" is="#[MunitTools::equalTo(vars.expectedAggregations[1] orderBy($.date))]"/>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="flightOrdersAggregatorSeqListenerFlow">
+        <aggregators:aggregator-listener aggregatorName="flightOrdersAggregatorSeq"/>
+
+        <!-- Send flight orders to message queue -->
+        <munit-tools:queue/>
+    </flow>
+
     <!--  -->
     <!-- Migrated from mule-ee-distributions -->
     <!-- https://github.com/mulesoft/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/integration/scenarios/AggregatorsScenariosTestCase.java#L267 -->

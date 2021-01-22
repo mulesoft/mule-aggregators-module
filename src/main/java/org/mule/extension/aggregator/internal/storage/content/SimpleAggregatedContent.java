@@ -25,7 +25,7 @@ import java.util.Map;
 public class SimpleAggregatedContent extends AbstractAggregatedContent {
 
   private static final long serialVersionUID = -229638907750317297L;
-  private Map<Integer, TypedValue> sequencedElements;
+  private Map<Integer, List<TypedValue>> sequencedElements;
   private List<TypedValue> unsequencedElements;
 
   private SimpleAggregatedContent() {
@@ -53,7 +53,15 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
 
   @Override
   public void add(TypedValue newContent, Long timeStamp, int sequenceNumber) {
-    sequencedElements.put(sequenceNumber, newContent);
+    if (sequencedElements.containsKey(sequenceNumber)) {
+      sequencedElements.get(sequenceNumber).add(newContent);
+    } else {
+      List<TypedValue> newList = new ArrayList<>();
+      newList.add(newContent);
+      sequencedElements.put(sequenceNumber, newList);
+    }
+
+    //sequencedElements.put(sequenceNumber, newContent);
     updateTimes(timeStamp);
   }
 
@@ -61,7 +69,8 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
   public List<TypedValue> getAggregatedElements() {
     List<TypedValue> orderedElements = new ArrayList<>();
     if (sequencedElements.size() > 0) {
-      orderedElements = sequencedElements.entrySet().stream().sorted(comparingInt(Map.Entry::getKey)).map(Map.Entry::getValue)
+      orderedElements = sequencedElements.entrySet().stream().sorted(comparingInt(Map.Entry::getKey))
+          .flatMap(val -> val.getValue().stream())
           .collect(toList());
     }
     orderedElements.addAll(unsequencedElements);
