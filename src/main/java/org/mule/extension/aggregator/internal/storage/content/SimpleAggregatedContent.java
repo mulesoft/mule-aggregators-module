@@ -61,7 +61,6 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
       sequencedElements.put(sequenceNumber, newList);
     }
 
-    //sequencedElements.put(sequenceNumber, newContent);
     updateTimes(timeStamp);
   }
 

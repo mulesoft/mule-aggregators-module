@@ -181,11 +181,11 @@
         <munit-tools:queue/>
     </flow>
 
-    <munit:test name="testTimeBasedAggregationWithSequenceNumber"
+    <munit:test name="testTimeBasedAggregationInsideScatterGather"
                 tags="Aggregators Extension,Integration Tests"
-                description="Verify the time based aggregator with sequence number">
+                description="Verify the time based aggregator inside scatther-gather flow">
         <munit:enable-flow-sources>
-            <munit:enable-flow-source value="flightOrdersAggregatorSeqListenerFlow"/>
+            <munit:enable-flow-source value="flightOrdersAggregatorScatterListenerFlow"/>
         </munit:enable-flow-sources>
         <munit:execution>
             <file:read config-ref="fileConfig" path="#['input' ++ p('file.separator') ++ 'flight-orders.json']"/>
@@ -193,7 +193,7 @@
             <foreach>
                 <scatter-gather>
                     <route>
-                        <aggregators:time-based-aggregator period="${timeBasedAggregatorTimeout}" name="flightOrdersAggregatorSeq">
+                        <aggregators:time-based-aggregator period="${timeBasedAggregatorTimeout}" name="flightOrdersAggregatorScatter">
                             <aggregators:content><![CDATA[#[%dw 2.0 output application/json --- payload]]]></aggregators:content>
                             <aggregators:incremental-aggregation>
                                 <logger level="INFO" message="Flight order aggregated."/>
@@ -231,8 +231,8 @@
         </munit:validation>
     </munit:test>
 
-    <flow name="flightOrdersAggregatorSeqListenerFlow">
-        <aggregators:aggregator-listener aggregatorName="flightOrdersAggregatorSeq"/>
+    <flow name="flightOrdersAggregatorScatterListenerFlow">
+        <aggregators:aggregator-listener aggregatorName="flightOrdersAggregatorScatter"/>
 
         <!-- Send flight orders to message queue -->
         <munit-tools:queue/>
