@@ -7,12 +7,11 @@
 package org.mule.extension.aggregator.internal.storage.content;
 
 import static java.util.stream.Collectors.toList;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.runtime.api.metadata.TypedValue;
-import org.slf4j.Logger;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,12 +26,21 @@ import java.util.Objects;
  */
 public class SimpleAggregatedContent extends AbstractAggregatedContent {
 
-  private static final Logger LOGGER = getLogger(SimpleAggregatedContent.class);
-  private static final long serialVersionUID = -6742302221567847200L;
+  private static final long serialVersionUID = 5683523938853643505L;
+
+  @Deprecated
+  /** TODO: fix this AMOD-5. This should be removed in the next major release. */
+  private Map<Integer, TypedValue> sequencedElements;
+
+  @Deprecated
+  /** TODO: fix this AMOD-5. This should be removed in the next major release. */
+  private List<TypedValue> unsequencedElements;
 
   private Map<Index, TypedValue> indexedElements;
 
   private SimpleAggregatedContent() {
+    this.sequencedElements = new HashMap<>();
+    this.unsequencedElements = new ArrayList<>();
     this.indexedElements = new HashMap<>();
   }
 
@@ -72,6 +80,27 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
 
   public boolean isComplete() {
     return maxSize == indexedElements.size();
+  }
+
+  /**
+   * This method upgrades the sequenced elements to the new data structure for backward compatibility.
+   * TODO: fix this AMOD-5. This should be removed in the next major release.
+   */
+  @Deprecated
+  public void upgradeIfNeeded() {
+    if (!Objects.isNull(sequencedElements) && !sequencedElements.isEmpty()) {
+      for (Integer key : sequencedElements.keySet()) {
+        indexedElements.put(lastArrivalIndex(key), sequencedElements.get(key));
+        sequencedElements.remove(key);
+      }
+    }
+
+    if (!Objects.isNull(unsequencedElements) && !unsequencedElements.isEmpty()) {
+      for (TypedValue element : unsequencedElements) {
+        indexedElements.put(lastArrivalIndex(null), element);
+      }
+      unsequencedElements.clear();
+    }
   }
 
   private Index lastArrivalIndex(Integer key) {

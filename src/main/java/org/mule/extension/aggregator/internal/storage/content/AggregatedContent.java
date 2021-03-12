@@ -59,4 +59,11 @@ public interface AggregatedContent extends Serializable {
    */
   public boolean isComplete();
 
+  /**
+   * This method upgrades the sequenced elements to the new data structure for backward compatibility.
+   * TODO: fix this AMOD-5. This should be removed in the next major release.
+   */
+  @Deprecated
+  public void upgradeIfNeeded();
+
 }
