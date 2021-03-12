@@ -10,10 +10,12 @@ package org.mule.extension.aggregator.internal.storage.info;
 import org.mule.extension.aggregator.internal.storage.content.AggregatedContent;
 import org.mule.extension.aggregator.internal.task.AsyncTask;
 
+import java.util.Objects;
+
 
 public class SimpleAggregatorSharedInformation implements AggregatorSharedInformation {
 
-  private static final long serialVersionUID = 2720335740399722498L;
+  private static final long serialVersionUID = -6875380625504335868L;
   private AggregatedContent content;
   private String AggregationId;
   private AsyncTask asyncAggregationTask;
@@ -48,5 +50,17 @@ public class SimpleAggregatorSharedInformation implements AggregatorSharedInform
 
   public void setAggregationId(String aggregationId) {
     AggregationId = aggregationId;
+  }
+
+  /**
+   * This method upgrades the sequenced elements to the new data structure for backward compatibility.
+   * TODO: fix this AMOD-5. This should be removed in the next major release.
+   */
+  @Deprecated
+  @Override
+  public void upgradeIfNeeded() {
+    if (!Objects.isNull(this.content)) {
+      content.upgradeIfNeeded();
+    }
   }
 }
