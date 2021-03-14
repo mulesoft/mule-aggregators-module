@@ -10,6 +10,7 @@ import static java.util.stream.Collectors.toList;
 
 import org.mule.runtime.api.metadata.TypedValue;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,14 +27,14 @@ import java.util.Objects;
  */
 public class SimpleAggregatedContent extends AbstractAggregatedContent {
 
-  private static final long serialVersionUID = 5683523938853643505L;
+  private static final long serialVersionUID = -229638907750317297L;
 
   @Deprecated
-  /** TODO: fix this AMOD-5. This should be removed in the next major release. */
+  // TODO: fix this AMOD-5. This should be removed in the next major release.
   private Map<Integer, TypedValue> sequencedElements;
 
   @Deprecated
-  /** TODO: fix this AMOD-5. This should be removed in the next major release. */
+  // TODO: fix this AMOD-5. This should be removed in the next major release.
   private List<TypedValue> unsequencedElements;
 
   private Map<Index, TypedValue> indexedElements;
@@ -83,6 +84,18 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
   }
 
   /**
+   * This method does a custom deserialization after the default deserialization to initialise the indexed elements
+   * because if a previous version was recovered this will not be initialized.
+   * TODO: fix this AMOD-5. This should be removed in the next major release.
+   */
+  private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
+    if (Objects.isNull(indexedElements)) {
+      indexedElements = new HashMap<>();
+    }
+  }
+
+  /**
    * This method upgrades the sequenced elements to the new data structure for backward compatibility.
    * TODO: fix this AMOD-5. This should be removed in the next major release.
    */
@@ -91,8 +104,8 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
     if (!Objects.isNull(sequencedElements) && !sequencedElements.isEmpty()) {
       for (Integer key : sequencedElements.keySet()) {
         indexedElements.put(lastArrivalIndex(key), sequencedElements.get(key));
-        sequencedElements.remove(key);
       }
+      sequencedElements.clear();
     }
 
     if (!Objects.isNull(unsequencedElements) && !unsequencedElements.isEmpty()) {
@@ -113,7 +126,7 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
 
   private static class Index implements Serializable, Comparable {
 
-    private static final long serialVersionUID = 7902763275773976860L;
+    private static final long serialVersionUID = -8286760373914606346L;
     private Integer sequenceNumber = null;
     private int arrivalIndex = 0;
 
