@@ -15,7 +15,7 @@ import java.util.Objects;
 
 public class SimpleAggregatorSharedInformation implements AggregatorSharedInformation {
 
-  private static final long serialVersionUID = -6875380625504335868L;
+  private static final long serialVersionUID = 2720335740399722498L;
   private AggregatedContent content;
   private String AggregationId;
   private AsyncTask asyncAggregationTask;
