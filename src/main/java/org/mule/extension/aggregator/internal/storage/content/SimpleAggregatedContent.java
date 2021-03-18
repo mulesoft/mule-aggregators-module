@@ -6,18 +6,17 @@
  */
 package org.mule.extension.aggregator.internal.storage.content;
 
+import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 
 import org.mule.runtime.api.metadata.TypedValue;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 
 /**
@@ -37,12 +36,9 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
   // TODO: fix this AMOD-5. This should be removed in the next major release.
   private List<TypedValue> unsequencedElements;
 
-  private Map<Index, TypedValue> indexedElements;
-
   private SimpleAggregatedContent() {
     this.sequencedElements = new HashMap<>();
     this.unsequencedElements = new ArrayList<>();
-    this.indexedElements = new HashMap<>();
   }
 
   public SimpleAggregatedContent(int maxSize) {
@@ -59,40 +55,40 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
 
   @Override
   public void add(TypedValue newContent, Long timeStamp) {
-    indexedElements.put(lastArrivalIndex(null), newContent);
+    unsequencedElements.add(newContent);
     updateTimes(timeStamp);
   }
 
   @Override
   public void add(TypedValue newContent, Long timeStamp, int sequenceNumber) {
-    indexedElements.put(lastArrivalIndex(sequenceNumber), newContent);
+    SequencedElement sequencedElement;
+    if (sequencedElements.containsKey(sequenceNumber)) {
+      sequencedElement = (SequencedElement) sequencedElements.get(sequenceNumber).getValue();
+    } else {
+      sequencedElement = new SequencedElement();
+    }
+    sequencedElement.add(newContent);
+    sequencedElements.put(sequenceNumber, TypedValue.of(sequencedElement));
+
     updateTimes(timeStamp);
   }
 
   @Override
   public List<TypedValue> getAggregatedElements() {
-    if (indexedElements.isEmpty()) {
-      return Collections.emptyList();
+    List<TypedValue> orderedElements = new ArrayList<>();
+    if (sequencedElements.size() > 0) {
+      orderedElements = sequencedElements.entrySet().stream().sorted(comparingInt(Map.Entry::getKey))
+          .flatMap(val -> ((SequencedElement) val.getValue().getValue()).get().stream())
+          .collect(toList());
     }
-    return indexedElements.entrySet().stream().sorted((e1, e2) -> e1.getKey().compareTo(e2.getKey()))
-        .map(Map.Entry::getValue)
-        .collect(toList());
+    orderedElements.addAll(unsequencedElements);
+    return orderedElements;
   }
 
   public boolean isComplete() {
-    return maxSize == indexedElements.size();
-  }
-
-  /**
-   * This method does a custom deserialization after the default deserialization to initialise the indexed elements
-   * because if a previous version was recovered this will not be initialized.
-   * TODO: fix this AMOD-5. This should be removed in the next major release.
-   */
-  private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-    in.defaultReadObject();
-    if (Objects.isNull(indexedElements)) {
-      indexedElements = new HashMap<>();
-    }
+    Integer sequencedElementsSize = sequencedElements.values().stream().map(v -> ((SequencedElement) v.getValue()).size())
+        .reduce(0, Integer::sum);
+    return maxSize == unsequencedElements.size() + sequencedElementsSize;
   }
 
   /**
@@ -101,37 +97,64 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
    */
   @Deprecated
   public void upgradeIfNeeded() {
-    if (!Objects.isNull(sequencedElements) && !sequencedElements.isEmpty()) {
+    if (sequencedElements.isEmpty()) {
+      return;
+    }
+
+    // TODO: fix this AMOD-5. For sequenced elements use the class Index instead of using the SequencedElement class to
+    //  wrap list inside TypeValues.
+    boolean isUpgraded = sequencedElements.values().stream().anyMatch(v -> v.getValue() instanceof SequencedElement);
+    if (!isUpgraded) {
+      Map<Integer, TypedValue> indexedElements = new HashMap<>();
       for (Integer key : sequencedElements.keySet()) {
-        indexedElements.put(lastArrivalIndex(key), sequencedElements.get(key));
+        SequencedElement sequencedElement = new SequencedElement();
+        sequencedElement.add(sequencedElements.get(key));
+        indexedElements.put(key, TypedValue.of(sequencedElement));
       }
       sequencedElements.clear();
-    }
-
-    if (!Objects.isNull(unsequencedElements) && !unsequencedElements.isEmpty()) {
-      for (TypedValue element : unsequencedElements) {
-        indexedElements.put(lastArrivalIndex(null), element);
-      }
-      unsequencedElements.clear();
+      sequencedElements = indexedElements;
     }
   }
 
-  private Index lastArrivalIndex(Integer key) {
-    Index index = new Index(0, key);
-    while (indexedElements.containsKey(index)) {
-      index.forwardArrival();
+  /**
+   * Inner class to save a list instead of a single element when aggregating elements by sequence number.
+   * TODO: fix this AMOD-5. This should be removed in the next major release.
+   */
+  @Deprecated
+  private static class SequencedElement implements Serializable {
+
+    private static final long serialVersionUID = -5278813073775940619L;
+    private List<TypedValue> aggregatedElements;
+
+    SequencedElement() {
+      aggregatedElements = new ArrayList<>();
     }
-    return index;
+
+    void add(TypedValue value) {
+      aggregatedElements.add(value);
+    }
+
+    List<TypedValue> get() {
+      return Collections.unmodifiableList(aggregatedElements);
+    }
+
+    int size() {
+      return aggregatedElements.size();
+    }
   }
 
-  private static class Index implements Serializable, Comparable {
+  private static class Index implements Serializable {
 
     private static final long serialVersionUID = -8286760373914606346L;
     private Integer sequenceNumber = null;
     private int arrivalIndex = 0;
 
-    public Index(int arrivalIndex, Integer sequenceNumber) {
+    public Index(int arrivalIndex) {
       this.arrivalIndex = arrivalIndex;
+    }
+
+    public Index(int arrivalIndex, int sequenceNumber) {
+      this(arrivalIndex);
       this.sequenceNumber = sequenceNumber;
     }
 
@@ -142,60 +165,6 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
     public int getArrivalIndex() {
       return arrivalIndex;
     }
-
-    /**
-     * Compares this index with the specified index for order. Returns a negative integer, zero, or a positive integer
-     * as this object is less than, equal to, or greater than the specified index. It is first compared by the sequence
-     * number and then by the arrival number.
-     *
-     * @param o the index to compare to. It cannot be null.
-     *
-     * @return a negative integer, zero, or a positive integer as this index is less than, equal to, or greater than the
-     * specified index.
-     */
-    @Override
-    public int compareTo(Object o) {
-      if (Objects.isNull(o) || !(o instanceof Index)) {
-        throw new RuntimeException("The specified object is not an instance of Index");
-      }
-      Index otherIndex = (Index) o;
-      int sequenceComparison = compareSequence(otherIndex);
-      if (sequenceComparison != 0) {
-        return sequenceComparison;
-      }
-      return Integer.compare(arrivalIndex, otherIndex.getArrivalIndex());
-    }
-
-    public void forwardArrival() {
-      arrivalIndex++;
-    }
-
-    private int compareSequence(Index otherIndex) {
-      if (Objects.isNull(sequenceNumber) && Objects.isNull(otherIndex.getSequenceNumber())) {
-        return 0;
-      }
-      if (!Objects.isNull(sequenceNumber) && Objects.isNull(otherIndex.getSequenceNumber())) {
-        return -1;
-      }
-      if (Objects.isNull(sequenceNumber) && !Objects.isNull(otherIndex.getSequenceNumber())) {
-        return 1;
-      }
-      return sequenceNumber.compareTo(otherIndex.getSequenceNumber());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o)
-        return true;
-      if (o == null || getClass() != o.getClass())
-        return false;
-      Index index = (Index) o;
-      return arrivalIndex == index.arrivalIndex && Objects.equals(sequenceNumber, index.sequenceNumber);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(sequenceNumber, arrivalIndex);
-    }
   }
+
 }
