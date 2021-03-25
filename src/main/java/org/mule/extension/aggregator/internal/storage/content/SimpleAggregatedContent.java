@@ -91,9 +91,9 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
     return maxSize == unsequencedElements.size() + sequencedElementsSize;
   }
 
+  // TODO: fix this AMOD-5. This should be removed in the next major release.
   /**
    * This method upgrades the sequenced elements to the new data structure for backward compatibility.
-   * TODO: fix this AMOD-5. This should be removed in the next major release.
    */
   @Deprecated
   public void upgradeIfNeeded() {
@@ -116,9 +116,9 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
     }
   }
 
+  // TODO: fix this AMOD-5. This should be removed in the next major release.
   /**
    * Inner class to save a list instead of a single element when aggregating elements by sequence number.
-   * TODO: fix this AMOD-5. This should be removed in the next major release.
    */
   @Deprecated
   private static class SequencedElement implements Serializable {
