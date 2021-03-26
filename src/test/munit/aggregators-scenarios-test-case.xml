@@ -21,7 +21,7 @@
 
     <os:object-store name="objectStore" persistent="false" />
 
-    <munit:config name="aggregators-scenarios"/>
+    <munit:config name="aggregators-scenarios" minMuleVersion="4.2.2"/>
 
     <!--  -->
     <!-- Migrated from mule-ee-distributions -->
