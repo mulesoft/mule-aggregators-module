@@ -200,7 +200,6 @@ public abstract class AbstractAggregatorExecutor
     if (clusterService.isPrimaryPollingInstance()) {
       if (!started) {
         startIfNeeded(objectStore);
-        upgradeAggregatedContentIfNeeded();
         setRegisteredAsyncAggregationsAsNotScheduled();
         if (getStorage().isPersistent()) {
           scheduler = schedulerService.ioScheduler(SchedulerConfig.config().withShutdownTimeout(0, MILLISECONDS));
@@ -386,12 +385,4 @@ public abstract class AbstractAggregatorExecutor
     }
   }
 
-  // TODO: fix this AMOD-5. This should be removed in the next major release.
-  /**
-   * This method upgrades the sequenced elements to the new data structure for backward compatibility.
-   */
-  @Deprecated
-  private void upgradeAggregatedContentIfNeeded() {
-    executeSynchronized(() -> sharedInfoLocalCopy.upgradeIfNeeded());
-  }
 }
