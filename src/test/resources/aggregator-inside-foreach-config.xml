@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators"
+      xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+      xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd
+      http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd
+    http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+
+    <vm:config name="vm">
+        <vm:queues>
+            <vm:queue queueName="splitAggregateQueue" queueType="TRANSIENT" />
+        </vm:queues>
+    </vm:config>
+
+    <flow name="splitAggregateFlow">
+        <set-variable variableName="splittedGroupSize" value="#[sizeOf(payload)]"/>
+        <foreach>
+            <aggregators:group-based-aggregator name="splitAggregate" groupSize="#[vars.splittedGroupSize]" timeout="1" timeoutUnit="SECONDS">
+                <aggregators:aggregation-complete>
+                    <vm:publish config-ref="vm" queueName="splitAggregateQueue"/>
+                </aggregators:aggregation-complete>
+            </aggregators:group-based-aggregator>
+        </foreach>
+        <vm:consume queueName="splitAggregateQueue" config-ref="vm"/>
+    </flow>
+
+    <flow name="splitAggregateWithDelayFlow">
+        <set-variable variableName="splittedGroupSize" value="#[sizeOf(payload)]"/>
+        <set-variable variableName="aggregationComplete" value="#[false]"/>
+        <foreach>
+            <test:processor waitTime="1000"/>
+            <aggregators:group-based-aggregator name="splitAggregateWithTimeout" groupSize="#[vars.splittedGroupSize]" timeout="1" timeoutUnit="SECONDS" evictionTime="0">
+                <aggregators:aggregation-complete>
+                    <set-variable variableName="aggregationComplete" value="true"/>
+                    <vm:publish config-ref="vm" queueName="splitAggregateQueue"/>
+                </aggregators:aggregation-complete>
+            </aggregators:group-based-aggregator>
+        </foreach>
+        <vm:consume queueName="splitAggregateQueue" config-ref="vm"/>
+        <choice>
+            <when expression="#[vars.aggregationComplete == false and vars.failOnTimeout == true]">
+                <set-payload value="OK"/>
+            </when>
+        </choice>
+    </flow>
+
+    <flow name="aggregatorListener">
+        <aggregators:aggregator-listener aggregatorName="splitAggregateWithTimeout" includeTimedOutGroups="true"/>
+        <choice>
+            <when expression="#[not attributes.isAggregationComplete]">
+                <vm:publish config-ref="vm" queueName="splitAggregateQueue"/>
+            </when>
+        </choice>
+    </flow>
+
+</mule>

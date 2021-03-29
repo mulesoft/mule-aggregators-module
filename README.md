@@ -18,5 +18,3 @@ Add this dependency to your Mule application's pom.xml
 			<classifier>mule-plugin</classifier>
 		</dependency>
 ```
-
-NOTE: There is currently no Studio7 support for this module, so, when you include the dependency, the Aggregators module will appear in the Mule application's Mule Palette, but there will be no message processors nor any global elements to add to your Mule XML configuration files.
