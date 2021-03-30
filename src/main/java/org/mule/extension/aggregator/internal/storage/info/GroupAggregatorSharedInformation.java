@@ -63,4 +63,12 @@ public class GroupAggregatorSharedInformation implements AggregatorSharedInforma
   public Map<String, AsyncTask> getRegisteredTimeoutAsyncAggregations() {
     return registeredTimeouts;
   }
+
+  // TODO: fix this AMOD-5. This should be removed in the next major release.
+  /**
+   * This method upgrades the sequenced elements to the new data structure for backward compatibility.
+   * It is not necessary to do an upgrade for this class.
+   */
+  @Override
+  public void upgradeIfNeeded() {}
 }
