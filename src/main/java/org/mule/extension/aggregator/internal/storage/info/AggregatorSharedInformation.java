@@ -10,4 +10,10 @@ import java.io.Serializable;
 
 public interface AggregatorSharedInformation extends Serializable {
 
+  // TODO: fix this AMOD-5. This should be removed in the next major release.
+  /**
+   * This method upgrades the sequenced elements to the new data structure for backward compatibility.
+   */
+  @Deprecated
+  void upgradeIfNeeded();
 }
