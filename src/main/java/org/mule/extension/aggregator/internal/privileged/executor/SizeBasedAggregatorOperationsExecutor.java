@@ -123,6 +123,7 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
       } else {
         future.complete(Result.builder().build());
       }
+      return true;
     });
 
     finishExecution(future, completionCallback);

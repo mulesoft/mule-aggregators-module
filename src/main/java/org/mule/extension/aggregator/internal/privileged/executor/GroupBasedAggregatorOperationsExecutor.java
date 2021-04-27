@@ -146,6 +146,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
       } else {
         future.complete(Result.builder().build());
       }
+      return true;
     });
 
     finishExecution(future, completionCallback);
@@ -279,15 +280,17 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
   }
 
   @Override
-  void doScheduleRegisteredAsyncAggregations() {
+  boolean doScheduleRegisteredAsyncAggregations() {
     getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach(this::scheduleGroupEvictionIfNeeded);
     getSharedInfoLocalCopy().getRegisteredTimeoutAsyncAggregations().forEach(this::scheduleTimeoutIfNeeded);
+    return true;
   }
 
   @Override
-  void doSetRegisteredAsyncAggregationsAsNotScheduled() {
+  boolean doSetRegisteredAsyncAggregationsAsNotScheduled() {
     getSharedInfoLocalCopy().getRegisteredGroupEvictionTasks().forEach((key, value) -> value.setUnscheduled());
     getSharedInfoLocalCopy().getRegisteredTimeoutAsyncAggregations().forEach((key, value) -> value.setUnscheduled());
+    return true;
   }
 
   private void scheduleGroupEvictionIfNeeded(String groupId, AsyncTask task) {
@@ -295,6 +298,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
       scheduleTask(task, () -> executeSynchronized(() -> {
         onGroupEviction(groupId);
         getSharedInfoLocalCopy().unregisterGroupEvictionTask(groupId);
+        return true;
       }));
       task.setScheduled();
       if (LOGGER.isDebugEnabled()) {
@@ -319,6 +323,7 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
           onTimeout(groupId);
           getSharedInfoLocalCopy().unregisterTimeoutAsyncAggregation(groupId);
         }
+        return true;
       }));
       task.setScheduled();
       if (LOGGER.isDebugEnabled()) {
