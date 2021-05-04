@@ -28,7 +28,7 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
 
   private static final long serialVersionUID = -229638907750317297L;
 
-  @Deprecated
+
   // TODO: fix this AMOD-5. This should be removed in the next major release.
   private Map<Integer, TypedValue> sequencedElements;
 
