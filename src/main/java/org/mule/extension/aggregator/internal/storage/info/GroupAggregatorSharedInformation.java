@@ -12,6 +12,7 @@ import org.mule.extension.aggregator.internal.task.AsyncTask;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class GroupAggregatorSharedInformation implements AggregatorSharedInformation {
 
@@ -68,9 +69,18 @@ public class GroupAggregatorSharedInformation implements AggregatorSharedInforma
   /**
    * This method upgrades the sequenced elements to the new data structure for backward compatibility.
    * It is not necessary to do an upgrade for this class.
+   *
+   * @return true if any upgrade was made, false otherwise.
    */
+  @Deprecated
   @Override
   public boolean upgradeIfNeeded() {
-    return false;
+    boolean hasChanges = false;
+    for (AggregatedContent aggregatedContent : contentMap.values()) {
+      if ((!Objects.isNull(aggregatedContent))) {
+        hasChanges = hasChanges || aggregatedContent.upgradeIfNeeded();
+      }
+    }
+    return hasChanges;
   }
 }
