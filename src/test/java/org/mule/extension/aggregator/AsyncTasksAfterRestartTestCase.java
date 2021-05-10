@@ -11,6 +11,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.disposeIfNeeded;
@@ -177,6 +179,81 @@ public class AsyncTasksAfterRestartTestCase extends AbstractMuleContextTestCase 
 
     // ...then check that the pending aggregation timeout event is triggered after restarting on its due time
     aggregatorExecutorRedeploy = new SizeBasedAggregatorOperationsExecutor(params);
+    startUp(aggregatorListener);
+
+    assertAsyncAggregation(sourceCallback, sourceCallbackCtx);
+  }
+
+  @Test
+  @Description("Avoid race condition in object store after redeploy in sizeBasedAggregator")
+  public void sizeBasedAggregatorDoesNotPushToObjectStoreWhenNoChanges() throws Exception {
+    final Map<String, Object> params = new HashMap<>();
+    SimpleMemoryObjectStore mockedObjectStore = spy(SimpleMemoryObjectStore.class);
+    params.put("objectStore", mockedObjectStore);
+    params.put("name", "aggregator");
+    params.put("maxSize", 2);
+
+    final SizeBasedAggregatorOperationsExecutor aggregatorExecutor = new SizeBasedAggregatorOperationsExecutor(params);
+
+    initialiseIfNeeded(aggregatorExecutor, muleContext);
+    startIfNeeded(aggregatorExecutor);
+
+    final AggregatorListener aggregatorListener = mock(AggregatorListener.class);
+    when(aggregatorListener.getCallback()).thenReturn(sourceCallback);
+    when(aggregatorListener.shouldIncludeTimedOutGroups()).thenReturn(true);
+    aggregatorManager.registerListener("aggregator", aggregatorListener);
+
+    verify(mockedObjectStore, never()).store(any(), any());
+
+    final Map<String, Object> operationParams = new HashMap<>();
+    operationParams.put("content", new TypedValue<>("testPayload", DataType.STRING));
+    operationParams.put("timeout", RECEIVE_TIMEOUT);
+    operationParams.put("timeoutUnit", MILLISECONDS);
+    addItemToAggregation(aggregatorExecutor, operationParams);
+
+    verify(mockedObjectStore).store(any(), any());
+
+    shutdown(aggregatorExecutor);
+
+    // ...then check that the pending aggregation timeout event is triggered after restarting on its due time
+    aggregatorExecutorRedeploy = new SizeBasedAggregatorOperationsExecutor(params);
+    startUp(aggregatorListener);
+
+    assertAsyncAggregation(sourceCallback, sourceCallbackCtx);
+  }
+
+  @Test
+  @Description("Avoid race condition in object store after redeploy in timeBasedAggregator")
+  public void timeBasedAggregatorDoesNotPushToObjectStoreWhenNoChanges() throws Exception {
+    final Map<String, Object> params = new HashMap<>();
+    SimpleMemoryObjectStore mockedObjectStore = spy(SimpleMemoryObjectStore.class);
+    params.put("objectStore", mockedObjectStore);
+    params.put("name", "aggregator");
+    params.put("maxSize", -1);
+
+    final TimeBasedAggregatorOperationsExecutor aggregatorExecutor = new TimeBasedAggregatorOperationsExecutor(params);
+
+    initialiseIfNeeded(aggregatorExecutor, muleContext);
+    startIfNeeded(aggregatorExecutor);
+
+    final AggregatorListener aggregatorListener = mock(AggregatorListener.class);
+    when(aggregatorListener.getCallback()).thenReturn(sourceCallback);
+    aggregatorManager.registerListener("aggregator", aggregatorListener);
+
+    verify(mockedObjectStore, never()).store(any(), any());
+
+    final Map<String, Object> operationParams = new HashMap<>();
+    operationParams.put("content", new TypedValue<>("testPayload", DataType.STRING));
+    operationParams.put("period", RECEIVE_TIMEOUT);
+    operationParams.put("periodUnit", MILLISECONDS);
+    addItemToAggregation(aggregatorExecutor, operationParams);
+
+    verify(mockedObjectStore).store(any(), any());
+
+    shutdown(aggregatorExecutor);
+
+    // ...then check that the pending aggregation timeout event is triggered after restarting on its due time
+    aggregatorExecutorRedeploy = new TimeBasedAggregatorOperationsExecutor(params);
     startUp(aggregatorListener);
 
     assertAsyncAggregation(sourceCallback, sourceCallbackCtx);

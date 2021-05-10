@@ -70,5 +70,7 @@ public class GroupAggregatorSharedInformation implements AggregatorSharedInforma
    * It is not necessary to do an upgrade for this class.
    */
   @Override
-  public void upgradeIfNeeded() {}
+  public boolean upgradeIfNeeded() {
+    return false;
+  }
 }
