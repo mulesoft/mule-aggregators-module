@@ -211,9 +211,6 @@ public class AsyncTasksAfterRestartTestCase extends AbstractMuleContextTestCase 
     operationParams.put("timeoutUnit", MILLISECONDS);
     addItemToAggregation(aggregatorExecutor, operationParams);
 
-    // Wait until just before the aggregation times out to do a restart...
-    Thread.sleep(3000);
-
     verify(mockedObjectStore).store(any(), any());
 
     shutdown(aggregatorExecutor);
@@ -250,9 +247,6 @@ public class AsyncTasksAfterRestartTestCase extends AbstractMuleContextTestCase 
     operationParams.put("period", RECEIVE_TIMEOUT);
     operationParams.put("periodUnit", MILLISECONDS);
     addItemToAggregation(aggregatorExecutor, operationParams);
-
-    // Wait until just before the aggregation times out to do a restart...
-    Thread.sleep(3000);
 
     verify(mockedObjectStore).store(any(), any());
 
