@@ -82,7 +82,7 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
   }
 
   @Override
-  void doScheduleRegisteredAsyncAggregations() {
+  boolean doScheduleRegisteredAsyncAggregations() {
     final AsyncTask task = getSharedInfoLocalCopy().getRegisteredAsyncAggregationTask();
     if (task != null) {
       if (!task.isScheduled()) {
@@ -93,7 +93,9 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
               && task.getId().equals(getSharedInfoLocalCopy().getRegisteredAsyncAggregationTask().getId())) {
             onAsyncAggregationExecution();
             getSharedInfoLocalCopy().unregisterAsyncAggregationTask();
+            return true;
           }
+          return false;
         }));
         task.setScheduled();
         if (LOGGER.isDebugEnabled()) {
@@ -104,15 +106,19 @@ public abstract class SingleGroupAggregatorExecutor extends AbstractAggregatorEx
           LOGGER.debug("Attempted to schedule task but it was already scheduled");
         }
       }
+      return true;
     }
+    return false;
   }
 
   @Override
-  void doSetRegisteredAsyncAggregationsAsNotScheduled() {
+  boolean doSetRegisteredAsyncAggregationsAsNotScheduled() {
     AsyncTask task = getSharedInfoLocalCopy().getRegisteredAsyncAggregationTask();
     if (task != null) {
       task.setUnscheduled();
+      return true;
     }
+    return false;
   }
 
   abstract void onAsyncAggregationExecution();
