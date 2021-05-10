@@ -68,6 +68,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -252,13 +253,23 @@ public abstract class AbstractAggregatorExecutor
     executeSynchronized(this::doScheduleRegisteredAsyncAggregations);
   }
 
-  abstract void doScheduleRegisteredAsyncAggregations();
+  /**
+   * Schedule registered async aggregations.
+   *
+   * @return true if changes has been made in the execution, false otherwise.
+   */
+  abstract boolean doScheduleRegisteredAsyncAggregations();
 
   private void setRegisteredAsyncAggregationsAsNotScheduled() {
     executeSynchronized(this::doSetRegisteredAsyncAggregationsAsNotScheduled);
   }
 
-  abstract void doSetRegisteredAsyncAggregationsAsNotScheduled();
+  /**
+   * Set registered async aggregations as not scheduled.
+   *
+   * @return true if changes has been made in the execution, false otherwise.
+   */
+  abstract boolean doSetRegisteredAsyncAggregationsAsNotScheduled();
 
   /**
    * When scheduling the {@param runnable}, we should compute the actual delay value to set to the scheduler giving that it will be different from the one set by the user.
@@ -310,15 +321,17 @@ public abstract class AbstractAggregatorExecutor
     });
   }
 
-  void executeSynchronized(Runnable task) {
+  void executeSynchronized(Supplier<Boolean> task) {
     synchronized (stoppingLock) {
       if (shouldSynchronizeToOS) {
         Lock lock = lockFactory.createLock(getAggregatorKey());
         lock.lock();
         try {
           pullSharedInfo();
-          task.run();
-          pushSharedInfo();
+          boolean hasChanges = task.get();
+          if (hasChanges) {
+            pushSharedInfo();
+          }
         } finally {
           lock.unlock();
         }

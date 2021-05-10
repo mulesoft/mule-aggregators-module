@@ -69,14 +69,18 @@ public class GroupAggregatorSharedInformation implements AggregatorSharedInforma
   /**
    * This method upgrades the sequenced elements to the new data structure for backward compatibility.
    * It is not necessary to do an upgrade for this class.
+   *
+   * @return true if any upgrade was made, false otherwise.
    */
   @Deprecated
   @Override
-  public void upgradeIfNeeded() {
+  public boolean upgradeIfNeeded() {
+    boolean hasChanges = false;
     for (AggregatedContent aggregatedContent : contentMap.values()) {
       if ((!Objects.isNull(aggregatedContent))) {
-        aggregatedContent.upgradeIfNeeded();
+        hasChanges = hasChanges || aggregatedContent.upgradeIfNeeded();
       }
     }
+    return hasChanges;
   }
 }
