@@ -96,9 +96,9 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
    * This method upgrades the sequenced elements to the new data structure for backward compatibility.
    */
   @Deprecated
-  public void upgradeIfNeeded() {
+  public boolean upgradeIfNeeded() {
     if (sequencedElements.isEmpty()) {
-      return;
+      return false;
     }
 
     // TODO: fix this AMOD-5. For sequenced elements use the class Index instead of using the SequencedElement class to
@@ -113,7 +113,9 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
       }
       sequencedElements.clear();
       sequencedElements = indexedElements;
+      return true;
     }
+    return false;
   }
 
   // TODO: fix this AMOD-5. This should be removed in the next major release.

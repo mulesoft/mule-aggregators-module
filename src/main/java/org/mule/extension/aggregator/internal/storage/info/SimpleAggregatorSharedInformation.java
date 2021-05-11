@@ -58,9 +58,10 @@ public class SimpleAggregatorSharedInformation implements AggregatorSharedInform
    */
   @Deprecated
   @Override
-  public void upgradeIfNeeded() {
+  public boolean upgradeIfNeeded() {
     if (!Objects.isNull(this.content)) {
-      content.upgradeIfNeeded();
+      return content.upgradeIfNeeded();
     }
+    return false;
   }
 }
