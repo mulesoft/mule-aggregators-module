@@ -58,7 +58,7 @@
         <munit:execution>
             <foreach collection="#[1 to 2]">
                 <set-variable variableName="result" value="NOT_COMPLETE"/>
-                <aggregators:group-based-aggregator name="gba" groupId="someId" groupSize="2" evictionTime="0">
+                <aggregators:group-based-aggregator name="gba" groupId="#['someId']" groupSize="2" evictionTime="0">
                     <aggregators:content>#['testPayload']</aggregators:content>
                     <aggregators:aggregation-complete>
                         <set-variable variableName="result" value="COMPLETE"/>
