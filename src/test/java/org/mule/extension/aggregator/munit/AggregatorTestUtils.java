@@ -51,4 +51,26 @@ public final class AggregatorTestUtils {
     return payload;
   }
 
+  public static Object restartAggregatorWithoutDispose(Object payload, Object aggregatorManager,
+                                                       ConfigurationComponentLocator locator,
+                                                       String aggregatorRoute) {
+    LOGGER.debug(" >> registry: " + aggregatorManager.toString());
+    final Component aggregator = locator.find(Location.builderFromStringRepresentation(aggregatorRoute).build()).get();
+    LOGGER.debug(" >> registry: " + aggregator.toString());
+
+    try {
+      ((Stoppable) aggregator).stop();
+      ((Stoppable) aggregatorManager).stop();
+
+      ((Initialisable) aggregatorManager).initialise();
+      ((Initialisable) aggregator).initialise();
+      ((Startable) aggregatorManager).start();
+      ((Startable) aggregator).start();
+    } catch (MuleException e) {
+      LOGGER.error("Error restarting aggregator " + aggregatorRoute, e);
+      throw new MuleRuntimeException(e);
+    }
+
+    return payload;
+  }
 }

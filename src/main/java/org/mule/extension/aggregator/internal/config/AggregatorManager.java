@@ -189,6 +189,23 @@ public class AggregatorManager implements Lifecycle {
   }
 
   /**
+   * Unregisters a listener from an already registered aggregator
+   *
+   * @param aggregatorName the name of the aggregator to unregister from
+   * @param listener the listener to be called when needed
+   * @throws MuleRuntimeException
+   */
+  public void unregisterListener(String aggregatorName, AggregatorListener listener) throws MuleRuntimeException {
+    if (!availableAggregators.containsKey(aggregatorName)) {
+      throw new MuleRuntimeException(createStaticMessage("Listener is attempting to unregister from aggregator: '%s', but it does not exist",
+                                                         aggregatorName));
+    }
+    if (registeredListeners.containsKey(aggregatorName)) {
+      registeredListeners.remove(aggregatorName, listener);
+    }
+  }
+
+  /**
    * Get the listener registered to the aggregator with {@param aggregatorName}
    * <p/>
    * If the aggregator does not have any listener registered to it an {@link Optional#empty()} will be returned
