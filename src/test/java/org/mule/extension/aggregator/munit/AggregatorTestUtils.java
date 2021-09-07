@@ -62,8 +62,6 @@ public final class AggregatorTestUtils {
       ((Stoppable) aggregator).stop();
       ((Stoppable) aggregatorManager).stop();
 
-      ((Initialisable) aggregatorManager).initialise();
-      ((Initialisable) aggregator).initialise();
       ((Startable) aggregatorManager).start();
       ((Startable) aggregator).start();
     } catch (MuleException e) {

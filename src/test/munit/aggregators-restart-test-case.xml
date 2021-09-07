@@ -115,35 +115,6 @@
         </munit:execution>
     </munit:test>
 
-    <munit:test name="unregisterAggregatorListenerWhenRestarting"
-                tags="Aggregators Extension"
-                description="Unregister Aggregator Listener When Restarting">
-        <munit:enable-flow-sources>
-            <munit:enable-flow-source value="tbaAggregatorListenerFlow"/>
-        </munit:enable-flow-sources>
-        <munit:execution>
-            <set-variable variableName="result" value="NOT_COMPLETE"/>
-            <aggregators:size-based-aggregator name="sba"  maxSize="1">
-                <aggregators:content>#['testPayload']</aggregators:content>
-                <aggregators:aggregation-complete>
-                    <set-variable variableName="result" value="COMPLETE"/>
-                </aggregators:aggregation-complete>
-            </aggregators:size-based-aggregator>
-
-            <munit-tools:assert-that expression="#[vars.result]" is="#[MunitTools::equalTo('COMPLETE')]"/>
-            <!-- restart! -->
-            <set-payload value="#[java!org::mule::extension::aggregator::munit::AggregatorTestUtils::restartAggregatorWithoutDispose(payload, app.registry['aggregators.aggregatorManager'], app.registry['_muleConfigurationComponentLocator'], 'unregisterAggregatorListenerWhenRestarting/route/1/processors/1')]"/>
-            <set-payload value="#[java!org::mule::extension::aggregator::munit::AggregatorTestUtils::restartAggregatorWithoutDispose(payload, app.registry['aggregators.aggregatorManager'], app.registry['_muleConfigurationComponentLocator'], 'tbaAggregatorListenerFlow/source')]"/>
-
-        </munit:execution>
-    </munit:test>
-
-    <flow name="tbaAggregatorListenerFlow">
-        <aggregators:aggregator-listener aggregatorName="sba"/>
-
-        <logger level="WARN" message="tbaAggregatorListenerFlow"/>
-    </flow>
-
     <!--  -->
     <!-- Migrated from mule-ee-distributions -->
     <!-- https://github.com/mulesoft/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/AggregatorsTestCase.java#L126 -->
