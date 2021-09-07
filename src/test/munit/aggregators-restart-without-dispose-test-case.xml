@@ -11,7 +11,7 @@
 
     <configuration-properties file="test.properties"/>
 
-    <munit:config name="aggregators-restart"/>
+    <munit:config name="aggregators-restart-without-dispose"/>
 
     <munit:test name="unregisterAggregatorListenerWhenRestarting"
                 tags="Aggregators Extension"
