@@ -60,6 +60,7 @@ public class AggregatorListener extends Source<Message, AggregationAttributes> {
   public void onStop() {
     synchronized (startLock) {
       started = false;
+      manager.unregisterListener(aggregatorName, this);
     }
   }
 
