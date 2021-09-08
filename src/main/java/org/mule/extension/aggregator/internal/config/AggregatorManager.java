@@ -200,8 +200,7 @@ public class AggregatorManager implements Lifecycle {
       throw new MuleRuntimeException(createStaticMessage("Listener is attempting to unregister from aggregator: '%s', but it does not exist",
                                                          aggregatorName));
     }
-    boolean unregisterSuccessful = registeredListeners.remove(aggregatorName, listener);
-    if (!unregisterSuccessful) {
+    if (!registeredListeners.remove(aggregatorName, listener)) {
       LOGGER.error(format("Listener is attempting to unregister from aggregator: '%s', but it does not exist", aggregatorName));
     }
   }
