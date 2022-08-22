@@ -20,7 +20,7 @@
     <properties>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <muleObjectStoreConnectorTestVersion>1.2.1</muleObjectStoreConnectorTestVersion>
-        <muleFileConnectorTestVersion>1.3.4</muleFileConnectorTestVersion>
+        <muleFileConnectorTestVersion>1.5.0</muleFileConnectorTestVersion>
         <muleTestsComponentPlugin>4.1.5</muleTestsComponentPlugin>
         <muleVmConnectorTestVersion>2.0.0</muleVmConnectorTestVersion>
 
