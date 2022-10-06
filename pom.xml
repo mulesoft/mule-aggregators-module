@@ -71,13 +71,19 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <argLines>
+                        <argLine>
+                            -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco.exec
+                        </argLine>
+                    </argLines>
                     <runtimeConfiguration>
                         <discoverRuntimes>
+                            <product>ALL</product>
                             <includeSnapshots>true</includeSnapshots>
-                            <product>EE</product>
-                            <minMuleVersion>4.1.1</minMuleVersion>
                         </discoverRuntimes>
                     </runtimeConfiguration>
+                    <runtimeVersion>${runtime.version}</runtimeVersion>
+                    <munitTest>${munit.test}</munitTest>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -92,6 +98,12 @@
                         <version>${munit.version}</version>
                         <classifier>mule-plugin</classifier>
                     </dependency>
+<!--                    <dependency>-->
+<!--                        <groupId>com.mulesoft.munit</groupId>-->
+<!--                        <artifactId>mtf-tools</artifactId>-->
+<!--                        <version>${mtf-tools.version}</version>-->
+<!--                        <classifier>mule-plugin</classifier>-->
+<!--                    </dependency>-->
                 </dependencies>
             </plugin>
         </plugins>
