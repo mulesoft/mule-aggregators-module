@@ -78,11 +78,12 @@
                     </argLines>
                     <runtimeConfiguration>
                         <discoverRuntimes>
-                            <product>EE</product>
-                            <minMuleVersion>4.1.1</minMuleVersion>
-                            <includeSnapshots>false</includeSnapshots>
+                            <product>ALL</product>
+                            <includeSnapshots>true</includeSnapshots>
                         </discoverRuntimes>
                     </runtimeConfiguration>
+                    <runtimeVersion>${runtime.version}</runtimeVersion>
+                    <munitTest>${munit.test}</munitTest>
                 </configuration>
                 <dependencies>
                     <dependency>
