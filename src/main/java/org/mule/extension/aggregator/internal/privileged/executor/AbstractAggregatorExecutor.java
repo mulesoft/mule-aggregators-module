@@ -201,8 +201,6 @@ public abstract class AbstractAggregatorExecutor
     if (clusterService.isPrimaryPollingInstance()) {
       if (!started) {
         startIfNeeded(objectStore);
-        upgradeAggregatedContentIfNeeded();
-        setRegisteredAsyncAggregationsAsNotScheduled();
         if (getStorage().isPersistent()) {
           scheduler = schedulerService.ioScheduler(SchedulerConfig.config().withShutdownTimeout(0, MILLISECONDS));
         } else {
@@ -290,6 +288,10 @@ public abstract class AbstractAggregatorExecutor
     long now = getCurrentTime();
     long configuredDelay = task.getDelayTimeUnit().toMillis(task.getDelay());
     long delay = configuredDelay - (now - task.getRegisteringTimestamp());
+
+    upgradeAggregatedContentIfNeeded();
+    setRegisteredAsyncAggregationsAsNotScheduled();
+
     scheduler.schedule(runnable, delay, MILLISECONDS);
   }
 
