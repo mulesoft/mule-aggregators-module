@@ -303,7 +303,7 @@ public abstract class AbstractAggregatorExecutor
    */
   abstract boolean doScheduleRegisteredAsyncAggregations();
 
-  public void setRegisteredAsyncAggregationsAsNotScheduled() {
+  private void setRegisteredAsyncAggregationsAsNotScheduled() {
     executeSynchronized(this::doSetRegisteredAsyncAggregationsAsNotScheduled);
   }
 
