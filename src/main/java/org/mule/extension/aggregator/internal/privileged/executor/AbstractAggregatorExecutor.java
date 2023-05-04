@@ -134,6 +134,7 @@ public abstract class AbstractAggregatorExecutor
   private boolean shouldSynchronizeToOS = true;
 
   private Thread quorumManager = null;
+
   protected void injectParameters(Map<String, Object> parameters) {
     this.objectStore = (ObjectStore<AggregatorSharedInformation>) parameters.get("objectStore");
     this.name = (String) parameters.get("name");
