@@ -134,7 +134,6 @@ public abstract class AbstractAggregatorExecutor
   private boolean shouldSynchronizeToOS = true;
 
   private Thread quorumManager = null;
-
   protected void injectParameters(Map<String, Object> parameters) {
     this.objectStore = (ObjectStore<AggregatorSharedInformation>) parameters.get("objectStore");
     this.name = (String) parameters.get("name");
@@ -191,7 +190,6 @@ public abstract class AbstractAggregatorExecutor
     storage = new LazyValue<>(this::getConfiguredObjectStore);
     notificationListener = new PrimaryNodeLifecycleNotificationListener(this, notificationListenerRegistry);
     notificationListener.register();
-
   }
 
   ObjectStore getConfiguredObjectStore() {
@@ -218,7 +216,6 @@ public abstract class AbstractAggregatorExecutor
         } else {
           scheduler = schedulerService.cpuLightScheduler(SchedulerConfig.config().withShutdownTimeout(0, MILLISECONDS));
         }
-
         started = true;
       }
     }
