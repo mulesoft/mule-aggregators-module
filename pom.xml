@@ -30,7 +30,7 @@
         <munit.extensions.maven.plugin.version>1.1.2</munit.extensions.maven.plugin.version>
         <munit.version>2.3.15</munit.version>
         <mtf-tools.version>1.1.2</mtf-tools.version>
-        <mavenResources.version>3.3.0</mavenResources.version>
+        <mavenResources.version>3.3.1</mavenResources.version>
     </properties>
 
     <build>
@@ -156,13 +156,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>5.3.25</version>
+            <version>5.3.27</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.3.25</version>
+            <version>5.3.27</version>
             <scope>test</scope>
         </dependency>
 
