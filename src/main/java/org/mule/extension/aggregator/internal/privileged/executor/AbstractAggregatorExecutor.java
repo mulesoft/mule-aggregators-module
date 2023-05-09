@@ -94,6 +94,7 @@ public abstract class AbstractAggregatorExecutor
 
   private static final boolean failOnStartIfNoQuorum =
       Boolean.parseBoolean(System.getProperty("mule.aggregator.executor.failOnStartIfNoQuorum", "true"));
+  private static final int waitForQuorum = Integer.parseInt(System.getProperty("mule.aggregator.executor.waitForQuorum", "0"));
   @Inject
   @Named(OBJECT_STORE_MANAGER)
   private ObjectStoreManager objectStoreManager;
@@ -122,6 +123,7 @@ public abstract class AbstractAggregatorExecutor
   private ObjectStore<AggregatorSharedInformation> objectStore;
   private String name;
   private Scheduler scheduler;
+  private Scheduler schedulerQuorum;
   private PrimaryNodeLifecycleNotificationListener notificationListener;
   private AggregatorSharedInformation sharedInfoLocalCopy;
   private LazyValue<ObjectStore<AggregatorSharedInformation>> storage;
@@ -132,8 +134,6 @@ public abstract class AbstractAggregatorExecutor
 
   private final Object stoppingLock = new Object();
   private boolean shouldSynchronizeToOS = true;
-
-  private Thread quorumManager = null;
 
   protected void injectParameters(Map<String, Object> parameters) {
     this.objectStore = (ObjectStore<AggregatorSharedInformation>) parameters.get("objectStore");
@@ -207,10 +207,10 @@ public abstract class AbstractAggregatorExecutor
       if (!started) {
         startIfNeeded(objectStore);
         if (failOnStartIfNoQuorum) {
-          upgradeAggregatedContentIfNeeded();
-          setRegisteredAsyncAggregationsAsNotScheduled();
+          deferredActions();
         } else {
-          executeDeferActions();
+          schedulerQuorum = schedulerService.cpuLightScheduler(SchedulerConfig.config());
+          schedulerQuorum.scheduleAtFixedRate(() -> executeDeferActions(), waitForQuorum, waitForQuorum, MILLISECONDS);
         }
         if (getStorage().isPersistent()) {
           scheduler = schedulerService.ioScheduler(SchedulerConfig.config().withShutdownTimeout(0, MILLISECONDS));
@@ -223,27 +223,23 @@ public abstract class AbstractAggregatorExecutor
   }
 
   private void executeDeferActions() {
-    quorumManager = new Thread(() -> {
-      boolean startCompleted = false;
-      while (!startCompleted) {
-        try {
-          Thread.sleep(200);
-          upgradeAggregatedContentIfNeeded();
-          setRegisteredAsyncAggregationsAsNotScheduled();
-          startCompleted = true;
-        } catch (Exception e) {
-          if (e.getClass().getName().contains(QUORUM_EXCEPTION)) {
-            LOGGER.warn("Quorum constraint not satisfied");
-            if (LOGGER.isDebugEnabled())
-              LOGGER.debug(e.getMessage());
-          } else {
-            LOGGER.error(e.getMessage(), e);
-            Thread.interrupted();
-          }
-        }
+    try {
+      deferredActions();
+      schedulerQuorum.stop();
+    } catch (Exception e) {
+      if (e.getClass().getName().contains(QUORUM_EXCEPTION)) {
+        LOGGER.warn("Quorum constraint not satisfied");
+        if (LOGGER.isDebugEnabled())
+          LOGGER.debug(e.getMessage());
+      } else {
+        LOGGER.error(e.getMessage(), e);
       }
-    });
-    quorumManager.start();
+    }
+  }
+
+  private void deferredActions() {
+    upgradeAggregatedContentIfNeeded();
+    setRegisteredAsyncAggregationsAsNotScheduled();
   }
 
   @Override
@@ -256,9 +252,9 @@ public abstract class AbstractAggregatorExecutor
         scheduler.stop();
         scheduler = null;
       }
-      if (quorumManager != null) {
-        quorumManager.interrupt();
-        quorumManager = null;
+      if (schedulerQuorum != null) {
+        schedulerQuorum.stop();
+        schedulerQuorum = null;
       }
     }
   }
@@ -269,9 +265,8 @@ public abstract class AbstractAggregatorExecutor
     if (scheduler != null) {
       scheduler.stop();
     }
-    if (quorumManager != null) {
-      quorumManager.interrupt();
-      quorumManager = null;
+    if (schedulerQuorum != null) {
+      schedulerQuorum.stop();
     }
   }
 
