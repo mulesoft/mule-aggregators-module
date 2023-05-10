@@ -92,9 +92,9 @@ public abstract class AbstractAggregatorExecutor
   final Logger LOGGER = LoggerFactory.getLogger(getClass());
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
 
-  private static final boolean failOnStartIfNoQuorum =
+  private final boolean failOnStartIfNoQuorum =
       Boolean.parseBoolean(System.getProperty("mule.aggregator.executor.failOnStartIfNoQuorum", "true"));
-  private static final int waitForQuorum = Integer.parseInt(System.getProperty("mule.aggregator.executor.waitForQuorum", "0"));
+  private static final int waitForQuorum = Integer.parseInt(System.getProperty("mule.aggregator.executor.waitForQuorum", "100"));
   @Inject
   @Named(OBJECT_STORE_MANAGER)
   private ObjectStoreManager objectStoreManager;
@@ -226,9 +226,10 @@ public abstract class AbstractAggregatorExecutor
     try {
       deferredActions();
       schedulerQuorum.stop();
+      schedulerQuorum = null;
     } catch (Exception e) {
       if (e.getClass().getName().contains(QUORUM_EXCEPTION)) {
-        LOGGER.warn("Quorum constraint not satisfied");
+        LOGGER.warn("The required quorum was not reached. Waiting for quorum");
         if (LOGGER.isDebugEnabled())
           LOGGER.debug(e.getMessage());
       } else {
@@ -267,6 +268,7 @@ public abstract class AbstractAggregatorExecutor
     }
     if (schedulerQuorum != null) {
       schedulerQuorum.stop();
+      schedulerQuorum = null;
     }
   }
 
