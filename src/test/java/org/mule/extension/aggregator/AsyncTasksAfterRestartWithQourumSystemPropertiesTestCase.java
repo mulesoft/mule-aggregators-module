@@ -98,7 +98,7 @@ public class AsyncTasksAfterRestartWithQourumSystemPropertiesTestCase extends Ab
 
     sourceCallbackCtx = mock(SourceCallbackContext.class);
     when(sourceCallback.createContext()).thenReturn(sourceCallbackCtx);
-    System.setProperty("mule.aggregator.executor.failOnStartIfNoQuorum","false");
+    System.setProperty("mule.aggregator.executor.failOnStartIfNoQuorum", "false");
   }
 
   @After
@@ -106,7 +106,7 @@ public class AsyncTasksAfterRestartWithQourumSystemPropertiesTestCase extends Ab
     if (aggregatorExecutorRedeploy != null) {
       stopIfNeeded(aggregatorExecutorRedeploy);
       disposeIfNeeded(aggregatorExecutorRedeploy, LOGGER);
-      System.setProperty("mule.aggregator.executor.failOnStartIfNoQuorum","true");
+      System.setProperty("mule.aggregator.executor.failOnStartIfNoQuorum", "true");
     }
   }
 
