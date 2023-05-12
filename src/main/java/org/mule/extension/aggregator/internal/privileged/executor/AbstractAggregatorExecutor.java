@@ -88,9 +88,13 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractAggregatorExecutor
     implements ComponentExecutor<OperationModel>, Lifecycle {
 
+  public static final String QUORUM_EXCEPTION = "QuorumException";
   final Logger LOGGER = LoggerFactory.getLogger(getClass());
   private static final String AGGREGATORS_MODULE_KEY = "AGGREGATORS";
 
+  private final boolean failOnStartIfNoQuorum =
+      Boolean.parseBoolean(System.getProperty("mule.aggregator.executor.failOnStartIfNoQuorum", "true"));
+  private static final int waitForQuorum = Integer.parseInt(System.getProperty("mule.aggregator.executor.waitForQuorum", "100"));
   @Inject
   @Named(OBJECT_STORE_MANAGER)
   private ObjectStoreManager objectStoreManager;
@@ -119,6 +123,7 @@ public abstract class AbstractAggregatorExecutor
   private ObjectStore<AggregatorSharedInformation> objectStore;
   private String name;
   private Scheduler scheduler;
+  private Scheduler schedulerQuorum;
   private PrimaryNodeLifecycleNotificationListener notificationListener;
   private AggregatorSharedInformation sharedInfoLocalCopy;
   private LazyValue<ObjectStore<AggregatorSharedInformation>> storage;
@@ -201,8 +206,12 @@ public abstract class AbstractAggregatorExecutor
     if (clusterService.isPrimaryPollingInstance()) {
       if (!started) {
         startIfNeeded(objectStore);
-        upgradeAggregatedContentIfNeeded();
-        setRegisteredAsyncAggregationsAsNotScheduled();
+        if (failOnStartIfNoQuorum) {
+          deferredActions();
+        } else {
+          schedulerQuorum = schedulerService.cpuLightScheduler(SchedulerConfig.config());
+          schedulerQuorum.scheduleAtFixedRate(() -> executeDeferActions(), waitForQuorum, waitForQuorum, MILLISECONDS);
+        }
         if (getStorage().isPersistent()) {
           scheduler = schedulerService.ioScheduler(SchedulerConfig.config().withShutdownTimeout(0, MILLISECONDS));
         } else {
@@ -211,6 +220,28 @@ public abstract class AbstractAggregatorExecutor
         started = true;
       }
     }
+  }
+
+  private void executeDeferActions() {
+    try {
+      deferredActions();
+      schedulerQuorum.stop();
+      schedulerQuorum = null;
+    } catch (Exception e) {
+      //TODO Modify the logic of this catch so that it can catch QuorumException, we must include hazelcast as a dependency
+      if (e.getClass().getName().contains(QUORUM_EXCEPTION)) {
+        LOGGER.warn("The required quorum was not reached. Waiting for quorum");
+        if (LOGGER.isDebugEnabled())
+          LOGGER.debug(e.getMessage());
+      } else {
+        LOGGER.error(e.getMessage(), e);
+      }
+    }
+  }
+
+  private void deferredActions() {
+    upgradeAggregatedContentIfNeeded();
+    setRegisteredAsyncAggregationsAsNotScheduled();
   }
 
   @Override
@@ -223,6 +254,10 @@ public abstract class AbstractAggregatorExecutor
         scheduler.stop();
         scheduler = null;
       }
+      if (schedulerQuorum != null) {
+        schedulerQuorum.stop();
+        schedulerQuorum = null;
+      }
     }
   }
 
@@ -231,6 +266,10 @@ public abstract class AbstractAggregatorExecutor
     //EE-6218: need to check scheduler again because of a bug in cluster
     if (scheduler != null) {
       scheduler.stop();
+    }
+    if (schedulerQuorum != null) {
+      schedulerQuorum.stop();
+      schedulerQuorum = null;
     }
   }
 
