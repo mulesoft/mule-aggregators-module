@@ -228,6 +228,7 @@ public abstract class AbstractAggregatorExecutor
       schedulerQuorum.stop();
       schedulerQuorum = null;
     } catch (Exception e) {
+      //TODO Modify the logic of this catch so that it can catch QuorumException, we must include hazelcast as a dependency
       if (e.getClass().getName().contains(QUORUM_EXCEPTION)) {
         LOGGER.warn("The required quorum was not reached. Waiting for quorum");
         if (LOGGER.isDebugEnabled())
