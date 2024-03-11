@@ -274,8 +274,6 @@ public class AggregatorManager implements Lifecycle {
     }
   }
 
-
-
   /**
    * Registers a unique listener to an already registered aggregator
    *
