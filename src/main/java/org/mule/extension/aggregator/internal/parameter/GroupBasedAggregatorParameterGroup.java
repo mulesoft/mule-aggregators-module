@@ -90,4 +90,8 @@ public class GroupBasedAggregatorParameterGroup extends TimeoutContainingAggrega
   public void setEvictionTimeUnit(TimeUnit evictionTimeUnit) {
     this.evictionTimeUnit = evictionTimeUnit;
   }
+
+  public void setEvictionTime(int evictionTime) {
+    this.evictionTime = evictionTime;
+  }
 }

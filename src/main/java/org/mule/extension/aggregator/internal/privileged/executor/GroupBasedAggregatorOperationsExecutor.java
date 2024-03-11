@@ -65,6 +65,22 @@ public class GroupBasedAggregatorOperationsExecutor extends AbstractAggregatorEx
     injectParameters(params);
   }
 
+  public int getLastConfiguredEvictionTime() {
+    return lastConfiguredEvictionTime;
+  }
+
+  public void setLastConfiguredEvictionTime(int lastConfiguredEvictionTime) {
+    this.lastConfiguredEvictionTime = lastConfiguredEvictionTime;
+  }
+
+  public TimeUnit getLastConfiguredEvictionTimeUnit() {
+    return lastConfiguredEvictionTimeUnit;
+  }
+
+  public void setLastConfiguredEvictionTimeUnit(TimeUnit lastConfiguredEvictionTimeUnit) {
+    this.lastConfiguredEvictionTimeUnit = lastConfiguredEvictionTimeUnit;
+  }
+
   @Override
   public Publisher<Object> execute(ExecutionContext<OperationModel> executionContext) {
     final ExecutionContextAdapter<OperationModel> context = (ExecutionContextAdapter<OperationModel>) executionContext;

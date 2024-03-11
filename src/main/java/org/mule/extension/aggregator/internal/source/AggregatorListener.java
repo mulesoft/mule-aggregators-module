@@ -47,6 +47,50 @@ public class AggregatorListener extends Source<Message, AggregationAttributes> {
   private Boolean started = false;
   private SourceCallback<Message, AggregationAttributes> sourceCallback;
 
+  public Object getStartLock() {
+    return startLock;
+  }
+
+  public AggregatorManager getManager() {
+    return manager;
+  }
+
+  public void setManager(AggregatorManager manager) {
+    this.manager = manager;
+  }
+
+  public String getAggregatorName() {
+    return aggregatorName;
+  }
+
+  public void setAggregatorName(String aggregatorName) {
+    this.aggregatorName = aggregatorName;
+  }
+
+  public boolean isIncludeTimedOutGroups() {
+    return includeTimedOutGroups;
+  }
+
+  public void setIncludeTimedOutGroups(boolean includeTimedOutGroups) {
+    this.includeTimedOutGroups = includeTimedOutGroups;
+  }
+
+  public Boolean getStarted() {
+    return started;
+  }
+
+  public void setStarted(Boolean started) {
+    this.started = started;
+  }
+
+  public SourceCallback<Message, AggregationAttributes> getSourceCallback() {
+    return sourceCallback;
+  }
+
+  public void setSourceCallback(SourceCallback<Message, AggregationAttributes> sourceCallback) {
+    this.sourceCallback = sourceCallback;
+  }
+
   @Override
   public void onStart(SourceCallback<Message, AggregationAttributes> sourceCallback) throws MuleException {
     synchronized (startLock) {

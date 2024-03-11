@@ -64,4 +64,20 @@ public class SimpleAggregatorSharedInformation implements AggregatorSharedInform
     }
     return false;
   }
+
+  public AggregatedContent getContent() {
+    return content;
+  }
+
+  public void setContent(AggregatedContent content) {
+    this.content = content;
+  }
+
+  public AsyncTask getAsyncAggregationTask() {
+    return asyncAggregationTask;
+  }
+
+  public void setAsyncAggregationTask(AsyncTask asyncAggregationTask) {
+    this.asyncAggregationTask = asyncAggregationTask;
+  }
 }

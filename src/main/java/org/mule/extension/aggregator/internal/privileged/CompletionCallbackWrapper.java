@@ -24,6 +24,22 @@ public class CompletionCallbackWrapper {
   private CompletionCallback delegate;
   private CoreEvent event;
 
+  public CompletionCallback getDelegate() {
+    return delegate;
+  }
+
+  public void setDelegate(CompletionCallback delegate) {
+    this.delegate = delegate;
+  }
+
+  public CoreEvent getEvent() {
+    return event;
+  }
+
+  public void setEvent(CoreEvent event) {
+    this.event = event;
+  }
+
   public CompletionCallbackWrapper(CompletionCallback delegate, CoreEvent event) {
     this.delegate = delegate;
     this.event = event;
