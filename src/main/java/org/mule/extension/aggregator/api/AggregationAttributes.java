@@ -84,6 +84,10 @@ public class AggregationAttributes {
     return new Date(lastItemArrivalTime);
   }
 
+  public void setAggregationComplete(boolean aggregationComplete) {
+    isAggregationComplete = aggregationComplete;
+  }
+
   public boolean isAggregationComplete() {
     return isAggregationComplete;
   }

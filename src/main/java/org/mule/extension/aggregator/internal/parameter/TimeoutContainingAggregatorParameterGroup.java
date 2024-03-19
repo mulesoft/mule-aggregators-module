@@ -59,4 +59,8 @@ public class TimeoutContainingAggregatorParameterGroup extends AggregatorParamet
     return timeout != parseInt(UNLIMITED_TIMEOUT);
   }
 
+  public void setTimeout(int timeout) {
+    this.timeout = timeout;
+  }
+
 }

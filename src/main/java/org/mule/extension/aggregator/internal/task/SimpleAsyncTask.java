@@ -68,4 +68,28 @@ public class SimpleAsyncTask implements AsyncTask {
   public String getId() {
     return this.id;
   }
+
+  public void setDelay(int delay) {
+    this.delay = delay;
+  }
+
+  public TimeUnit getDelayUnit() {
+    return delayUnit;
+  }
+
+  public void setDelayUnit(TimeUnit delayUnit) {
+    this.delayUnit = delayUnit;
+  }
+
+  public void setScheduled(boolean scheduled) {
+    this.scheduled = scheduled;
+  }
+
+  public void setRegisteringTimestamp(long registeringTimestamp) {
+    this.registeringTimestamp = registeringTimestamp;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
 }
