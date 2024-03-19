@@ -51,4 +51,8 @@ public class TimeBasedAggregatorParameterGroup extends AggregatorParameterGroup 
   public void setPeriodUnit(TimeUnit periodUnit) {
     this.periodUnit = periodUnit;
   }
+
+  public void setPeriod(int period) {
+    this.period = period;
+  }
 }

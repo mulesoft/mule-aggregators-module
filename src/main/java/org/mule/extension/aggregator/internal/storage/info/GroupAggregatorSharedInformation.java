@@ -83,4 +83,28 @@ public class GroupAggregatorSharedInformation implements AggregatorSharedInforma
     }
     return hasChanges;
   }
+
+  public Map<String, AggregatedContent> getContentMap() {
+    return contentMap;
+  }
+
+  public void setContentMap(Map<String, AggregatedContent> contentMap) {
+    this.contentMap = contentMap;
+  }
+
+  public Map<String, AsyncTask> getRegisteredEvictions() {
+    return registeredEvictions;
+  }
+
+  public void setRegisteredEvictions(Map<String, AsyncTask> registeredEvictions) {
+    this.registeredEvictions = registeredEvictions;
+  }
+
+  public Map<String, AsyncTask> getRegisteredTimeouts() {
+    return registeredTimeouts;
+  }
+
+  public void setRegisteredTimeouts(Map<String, AsyncTask> registeredTimeouts) {
+    this.registeredTimeouts = registeredTimeouts;
+  }
 }

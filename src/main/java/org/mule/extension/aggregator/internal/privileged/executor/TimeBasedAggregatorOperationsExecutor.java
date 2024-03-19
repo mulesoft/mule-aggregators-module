@@ -45,6 +45,14 @@ public class TimeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
   private static final String AGGREGATOR_KEY = "TimeBasedAggregator";
   private int maxSize;
 
+  public int getMaxSize() {
+    return maxSize;
+  }
+
+  public void setMaxSize(int maxSize) {
+    this.maxSize = maxSize;
+  }
+
   public TimeBasedAggregatorOperationsExecutor(Map<String, Object> params) {
     injectParameters(params);
   }

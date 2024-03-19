@@ -47,6 +47,14 @@ public class SizeBasedAggregatorOperationsExecutor extends SingleGroupAggregator
 
   private int maxSize;
 
+  public int getMaxSize() {
+    return maxSize;
+  }
+
+  public void setMaxSize(int maxSize) {
+    this.maxSize = maxSize;
+  }
+
   public SizeBasedAggregatorOperationsExecutor(Map<String, Object> params) {
     injectParameters(params);
   }
