@@ -93,7 +93,7 @@
                 #[payload]
             </aggregators:content>
             <aggregators:aggregation-complete>
-                <test:assert expression="#[attributes.isAggregationComplete == true]"/>
+                <test:assert expression="#[attributes.aggregationComplete == true]"/>
                 <test:assert expression="#[attributes.aggregationId != null]"/>
                 <test:assert expression="#[attributes.firstItemArrivalTime != attributes.lastItemArrivalTime ]"/>
                 <test:assert expression="#[attributes.firstItemArrivalTime != null]"/>

@@ -42,18 +42,18 @@ public class AggregationAttributes {
    * A boolean value indicating if the aggregation is complete
    */
   @Parameter
-  private boolean isAggregationComplete;
+  private boolean aggregationComplete;
 
   public AggregationAttributes() {
-    this.isAggregationComplete = false;
+    this.aggregationComplete = false;
   }
 
   public AggregationAttributes(String aggregationId, long firstItemArrivalTime, long lastItemArrivalTime,
-                               boolean isAggregationComplete) {
+                               boolean aggregationComplete) {
     this.aggregationId = aggregationId;
     this.firstItemArrivalTime = firstItemArrivalTime;
     this.lastItemArrivalTime = lastItemArrivalTime;
-    this.isAggregationComplete = isAggregationComplete;
+    this.aggregationComplete = aggregationComplete;
   }
 
   public void setAggregationId(String aggregationId) {
@@ -69,7 +69,7 @@ public class AggregationAttributes {
   }
 
   public void setAggregationComplete() {
-    isAggregationComplete = true;
+    aggregationComplete = true;
   }
 
   public String getAggregationId() {
@@ -85,10 +85,10 @@ public class AggregationAttributes {
   }
 
   public void setAggregationComplete(boolean aggregationComplete) {
-    isAggregationComplete = aggregationComplete;
+    this.aggregationComplete = aggregationComplete;
   }
 
   public boolean isAggregationComplete() {
-    return isAggregationComplete;
+    return aggregationComplete;
   }
 }

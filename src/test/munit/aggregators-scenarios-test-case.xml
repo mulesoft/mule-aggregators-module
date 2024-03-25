@@ -374,7 +374,7 @@
     <flow name="csvFilesAggregatorListenerFlow">
         <aggregators:aggregator-listener aggregatorName="filesAggregator" includeTimedOutGroups="true"/>
         <choice>
-            <when expression="#[attributes.isAggregationComplete]">
+            <when expression="#[attributes.aggregationComplete]">
                 <logger level="INFO" message="Aggregation has been completed and is going to be processed by aggregators listener"/>
                 <set-payload value="#[output application/csv --- flatten(payload)]"/>
 

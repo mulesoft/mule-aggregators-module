@@ -50,7 +50,7 @@
     <flow name="aggregatorListener">
         <aggregators:aggregator-listener aggregatorName="splitAggregateWithTimeout" includeTimedOutGroups="true"/>
         <choice>
-            <when expression="#[not attributes.isAggregationComplete]">
+            <when expression="#[not attributes.aggregationComplete]">
                 <vm:publish config-ref="vm" queueName="splitAggregateQueue"/>
             </when>
         </choice>
