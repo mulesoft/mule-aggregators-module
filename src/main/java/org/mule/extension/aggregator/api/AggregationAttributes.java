@@ -41,6 +41,7 @@ public class AggregationAttributes {
   /**
    * A boolean value indicating if the aggregation is complete
    */
+  //TODO: This variable should be renamed to aggregationComplete in the next major version.
   @Parameter
   private boolean isAggregationComplete;
 
@@ -89,6 +90,11 @@ public class AggregationAttributes {
   }
 
   public boolean isAggregationComplete() {
+    return isAggregationComplete;
+  }
+
+  //TODO: This method should be removed in the next major version and the variable renamed to aggregationComplete. Doing that change would break backwards compatibility. Therefore, we added this method to be able to run with runtime 4.6.0 and Java 17 without breaking backwards. Java 17 doesn't allow access through reflection, so getters and setters are needed.
+  public boolean getIsAggregationComplete() {
     return isAggregationComplete;
   }
 }
