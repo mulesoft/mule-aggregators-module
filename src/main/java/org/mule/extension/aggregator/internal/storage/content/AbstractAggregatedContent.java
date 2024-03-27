@@ -36,16 +36,38 @@ public abstract class AbstractAggregatedContent implements AggregatedContent {
     return timedOut;
   }
 
+  @Deprecated
   public void setTimedOut() {
     this.timedOut = true;
   }
 
+  @Deprecated
   public Long getFirstValueArrivalTime() {
     return firstElementArrivalTime;
   }
 
+  @Deprecated
   public Long getLastValueArrivalTime() {
     return lastElementArrivalTime;
   }
 
+  public void setTimedOut(boolean timedOut) {
+    this.timedOut = timedOut;
+  }
+
+  public Long getFirstElementArrivalTime() {
+    return firstElementArrivalTime;
+  }
+
+  public void setFirstElementArrivalTime(Long firstElementArrivalTime) {
+    this.firstElementArrivalTime = firstElementArrivalTime;
+  }
+
+  public Long getLastElementArrivalTime() {
+    return lastElementArrivalTime;
+  }
+
+  public void setLastElementArrivalTime(Long lastElementArrivalTime) {
+    this.lastElementArrivalTime = lastElementArrivalTime;
+  }
 }

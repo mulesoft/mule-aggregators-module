@@ -77,6 +77,110 @@ public class AggregatorManager implements Lifecycle {
   @Inject
   private ConfigurationProperties configProperties;
 
+  public Map<String, AggregatorListener> getRegisteredListeners() {
+    return registeredListeners;
+  }
+
+  public void setRegisteredListeners(Map<String, AggregatorListener> registeredListeners) {
+    this.registeredListeners = registeredListeners;
+  }
+
+  public Map<String, Runnable> getAvailableAggregators() {
+    return availableAggregators;
+  }
+
+  public void setAvailableAggregators(Map<String, Runnable> availableAggregators) {
+    this.availableAggregators = availableAggregators;
+  }
+
+  public Object getRegisteredAggregatorsModificationLock() {
+    return registeredAggregatorsModificationLock;
+  }
+
+  public boolean isInitialized() {
+    return initialized;
+  }
+
+  public void setInitialized(boolean initialized) {
+    this.initialized = initialized;
+  }
+
+  public boolean isStarted() {
+    return started;
+  }
+
+  public void setStarted(boolean started) {
+    this.started = started;
+  }
+
+  public AtomicBoolean getContextStarted() {
+    return contextStarted;
+  }
+
+  public long getTaskSchedulingPeriod() {
+    return taskSchedulingPeriod;
+  }
+
+  public void setTaskSchedulingPeriod(long taskSchedulingPeriod) {
+    this.taskSchedulingPeriod = taskSchedulingPeriod;
+  }
+
+  public PrimaryNodeLifecycleNotificationListener getNotificationListener() {
+    return notificationListener;
+  }
+
+  public void setNotificationListener(PrimaryNodeLifecycleNotificationListener notificationListener) {
+    this.notificationListener = notificationListener;
+  }
+
+  public MuleContextNotificationListener<MuleContextNotification> getContextStartListener() {
+    return contextStartListener;
+  }
+
+  public void setContextStartListener(MuleContextNotificationListener<MuleContextNotification> contextStartListener) {
+    this.contextStartListener = contextStartListener;
+  }
+
+  public Scheduler getScheduler() {
+    return scheduler;
+  }
+
+  public void setScheduler(Scheduler scheduler) {
+    this.scheduler = scheduler;
+  }
+
+  public SchedulerService getSchedulerService() {
+    return schedulerService;
+  }
+
+  public void setSchedulerService(SchedulerService schedulerService) {
+    this.schedulerService = schedulerService;
+  }
+
+  public NotificationListenerRegistry getNotificationListenerRegistry() {
+    return notificationListenerRegistry;
+  }
+
+  public void setNotificationListenerRegistry(NotificationListenerRegistry notificationListenerRegistry) {
+    this.notificationListenerRegistry = notificationListenerRegistry;
+  }
+
+  public ClusterService getClusterService() {
+    return clusterService;
+  }
+
+  public void setClusterService(ClusterService clusterService) {
+    this.clusterService = clusterService;
+  }
+
+  public ConfigurationProperties getConfigProperties() {
+    return configProperties;
+  }
+
+  public void setConfigProperties(ConfigurationProperties configProperties) {
+    this.configProperties = configProperties;
+  }
+
   @Override
   public void initialise() throws InitialisationException {
     if (!initialized) {
