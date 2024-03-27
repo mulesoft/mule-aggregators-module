@@ -93,7 +93,7 @@ public class AggregationAttributes {
     return isAggregationComplete;
   }
 
-  //TODO: This method should be removed in the next major version and the variable renamed to aggregationComplete. Doing that change would break backwards. The method is needed for compatibility with runtime 4.6.0 since it can't access the variable through reflection.
+  //TODO: This method should be removed in the next major version and the variable renamed to aggregationComplete. Doing that change would break backwards compatibility. Therefore, we added this method to be able to run with runtime 4.6.0 and Java 17 without breaking backwards. Java 17 doesn't allow access through reflection, so getters and setters are needed.
   public boolean getIsAggregationComplete() {
     return isAggregationComplete;
   }
