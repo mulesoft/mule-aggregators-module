@@ -41,6 +41,7 @@ public class AggregationAttributes {
   /**
    * A boolean value indicating if the aggregation is complete
    */
+  //TODO: This variable should be renamed to aggregationComplete in the next major version.
   @Parameter
   private boolean isAggregationComplete;
 
@@ -89,6 +90,11 @@ public class AggregationAttributes {
   }
 
   public boolean isAggregationComplete() {
+    return isAggregationComplete;
+  }
+
+  //TODO: This method should be removed in the next major version and the variable renamed to aggregationComplete. Doing that change would break backwards. The method is needed for compatibility with runtime 4.6.0 since it can't access the variable through reflection.
+  public boolean getIsAggregationComplete() {
     return isAggregationComplete;
   }
 }
