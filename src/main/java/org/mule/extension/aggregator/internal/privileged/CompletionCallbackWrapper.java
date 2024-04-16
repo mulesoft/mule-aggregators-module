@@ -51,7 +51,6 @@ public class CompletionCallbackWrapper {
     } else {
       delegate.success(EventedResult.from(event));
     }
-
   }
 
   public void error(Throwable e) {
