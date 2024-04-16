@@ -10,7 +10,6 @@ import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 
 import org.mule.runtime.api.metadata.TypedValue;
-import org.mule.extension.aggregator.internal.util.ExcludeFromGeneratedCoverage;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -97,7 +96,6 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
    * This method upgrades the sequenced elements to the new data structure for backward compatibility.
    */
   @Deprecated
-  @ExcludeFromGeneratedCoverage
   public boolean upgradeIfNeeded() {
     if (sequencedElements.isEmpty()) {
       return false;
@@ -147,7 +145,6 @@ public class SimpleAggregatedContent extends AbstractAggregatedContent {
     }
   }
 
-  @ExcludeFromGeneratedCoverage
   private static class Index implements Serializable {
 
     private static final long serialVersionUID = -8286760373914606346L;

@@ -6,7 +6,6 @@
  */
 package org.mule.extension.aggregator.internal.storage.content;
 
-import org.mule.extension.aggregator.internal.util.ExcludeFromGeneratedCoverage;
 import org.mule.runtime.api.metadata.TypedValue;
 
 import java.util.List;
@@ -38,7 +37,6 @@ public abstract class AbstractAggregatedContent implements AggregatedContent {
   }
 
   @Deprecated
-  @ExcludeFromGeneratedCoverage
   public void setTimedOut() {
     this.timedOut = true;
   }
