@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:file="http://www.mulesoft.org/schema/mule/file"
+      xmlns:os="http://www.mulesoft.org/schema/mule/os"
+      xmlns:aggregators="http://www.mulesoft.org/schema/mule/aggregators"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                          http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+                          http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+                          http://www.mulesoft.org/schema/mule/aggregators http://www.mulesoft.org/schema/mule/aggregators/current/mule-aggregators.xsd
+                          http://www.mulesoft.org/schema/mule/munit-tools http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+                          http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd">
+
+    <configuration-properties file="test.properties"/>
+
+    <munit:config name="aggregators-group-based-exceptions-test-case.xml" minMuleVersion="4.2.2">
+        <munit:parameterizations>
+            <munit:parameterization name="NullGroupId">
+                <munit:parameters>
+                    <munit:parameter propertyName="flowSource" value="nullGroupIdAggregatorForeachGroupFlow"/>
+                    <munit:parameter propertyName="expectedErrorType" value="AGGREGATORS:NO_GROUP_ID"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="NegativeGroupSize">
+                <munit:parameters>
+                    <munit:parameter propertyName="flowSource" value="negativeGroupSizeAggregatorForeachGroupFlow"/>
+                    <munit:parameter propertyName="expectedErrorType" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="NegativeTimeout">
+                <munit:parameters>
+                    <munit:parameter propertyName="flowSource" value="negativeTimeoutAggregatorForeachGroupFlow"/>
+                    <munit:parameter propertyName="expectedErrorType" value="AGGREGATORS:AGGREGATOR_CONFIG"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="NoGroupSize">
+                <munit:parameters>
+                    <munit:parameter propertyName="flowSource" value="noGroupSizeAggregatorForeachGroupFlow"/>
+                    <munit:parameter propertyName="expectedErrorType" value="AGGREGATORS:NO_GROUP_SIZE"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
+
+    <file:config name="fileConfig">
+        <file:connection workingDir="${app.home}"/>
+    </file:config>
+
+    <os:object-store name="objectStore" persistent="false" />
+
+
+
+    <munit:test name="testGroupBasedAggregationInsideForeachWithNullGroupId"
+                tags="Aggregators Extension,Integration Tests"
+                description="Verify the different scenarios when a value is not as expected. Some sort of ModuleException is thrown."
+                expectedErrorType="${expectedErrorType}">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="${flowSource}"/>
+            <!--            <munit:enable-flow-source value="nullGroupIdAggregatorForeachGroupFlow"/>-->
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <file:read config-ref="fileConfig" path="#['input' ++ p('file.separator') ++ 'flight-orders.json']"/>
+            <flow-ref name="${flowSource}" />
+            <munit-tools:sleep time="${groupBasedAggregatorWaitSleep}" timeUnit="SECONDS"/>
+            <flow-ref name="${flowSource}" />
+        </munit:execution>
+    </munit:test>
+
+
+    <!-- Flows-->
+    <flow name="nullGroupIdAggregatorForeachGroupFlow">
+        <foreach>
+            <!--            I'll leave it commented out just to show that it's actively not set-->
+            <!--            <set-variable variableName="groupId" value="1"/>-->
+            <aggregators:group-based-aggregator name="flightOrdersAggregatorForeach" groupId="#[vars.groupId]" groupSize="${groupBasedAggregatorSize}" evictionTime="-1">
+                <aggregators:content><![CDATA[#[%dw 2.0 output application/json --- payload]]]></aggregators:content>
+                <aggregators:incremental-aggregation>
+                    <logger level="INFO" message="Flight order aggregated."/>
+                </aggregators:incremental-aggregation>
+                <aggregators:aggregation-complete>
+                    <logger level="INFO" message="Max size reached. Aggregate complete." />
+                </aggregators:aggregation-complete>
+            </aggregators:group-based-aggregator>
+        </foreach>
+    </flow>
+
+    <flow name="negativeGroupSizeAggregatorForeachGroupFlow">
+
+        <foreach>
+            <set-variable variableName="groupId" value="1"/>
+            <aggregators:group-based-aggregator name="flightOrdersAggregatorForeach" groupId="#[vars.groupId]" groupSize="-1" evictionTime="-1">
+                <aggregators:content><![CDATA[#[%dw 2.0 output application/json --- payload]]]></aggregators:content>
+                <aggregators:incremental-aggregation>
+                    <logger level="INFO" message="Flight order aggregated."/>
+                </aggregators:incremental-aggregation>
+                <aggregators:aggregation-complete>
+                    <logger level="INFO" message="Max size reached. Aggregate complete." />
+                </aggregators:aggregation-complete>
+            </aggregators:group-based-aggregator>
+        </foreach>
+    </flow>
+
+    <flow name="negativeTimeoutAggregatorForeachGroupFlow">
+        <foreach>
+            <set-variable variableName="groupId" value="1"/>
+            <aggregators:group-based-aggregator name="flightOrdersAggregatorForeach" groupId="#[vars.groupId]" groupSize="${groupBasedAggregatorSize}" evictionTime="-1" timeout="-15">
+                <aggregators:content><![CDATA[#[%dw 2.0 output application/json --- payload]]]></aggregators:content>
+                <aggregators:incremental-aggregation>
+                    <logger level="INFO" message="Flight order aggregated."/>
+                </aggregators:incremental-aggregation>
+                <aggregators:aggregation-complete>
+                    <logger level="INFO" message="Max size reached. Aggregate complete." />
+                </aggregators:aggregation-complete>
+            </aggregators:group-based-aggregator>
+        </foreach>
+    </flow>
+
+    <flow name="noGroupSizeAggregatorForeachGroupFlow">
+        <foreach>
+            <set-variable variableName="groupId" value="1"/>
+            <aggregators:group-based-aggregator name="flightOrdersAggregatorForeach" groupId="#[vars.groupId]" evictionTime="-1">
+                <aggregators:content><![CDATA[#[%dw 2.0 output application/json --- payload]]]></aggregators:content>
+                <aggregators:incremental-aggregation>
+                    <logger level="INFO" message="Flight order aggregated."/>
+                </aggregators:incremental-aggregation>
+                <aggregators:aggregation-complete>
+                    <logger level="INFO" message="Max size reached. Aggregate complete." />
+                </aggregators:aggregation-complete>
+            </aggregators:group-based-aggregator>
+        </foreach>
+    </flow>
+
+</mule>
