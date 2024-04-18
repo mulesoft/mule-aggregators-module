@@ -1,1 +1,5 @@
 projectType: extension
+additionalConfigs:
+  jdk17:
+    testJdkTool: OPEN-JDK17
+    mavenAdditionalArgs: -DminVersion=4.6.0 -Dtest=none -DfailIfNoTests=false -DruntimeProduct=MULE_EE
