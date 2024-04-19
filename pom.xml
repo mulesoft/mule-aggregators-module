@@ -82,11 +82,11 @@
                         <discoverRuntimes>
                             <product>EE</product>
                             <includeSnapshots>false</includeSnapshots>
-                            <minMuleVersion>${minVersion}</minMuleVersion>
+                            <minMuleVersion>4.3.0</minMuleVersion>
                         </discoverRuntimes>
                     </runtimeConfiguration>
-                    <runtimeVersion>${runtime.version}</runtimeVersion>
-                    <munitTest>${munit.test}</munitTest>
+<!--                    <runtimeVersion>${runtime.version}</runtimeVersion>-->
+<!--                    <munitTest>${munit.test}</munitTest>-->
                 </configuration>
                 <dependencies>
                     <dependency>
