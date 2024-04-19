@@ -70,7 +70,6 @@
                     <execution>
                         <goals>
                             <goal>test</goal>
-                            <goal>test</goal>
                         </goals>
                         <phase>integration-test</phase>
                     </execution>
