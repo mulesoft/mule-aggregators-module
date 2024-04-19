@@ -33,6 +33,8 @@
         <mavenResources.version>3.3.1</mavenResources.version>
         <jacoco.version>0.8.10</jacoco.version>
         <minVersion>4.3.0</minVersion>
+        <runtime.version>4.3.0</runtime.version>
+        <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
     </properties>
 
     <build>
@@ -68,6 +70,7 @@
                     <execution>
                         <goals>
                             <goal>test</goal>
+                            <goal>test</goal>
                         </goals>
                         <phase>integration-test</phase>
                     </execution>
@@ -85,8 +88,8 @@
                             <minMuleVersion>${minVersion}</minMuleVersion>
                         </discoverRuntimes>
                     </runtimeConfiguration>
-<!--                    <runtimeVersion>${runtime.version}</runtimeVersion>-->
-<!--                    <munitTest>${munit.test}</munitTest>-->
+                    <runtimeVersion>${runtime.version}</runtimeVersion>
+                    <munitTest>${munit.test}</munitTest>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -113,6 +116,11 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>org.mule.sdk</groupId>
+            <artifactId>mule-sdk-api</artifactId>
+            <version>${muleSdkApiVersion}</version>
+        </dependency>
         <dependency>
             <groupId>org.mule.tests.plugin</groupId>
             <artifactId>mule-core-deprecated-schema-plugin</artifactId>
