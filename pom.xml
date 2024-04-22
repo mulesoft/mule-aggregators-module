@@ -34,7 +34,7 @@
         <jacoco.version>0.8.10</jacoco.version>
         <minVersion>4.3.0</minVersion>
         <runtime.version>4.3.0</runtime.version>
-        <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
+        <muleSdkApiVersion>0.8.1</muleSdkApiVersion>
     </properties>
 
     <build>
