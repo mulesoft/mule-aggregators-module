@@ -22,7 +22,7 @@
         <muleObjectStoreConnectorTestVersion>1.2.2</muleObjectStoreConnectorTestVersion>
         <muleFileConnectorTestVersion>1.5.2</muleFileConnectorTestVersion>
         <muleTestsComponentPlugin>4.1.5</muleTestsComponentPlugin>
-        <muleVmConnectorTestVersion>2.0.0</muleVmConnectorTestVersion>
+        <muleVmConnectorTestVersion>2.0.1</muleVmConnectorTestVersion>
 
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
