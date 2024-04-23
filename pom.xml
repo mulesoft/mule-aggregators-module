@@ -33,7 +33,6 @@
         <mavenResources.version>3.3.1</mavenResources.version>
         <jacoco.version>0.8.10</jacoco.version>
         <minVersion>4.3.0</minVersion>
-        <runtime.version>4.3.0</runtime.version>
         <muleSdkApiVersion>0.8.1</muleSdkApiVersion>
     </properties>
 
@@ -87,7 +86,6 @@
                             <minMuleVersion>${minVersion}</minMuleVersion>
                         </discoverRuntimes>
                     </runtimeConfiguration>
-                    <runtimeVersion>${runtime.version}</runtimeVersion>
                     <munitTest>${munit.test}</munitTest>
                 </configuration>
                 <dependencies>
