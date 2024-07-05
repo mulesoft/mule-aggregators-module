@@ -1,5 +1,4 @@
 projectType: extension
-mavenAdditionalArgs: -DminVersion=4.3.0
 additionalTestConfigs:
   jdk11:
     testJdkTool: OPEN-JDK11
