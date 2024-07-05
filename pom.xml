@@ -79,6 +79,13 @@
                             -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco.exec
                         </argLine>
                     </argLines>
+                    <runtimeConfiguration>
+                        <discoverRuntimes>
+                            <product>EE</product>
+                            <includeSnapshots>true</includeSnapshots>
+                            <minMuleVersion>${minVersion}</minMuleVersion>
+                        </discoverRuntimes>
+                    </runtimeConfiguration>
                     <munitTest>${munit.test}</munitTest>
                 </configuration>
                 <dependencies>
