@@ -20,6 +20,12 @@ import org.mule.runtime.extension.api.annotation.Sources;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
 import org.mule.runtime.extension.api.annotation.privileged.DeclarationEnrichers;
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_11;
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_17;
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_8;
+
+import org.mule.sdk.api.annotation.JavaVersionSupport;
+
 
 
 @Extension(name = "Aggregators")
@@ -29,6 +35,7 @@ import org.mule.runtime.extension.api.annotation.privileged.DeclarationEnrichers
 @DeclarationEnrichers({GroupBasedAggregatorOperationsEnricher.class, SizeBasedAggregatorOperationsEnricher.class,
     TimeBasedAggregatorOperationsEnricher.class})
 @Xml(prefix = "aggregators")
+@JavaVersionSupport({JAVA_8, JAVA_11, JAVA_17})
 public class AggregatorsExtension {
 
 }
