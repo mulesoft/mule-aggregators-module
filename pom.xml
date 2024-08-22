@@ -34,6 +34,7 @@
         <jacoco.version>0.8.10</jacoco.version>
         <minVersion>4.3.0</minVersion>
         <muleSdkApiVersion>0.8.1</muleSdkApiVersion>
+        <mtf.javaopts></mtf.javaopts>
     </properties>
 
     <build>
@@ -87,6 +88,11 @@
                         </discoverRuntimes>
                     </runtimeConfiguration>
                     <munitTest>${munit.test}</munitTest>
+                    <environmentVariables>
+                        <!-- Toggles the JDK17 style flag -->
+                        <!-- ugly hack -->
+                        <_JAVA_OPTIONS>-XX:+PrintCommandLineFlags ${mtf.javaopts}</_JAVA_OPTIONS>
+                    </environmentVariables>
                 </configuration>
                 <dependencies>
                     <dependency>
