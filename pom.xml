@@ -33,7 +33,7 @@
         <mavenResources.version>3.3.1</mavenResources.version>
         <jacoco.version>0.8.10</jacoco.version>
         <minVersion>4.3.0</minVersion>
-        <muleSdkApiVersion>0.8.1</muleSdkApiVersion>
+        <muleSdkApiVersion>0.10.1</muleSdkApiVersion>
     </properties>
 
     <build>
