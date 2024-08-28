@@ -37,11 +37,16 @@ public class AggregationAttributesResolver implements AttributesTypeResolver<Obj
         .orElseThrow(this::getMissingRouterOutputMetadataContextException)
         .getRouterInputMessageType().get()
         .getAttributesType().orElse(metadataContext.getTypeBuilder().voidType().build());
-    return metadataContext.getTypeBuilder()
-        .unionType()
-        .of(aggregationAttributesType)
-        .of(originalAttributesType)
-        .build();
+
+    if (originalAttributesType.equals(aggregationAttributesType)) {
+      return aggregationAttributesType;
+    } else {
+      return metadataContext.getTypeBuilder()
+          .unionType()
+          .of(aggregationAttributesType)
+          .of(originalAttributesType)
+          .build();
+    }
   }
 
   private MetadataResolvingException getMissingRouterOutputMetadataContextException() {
