@@ -10,21 +10,13 @@ import static org.mule.runtime.api.metadata.resolving.FailureCode.NO_DYNAMIC_MET
 
 import org.mule.extension.aggregator.api.AggregationAttributes;
 import org.mule.metadata.api.model.MetadataType;
-import org.mule.metadata.java.api.annotation.ClassInformationAnnotation;
 import org.mule.runtime.api.metadata.MetadataResolvingException;
-import org.mule.runtime.extension.api.runtime.process.CompletionCallback;
-import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 import org.mule.sdk.api.metadata.MetadataContext;
-import org.mule.sdk.api.metadata.resolving.AttributesStaticTypeResolver;
 import org.mule.sdk.api.metadata.resolving.AttributesTypeResolver;
 
 /**
- * An {@link AttributesTypeResolver} to indicate the attributes are of type {@link AggregationAttributes}.
- * <p>
- * This is because the {@link RouterCompletionCallback} is a {@link CompletionCallback} of {@link Object} type.
- * <p>
- * We can't change to use a {@link CompletionCallback} with the right generics because of compatibility with Runtimes before 4.7.
- * @implNote This can't be a {@link AttributesStaticTypeResolver} because of an issue of duplicate {@link ClassInformationAnnotation}.
+ * An {@link AttributesTypeResolver} to indicate the attributes type is either {@link AggregationAttributes} or the original
+ * attributes before the router.
  */
 public class AggregationAttributesResolver implements AttributesTypeResolver<Object> {
 
