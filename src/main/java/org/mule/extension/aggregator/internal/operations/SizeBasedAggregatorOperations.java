@@ -8,8 +8,13 @@ package org.mule.extension.aggregator.internal.operations;
 
 
 import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
+import static org.mule.sdk.api.annotation.route.ChainExecutionOccurrence.ONCE_OR_NONE;
+
 import org.mule.extension.aggregator.internal.errors.AggregatorErrorProvider;
 import org.mule.extension.aggregator.internal.parameter.SizeBasedAggregatorParameterGroup;
+import org.mule.extension.aggregator.internal.resolver.AggregationAttributesResolver;
+import org.mule.extension.aggregator.internal.resolver.AggregationChainInputResolver;
+import org.mule.extension.aggregator.internal.resolver.AggregationOutputResolver;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
 import org.mule.runtime.extension.api.annotation.Alias;
@@ -19,6 +24,9 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
+import org.mule.sdk.api.annotation.metadata.ChainInputResolver;
+import org.mule.sdk.api.annotation.metadata.OutputResolver;
+import org.mule.sdk.api.annotation.route.ExecutionOccurrence;
 
 
 /**
@@ -62,11 +70,12 @@ public class SizeBasedAggregatorOperations extends SingleGroupAggregatorOperatio
    */
   @Alias("sizeBasedAggregator")
   @Throws(AggregatorErrorProvider.class)
+  @OutputResolver(output = AggregationOutputResolver.class, attributes = AggregationAttributesResolver.class)
   public void aggregateBySize(
                               @ParameterGroup(
                                   name = "Aggregator config") SizeBasedAggregatorParameterGroup aggregatorParameters,
-                              @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
-                              @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
+                              @ChainInputResolver(AggregationChainInputResolver.class) @ExecutionOccurrence(ONCE_OR_NONE) @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
+                              @ChainInputResolver(AggregationChainInputResolver.class) @ExecutionOccurrence(ONCE_OR_NONE) @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
                               RouterCompletionCallback completionCallback) {
 
     // implemented as privileged operation in SizeBasedAggregatorOperationsExecutor
