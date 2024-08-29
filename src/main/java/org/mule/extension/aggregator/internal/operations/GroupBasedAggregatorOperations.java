@@ -10,8 +10,6 @@ import static org.mule.sdk.api.annotation.route.ChainExecutionOccurrence.ONCE_OR
 
 import org.mule.extension.aggregator.internal.parameter.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.errors.GroupBasedAggregatorErrorProvider;
-import org.mule.extension.aggregator.internal.resolver.AggregationAttributesResolver;
-import org.mule.extension.aggregator.internal.resolver.AggregationOutputResolver;
 import org.mule.extension.aggregator.internal.resolver.AggregationChainInputResolver;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
@@ -22,7 +20,6 @@ import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
 import org.mule.sdk.api.annotation.metadata.ChainInputResolver;
-import org.mule.sdk.api.annotation.metadata.OutputResolver;
 import org.mule.sdk.api.annotation.route.ExecutionOccurrence;
 
 
@@ -65,7 +62,6 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
    */
   @Alias("groupBasedAggregator")
   @Throws(GroupBasedAggregatorErrorProvider.class)
-  @OutputResolver(output = AggregationOutputResolver.class, attributes = AggregationAttributesResolver.class)
   public void aggregateByGroup(
                                @ParameterGroup(
                                    name = "Aggregator config") GroupBasedAggregatorParameterGroup aggregatorParameters,
