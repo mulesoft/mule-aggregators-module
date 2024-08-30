@@ -6,8 +6,11 @@
  */
 package org.mule.extension.aggregator.internal.operations;
 
+import static org.mule.sdk.api.annotation.route.ChainExecutionOccurrence.ONCE_OR_NONE;
+
 import org.mule.extension.aggregator.internal.parameter.GroupBasedAggregatorParameterGroup;
 import org.mule.extension.aggregator.internal.errors.GroupBasedAggregatorErrorProvider;
+import org.mule.extension.aggregator.internal.resolver.AggregationChainInputResolver;
 import org.mule.extension.aggregator.internal.routes.AggregationCompleteRoute;
 import org.mule.extension.aggregator.internal.routes.IncrementalAggregationRoute;
 import org.mule.runtime.extension.api.annotation.Alias;
@@ -16,6 +19,8 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.process.RouterCompletionCallback;
+import org.mule.sdk.api.annotation.metadata.ChainInputResolver;
+import org.mule.sdk.api.annotation.route.ExecutionOccurrence;
 
 
 /**
@@ -60,8 +65,8 @@ public class GroupBasedAggregatorOperations extends AbstractAggregatorOperations
   public void aggregateByGroup(
                                @ParameterGroup(
                                    name = "Aggregator config") GroupBasedAggregatorParameterGroup aggregatorParameters,
-                               @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
-                               @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
+                               @ChainInputResolver(AggregationChainInputResolver.class) @ExecutionOccurrence(ONCE_OR_NONE) @Alias("incrementalAggregation") @Optional IncrementalAggregationRoute incrementalAggregationRoute,
+                               @ChainInputResolver(AggregationChainInputResolver.class) @ExecutionOccurrence(ONCE_OR_NONE) @Alias("aggregationComplete") AggregationCompleteRoute onAggregationCompleteRoute,
                                RouterCompletionCallback completionCallback)
       throws ModuleException {
 
