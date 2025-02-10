@@ -17,7 +17,7 @@
 
     <!--  -->
     <!-- Migrated from mule-ee-distributions -->
-    <!-- https://github.commulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/commulesoft-emu/mule/distributions/server/AggregatorsTestCase.java#L106 -->
+    <!-- https://github.com/mulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/AggregatorsTestCase.java#L106 -->
     <!--  -->
 
     <munit:test name="sizeBasedAggregatorKeepsElementsAfterRedeploys"
@@ -49,7 +49,7 @@
 
     <!--  -->
     <!-- Migrated from mule-ee-distributions -->
-    <!-- https://github.commulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/commulesoft-emu/mule/distributions/server/AggregatorsTestCase.java#L112 -->
+    <!-- https://github.com/mulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/AggregatorsTestCase.java#L112 -->
     <!--  -->
 
     <munit:test name="groupBasedAggregatorKeepsElementsAfterRedeploys"
@@ -81,7 +81,7 @@
 
     <!--  -->
     <!-- Migrated from mule-ee-distributions -->
-    <!-- https://github.commulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/commulesoft-emu/mule/distributions/server/AggregatorsTestCase.java#L118 -->
+    <!-- https://github.com/mulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/AggregatorsTestCase.java#L118 -->
     <!--  -->
 
     <munit:test name="timeBasedAggregatorKeepsElementsAfterRedeploys"
@@ -117,7 +117,7 @@
 
     <!--  -->
     <!-- Migrated from mule-ee-distributions -->
-    <!-- https://github.commulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/commulesoft-emu/mule/distributions/server/AggregatorsTestCase.java#L126 -->
+    <!-- https://github.com/mulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/AggregatorsTestCase.java#L126 -->
     <!--  -->
 
     <munit:test name="groupBasedAggregatorKeepsElementsAfterRedeploysMultipleGroups"

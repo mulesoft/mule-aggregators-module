@@ -113,7 +113,7 @@ public class AsyncTasksAfterRestartWithQourumSystemPropertiesTestCase extends Ab
   /**
    * Migrated from mule-ee-distributions
    * <p>
-   * {@link https://github.commulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/commulesoft-emu/mule/distributions/server/AggregatorsTestCase.java#L199}
+   * {@link https://github.com/mulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/AggregatorsTestCase.java#L199}
    */
   @Test
   @Description("Async tasks are rescheduled after redeploy in timeBasedAggregator")
@@ -152,7 +152,7 @@ public class AsyncTasksAfterRestartWithQourumSystemPropertiesTestCase extends Ab
   /**
    * Migrated from mule-ee-distributions
    * <p>
-   * {@link https://github.commulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/commulesoft-emu/mule/distributions/server/AggregatorsTestCase.java#L205}
+   * {@link https://github.com/mulesoft-emu/mule-ee-distributions/blob/eebf8f83189a0666bc5e36da849aa4c0c0e41fa1/tests/src/test/java/com/mulesoft/mule/distributions/server/AggregatorsTestCase.java#L205}
    */
   @Test
   @Description("Async tasks are rescheduled after redeploy in sizeBasedAggregator")
