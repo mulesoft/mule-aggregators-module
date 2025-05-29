@@ -1,4 +1,3 @@
-
 # Maven
 target/
 
@@ -19,4 +18,13 @@ target/
 .DS_Store
 
 # Test remnants
+
+# Bin directory
+bin/
+
+# VS Code
+.vscode/
+
+# Cursor
+.cursor/
 
