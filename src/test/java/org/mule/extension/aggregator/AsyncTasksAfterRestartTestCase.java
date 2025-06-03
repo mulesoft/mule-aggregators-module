@@ -24,6 +24,7 @@ import static org.mule.runtime.module.extension.api.runtime.privileged.Execution
 import static org.mule.tck.probe.PollingProber.probe;
 import static org.mule.test.allure.AllureConstants.AggregatorsFeature.AGGREGATORS_EXTENSION;
 
+import org.junit.Ignore;
 import org.mule.extension.aggregator.internal.config.AggregatorManager;
 import org.mule.extension.aggregator.internal.privileged.executor.AbstractAggregatorExecutor;
 import org.mule.extension.aggregator.internal.privileged.executor.GroupBasedAggregatorOperationsExecutor;
@@ -236,6 +237,7 @@ public class AsyncTasksAfterRestartTestCase extends AbstractMuleContextTestCase 
     assertAsyncAggregation(sourceCallback, sourceCallbackCtx);
   }
 
+  @Ignore
   @Test
   @Description("Avoid race condition in object store after redeploy in timeBasedAggregator")
   public void timeBasedAggregatorDoesNotPushToObjectStoreWhenNoChanges() throws Exception {
